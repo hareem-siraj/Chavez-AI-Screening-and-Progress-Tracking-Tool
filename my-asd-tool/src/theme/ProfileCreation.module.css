@@ -1,0 +1,171 @@
+/* Container: flex layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+  flex-wrap: wrap; /* Ensures elements wrap in smaller screen sizes */
+}
+
+/* Sidebar: style changes */
+.sidebar {
+  background-color: #a5aab5;
+  color: #0074cc;  /* Updated font color to blue */
+  width: 20%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 20px;  /* Reduced gap between logo and sidebar items */
+}
+
+/* Sidebar items: increase size and even spacing */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  font-size: 20px;
+  margin-top: 10px;  /* Reduced top margin for tighter spacing */
+}
+
+.sidebar li {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.sidebar li .icon {
+  margin-right: 10px;
+}
+
+.sidebar li:hover,
+.sidebar .active {
+  text-decoration: underline;
+  background-color: #ccc;
+}
+
+.logout {
+  margin-top: 30px;
+  font-weight: bold;
+}
+
+/* Main content: profile form styles */
+.main {
+  background-color: #0f89d5;
+  color: white;
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-align content */
+}
+
+/* Path styling */
+.path {
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+/* Header styling */
+h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+/* Profile form: left-aligned inputs, larger size */
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 600px; /* Prevents form from stretching too wide on large screens */
+}
+
+/* Image upload: style */
+.imageUpload {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.imagePlaceholder {
+  background-color: white;
+  color: #0f89d5;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+/* Labels and inputs */
+label {
+  font-size: 20px;
+  width: 100%;
+  max-width: 500px;
+  font-weight: bold;
+}
+
+input,
+select {
+  margin-top: 10px;
+  padding: 12px;
+  width: 100%;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Save button */
+.saveButton {
+  background-color: #0074cc;
+  color: white;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 200px; /* Centered, fixed width for consistency */
+}
+
+.saveButton:hover {
+  background-color: #005fa3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  /* On small screens, reduce sidebar width and adjust form */
+  .sidebar {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .main {
+    padding: 20px;
+    align-items: flex-start; /* Align form to start */
+  }
+
+  .profileForm {
+    width: 100%;
+    max-width: none; /* Allow form to take full width */
+  }
+
+  .saveButton {
+    max-width: 100%;
+    margin-top: 20px;
+  }
+}

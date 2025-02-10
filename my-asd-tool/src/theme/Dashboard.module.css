@@ -1,0 +1,263 @@
+/* Container: flex layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+  flex-wrap: wrap; /* Ensures elements wrap in smaller screen sizes */
+}
+
+/* Left Sidebar: unchanged */
+.sidebar {
+  background-color: #a5aab5;
+  color: #0074cc; /* Updated font color to blue */
+  width: 20%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 20px; /* Reduced gap between logo and sidebar items */
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  font-size: 20px;
+  margin-top: 10px; /* Reduced top margin for tighter spacing */
+}
+
+.sidebar li {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.sidebar li .icon {
+  margin-right: 10px;
+}
+
+.sidebar li:hover,
+.sidebar .active {
+  text-decoration: underline;
+  background-color: #ccc;
+}
+
+.logout {
+  margin-top: 30px;
+  font-weight: bold;
+}
+
+/* Main Content Area */
+.main {
+  background-color: #0f89d5;
+  color: white;
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* Path styling */
+.path {
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+/* Question Section */
+.question {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px 10px 0 0;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fa3;
+  color: white;
+}
+
+button.selected {
+  background-color: #ffffff;
+  color: #0f89d5;
+  border: 2px solid #0f89d5;
+}
+
+.followUps {
+  margin-top: 20px;
+}
+
+.followUp {
+  margin-bottom: 10px;
+}
+
+.submitButton {
+  background-color: #0074cc;
+  color: white;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.submitButton:hover {
+  background-color: #005fa3;
+}
+
+/* Right Sidebar for Progress */
+.progressSidebar {
+  background-color: #eaeaea;
+  color: #333;
+  width: 20%;
+  padding: 20px;
+  border-left: 2px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.progressSidebar h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.progressSidebar ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.progressSidebar li {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: left;
+  font-size: 16px;
+}
+
+.progressSidebar .completed {
+  background-color: #c8e6c9; /* Light green for completed */
+  color: #2e7d32;
+}
+
+.progressSidebar .unanswered {
+  background-color: #ffcdd2; /* Light red for unanswered */
+  color: #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar,
+  .progressSidebar {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .progressSidebar {
+    border-left: none;
+    border-top: 2px solid #ccc;
+  }
+
+  .greeting {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .startSessionContainer {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .startSessionButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .startSessionButton:hover {
+      background-color: #0056b3;
+    }
+    
+    .sessionContainers {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+    }
+    
+    .containerBox {
+      width: 30%;
+      padding: 20px;
+      text-align: center;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .linkButton {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 15px;
+      font-size: 14px;
+      color: white;
+      background-color: #28a745;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    
+    .linkButton:hover {
+      background-color: #218838;
+    }
+    .childAvatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+    .buttonLocked {
+      opacity: 0.6;
+      pointer-events: none;
+      background-color: lightgray;
+    }
+    .videoPlaceholder {
+      border: 2px dashed gray;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }            
+}
