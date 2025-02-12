@@ -431,17 +431,16 @@ app.post("/api/save-final-score", async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    const updateQuery = `
-      UPDATE "Questionnaire"
-      SET "Final_Score" = $1
-      WHERE "QuestionnaireID" = $2 AND "Session_ID" = $3;
+    const Query = `
+      INSERT INTO "Questionnaire" ("Session_ID", "Final_Score")
+      VALUES ($1, $2)
     `;
 
-    const values = [finalScore, questionnaireID, sessionID];
-    const result = await pool.query(updateQuery, values);
+    const values = [sessionID, finalScore];
+    const result = await pool.query(Query, values);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: "No matching record found to update." });
+      return res.status(404).json({ message: "cannot insert." });
     }
 
     res.status(200).json({ message: "Final score saved successfully." });
@@ -452,57 +451,84 @@ app.post("/api/save-final-score", async (req, res) => {
 });
 
 
+// app.post("/api/save-game-data", async (req, res) => {
+//   try {
+//       const { Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
+
+//       if (!Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
+//           return res.status(400).json({ error: "Missing required fields" });
+//       }
+
+//       const query = `
+//           INSERT INTO BalloonGame (Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps)
+//           VALUES ($1, $2, $3, $4, $5, $6)
+//           RETURNING index
+//       `;
+
+//       // 🔹 Ensure you're passing 7 values
+//       const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps]);
+
+//       res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
+//   } catch (error) {
+//       console.error("Error saving game data:", error);
+//       res.status(500).json({ error: "Internal server error" });
+//   }
+// }
+
+// );
+
 app.post("/api/save-game-data", async (req, res) => {
   try {
-      const { Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
+    const { SessionID, Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
 
-      if (!Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
-          return res.status(400).json({ error: "Missing required fields" });
-      }
+    // Ensure all required fields are present
+    if (!SessionID || !Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-      const query = `
-          INSERT INTO BalloonGame (Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING index
-      `;
+    const level = 1; // Hardcoded level
 
-      // 🔹 Ensure you're passing 7 values
-      const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps]);
+    const query = `
+      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING index
+    `;
 
-      res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
+    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID]);
+
+    res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
   } catch (error) {
-      console.error("Error saving game data:", error);
-      res.status(500).json({ error: "Internal server error" });
+    console.error("Error saving game data:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
-);
 
 app.post("/api/save-game-data2", async (req, res) => {
   try {
-      const { Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps} = req.body;
+    const { SessionID, Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
 
-      if (!Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
-          return res.status(400).json({ error: "Missing required fields" });
-      }
+    // Ensure all required fields are present
+    if (!SessionID || !Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-      const query = `
-          INSERT INTO BalloonGame (Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING index
-      `;
+    const level = 2; // Hardcoded level
 
-      // 🔹 Ensure you're passing 7 values
-      const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps]);
+    const query = `
+      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING index
+    `;
 
-      res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
+    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID]);
+
+    res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
   } catch (error) {
-      console.error("Error saving game data:", error);
-      res.status(500).json({ error: "Internal server error" });
+    console.error("Error saving game data:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-}
-
-);
+});
 
 // Start the server
 app.listen(port, () => {
