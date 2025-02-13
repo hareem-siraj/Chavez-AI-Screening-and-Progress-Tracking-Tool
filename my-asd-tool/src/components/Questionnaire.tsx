@@ -3,12 +3,13 @@ import {
   Box, Button, Typography, List, ListItem, ListItemButton, 
   ListItemIcon, ListItemText, Divider
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment} from "@mui/icons-material";
+import { Home, Person, QuestionAnswer, Assessment, Logout} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setFinalScore } from "./redux/store"; // Import the action
 import styles from "../theme/Questions.module.css"; // Import custom styles
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const QuestionLogic = require("../components/questionnaireLogic");
 
@@ -510,12 +511,25 @@ const evaluateCurrentQuestion = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/report">
+              <ListItemButton component={Link} to="/reports">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/sign-in">
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
      {/* Main Content */}
@@ -602,25 +616,28 @@ const evaluateCurrentQuestion = () => {
     </Box>
 
     {/* Progress Sidebar */}
-<Box className="progress-sidebar">
-  <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-    Progress
-  </Typography>
-  <List>
-    {progress.map((q, i) => (
-      <ListItem key={i} disablePadding>
-        <Button
-          variant="contained"
-          disableElevation
-          disabled
-          className={`progress-button ${q.answered ? "answered" : ""}`} // Dynamically add class
-        >
-          Question {i + 1}
-        </Button>
-      </ListItem>
-    ))}
-  </List>
-</Box>
+
+    <Box className="progress-sidebar">
+      <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+        Progress
+      </Typography>
+      <List>
+        {progress.map((q, i) => (
+          <ListItem key={i} disablePadding>
+            <Button
+              variant="contained"
+              disableElevation
+              disabled
+              className={`progress-button ${q.answered ? "answered" : ""}`}
+              sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+            >
+              Question {i + 1}
+              {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />} {/* Add checkmark if answered */}
+            </Button>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
 
     </Box>
   );

@@ -25,7 +25,7 @@ const GamifiedAssesments: React.FC = () => {
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
       {/* Sidebar */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column" justifyContent="space-between">
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -34,66 +34,48 @@ const GamifiedAssesments: React.FC = () => {
           <List>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon>
-                  <Home sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/profile-selection">
-                <ListItemIcon>
-                  <Person sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Profile" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon>
-                  <QuestionAnswer sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Questionnaire" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon>
-                  <Assessment sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Gamified Assessments" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/settings">
-                <ListItemIcon>
-                  <Settings sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Settings" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+              <ListItemButton component={Link} to="/reports">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
-        </Box>
-        <Box>
+
           <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/sign-in">
-                <ListItemIcon>
-                  <Logout sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/documentation">
-                <ListItemIcon>
-                  <HelpOutline sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Documentation" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/sign-in">
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
 

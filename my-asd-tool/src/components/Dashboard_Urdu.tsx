@@ -3,7 +3,7 @@ import {
   Box, Button, Typography, Avatar, List, ListItem, ListItemButton, 
   ListItemIcon, ListItemText, Divider, Grid
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, CheckCircle, Cancel} from "@mui/icons-material";
+import { Home, Person, QuestionAnswer, Assessment, CheckCircle, Cancel, Logout} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 // import { setSessionIds } from "../components/redux/actions";
@@ -92,7 +92,7 @@ const DashboardUrdu: React.FC = () => {
     <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
       
       {/* Sidebar */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -102,34 +102,47 @@ const DashboardUrdu: React.FC = () => {
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/dashboard-urdu">
                 <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="ڈیش بورڈ" sx={{ color: "#003366" }} />
+                <ListItemText primary="ڈیش بورڈ" primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/create-profile-urdu">
+              <ListItemButton component={Link} to="/profile-selection-urdu">
                 <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="پروفائل" sx={{ color: "#003366" }} />
+                <ListItemText primary="پروفائل"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/questionnaire-urdu">
                 <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="سوالنامہ"  sx={{ color: "#003366" }} />
+                <ListItemText primary="سوالنامہ" primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection-urdu">
+              <ListItemButton component={Link} to="/game-selection">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="گیمیفائیڈ اسیسمنٹس" sx={{ color: "#003366" }}/>
+                <ListItemText primary="گیمیفائیڈ اسیسمنٹس"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/report">
+              <ListItemButton component={Link} to="/reports-urdu">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="رپورٹس" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+            <List>
+              <ListItem disablePadding>
+              <ListItemButton component={Link} to="/sign-in-urdu">
+                <ListItemIcon>
+                  <Logout sx={{ color: "#003366" }} />
+                </ListItemIcon>
+                <ListItemText primary="لاگ آؤٹ"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
 

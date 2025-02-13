@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import styles from "../theme/ProfileSettings.module.css";
 import logo from "../assets/logo.png"; // Adjust the path based on your project structure
+// import React from "react";
+import { Box, Typography, Button} from "@mui/material";
+import { Home, Assessment } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider} from "@mui/material";
+import { Person, QuestionAnswer, Settings, Logout} from "@mui/icons-material";
 
 const ProfileSettings: React.FC = () => {
   const [profile, setProfile] = useState({
@@ -45,37 +52,62 @@ const ProfileSettings: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <div className={styles.logo}>
-          <img src={logo} alt="Logo" style={{ width: "160px", height: "80px" }} />
-        </div>
-        <ul>
-          <li>
-            <span className={styles.icon}>🏠</span> Autism Guide
-          </li>
-          <li>
-            <span className={styles.icon}>📊</span> Dashboard
-          </li>
-          <li className={styles.active}>
-            <span className={styles.icon}>👤</span> Profile
-          </li>
-          <li>
-            <span className={styles.icon}>📄</span> Questionnaire
-          </li>
-          <li>
-            <span className={styles.icon}>🎮</span> Gamified Assessments
-          </li>
-          <li>
-            <span className={styles.icon}>📈</span> Reports
-          </li>
-          <li>
-            <span className={styles.icon}>⚙️</span> Settings
-          </li>
-          <li className={styles.logout}>
-            <span className={styles.icon}>🚪</span> Logout
-          </li>
-        </ul>
-      </div>
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+        <Box>
+          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
+            Chavez
+          </Typography>
+          <Divider />
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/dashboard">
+                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/profile-selection">
+                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/questionnaire">
+                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/game-selection">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/reports">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+          <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/sign-in">
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
+        </Box>
+      </Box>
+
+
+
       <div className={styles.main}>
         <div className={styles.path}>Pages / Edit Profile</div>
         <h1>Create a profile for each child to track personalized assessments and progress</h1>

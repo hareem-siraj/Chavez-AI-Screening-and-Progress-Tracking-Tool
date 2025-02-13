@@ -3,7 +3,7 @@ import {
   Box, Button, Typography, Avatar, List, ListItem, ListItemButton, 
   ListItemIcon, ListItemText, Divider, Grid
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, CheckCircle, Cancel} from "@mui/icons-material";
+import { Home, Person, QuestionAnswer, Assessment, CheckCircle, Cancel, Logout} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 // import { setSessionIds } from "../components/redux/actions";
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
     <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
       
       {/* Sidebar */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/create-profile">
+              <ListItemButton component={Link} to="/profile-selection">
                 <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Profile" sx={{ color: "#003366" }} />
               </ListItemButton>
@@ -124,12 +124,25 @@ const Dashboard: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/report">
+              <ListItemButton component={Link} to="/reports">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/sign-in">
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import {useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, TextField, Select, MenuItem, InputLabel, FormControl, CircularProgress, Divider, Grid, List, ListItem, ListItemButton, ListItemIcon } from "@mui/material";
+import { Box, Button, Typography, TextField, Select, MenuItem, InputLabel, FormControl, CircularProgress, Divider, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { Home, Person, QuestionAnswer, Assessment, Logout} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
@@ -66,7 +66,7 @@ const ProfileCreation: React.FC = () => {
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
       {/* Sidebar */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -76,39 +76,47 @@ const ProfileCreation: React.FC = () => {
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/dashboard">
                 <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <Typography sx={{ color: "#003366" }}>Dashboard</Typography>
+                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/profile-selection">
                 <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                <Typography sx={{ color: "#003366" }}>Profile</Typography>
+                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/questionnaire">
                 <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <Typography sx={{ color: "#003366" }}>Questionnaire</Typography>
+                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/game-selection">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <Typography sx={{ color: "#003366" }}>Gamified Assessments</Typography>
+                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
-          </List>
-        </Box>
-        <Box>
-          <Divider />
-          <List>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/sign-in">
-                <ListItemIcon><Logout sx={{ color: "#003366" }} /></ListItemIcon>
-                <Typography sx={{ color: "#003366" }}>Logout</Typography>
+              <ListItemButton component={Link} to="/reports">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/sign-in">
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
 

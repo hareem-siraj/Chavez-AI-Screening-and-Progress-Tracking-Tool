@@ -42,7 +42,7 @@ import Flashcard from './components/flashcard';
 import Balloon from './components/balloon';
 import Gamefollow from 'components/follow';
 import Human from 'components/human';
-// import Puzzle from 'components/puzzle';
+import Puzzle from 'components/puzzle';
 
 import store from './components/redux/store';  // Import the Redux store
 
@@ -79,7 +79,7 @@ const App: React.FC = () => {
             <Route path="/balloon" element={<Balloon/>} />
             <Route path="/human" element={<Human/>} />
             <Route path='/questionnaire-urdu' element={<QuestionComponent/>} />
-            {/* <Route path="/puzzle" element={<Puzzle/>} />  */}
+            <Route path="/puzzle" element={<Puzzle/>} /> 
           </Routes>
         </Router>
       </ThemeProvider>

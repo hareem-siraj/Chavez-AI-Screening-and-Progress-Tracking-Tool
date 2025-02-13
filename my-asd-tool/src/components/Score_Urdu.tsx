@@ -15,7 +15,8 @@ const FinalScoreUrdu: React.FC = () => {
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
       {/* Sidebar */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column" justifyContent="space-between">
+
+     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -24,59 +25,48 @@ const FinalScoreUrdu: React.FC = () => {
           <List>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/dashboard-urdu">
-                <ListItemIcon>
-                  <Home sx={{ color: "#003366" }} />
-                </ListItemIcon>
+                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="ڈیش بورڈ" primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/profile-selection-urdu">
-                <ListItemIcon>
-                  <Person sx={{ color: "#003366" }} />
-                </ListItemIcon>
+                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="پروفائل"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon>
-                  <QuestionAnswer sx={{ color: "#003366" }} />
-                </ListItemIcon>
+              <ListItemButton component={Link} to="/questionnaire-urdu">
+                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="سوالنامہ" primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon>
-                  <Assessment sx={{ color: "#003366" }} />
-                </ListItemIcon>
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="گیمیفائیڈ اسیسمنٹس"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/settings">
-                <ListItemIcon>
-                  <Settings sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="سعتتینگس" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+              <ListItemButton component={Link} to="/reports-urdu">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="رپورٹس" sx={{ color: "#003366" }}/>
               </ListItemButton>
             </ListItem>
           </List>
-        </Box>
-        <Box>
+
           <Divider />
-          <List>
-            <ListItem disablePadding>
+            <List>
+              <ListItem disablePadding>
               <ListItemButton component={Link} to="/sign-in-urdu">
                 <ListItemIcon>
                   <Logout sx={{ color: "#003366" }} />
                 </ListItemIcon>
                 <ListItemText primary="لاگ آؤٹ"  primaryTypographyProps={{ sx: { color: "#003366" } }} />
-              </ListItemButton>
-            </ListItem>
-
-          </List>
+                </ListItemButton>
+              </ListItem>
+            </List>
+            
         </Box>
       </Box>
 
