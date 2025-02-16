@@ -451,32 +451,6 @@ app.post("/api/save-final-score", async (req, res) => {
 });
 
 
-// app.post("/api/save-game-data", async (req, res) => {
-//   try {
-//       const { Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
-
-//       if (!Timestamp || SessionDuration == null || CorrectTaps == null || MissedBalloons == null || IncorrectClicks == null || TotalTaps == null) {
-//           return res.status(400).json({ error: "Missing required fields" });
-//       }
-
-//       const query = `
-//           INSERT INTO BalloonGame (Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps)
-//           VALUES ($1, $2, $3, $4, $5, $6)
-//           RETURNING index
-//       `;
-
-//       // 🔹 Ensure you're passing 7 values
-//       const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps]);
-
-//       res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
-//   } catch (error) {
-//       console.error("Error saving game data:", error);
-//       res.status(500).json({ error: "Internal server error" });
-//   }
-// }
-
-// );
-
 app.post("/api/save-game-data", async (req, res) => {
   try {
     const { SessionID, Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps } = req.body;
@@ -486,15 +460,43 @@ app.post("/api/save-game-data", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    console.log("Received SessionID:", SessionID);
+
+
+    // Query to get ChildID from the Session table
+    const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+    const childResult = await pool.query(childQuery, [SessionID]);
+
+    console.log("Session Query Result:", childResult.rows);
+
+    if (childResult.rows.length === 0) {
+      return res.status(404).json({ error: "SessionID not found" });
+    }
+
+    const ChildID = childResult.rows[0]["ChildID"]; // ✅ Use correct case
+
+    console.log("Retrieved ChildID:", ChildID);
+
+    // Query to get Age and Gender from the Child table
+    console.log("Querying Child table for ChildID:", ChildID);
+    const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+    const childDetailsResult = await pool.query(childDetailsQuery, [ChildID]);
+
+    console.log("Child Query Result:", childDetailsResult.rows);
+
+
+    const { Age, Gender } = childDetailsResult.rows[0];
+
     const level = 1; // Hardcoded level
 
+    // Insert game data into the database
     const query = `
-      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID", "Age", "Gender")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING index
     `;
 
-    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID]);
+    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID, Age, Gender]);
 
     res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
   } catch (error) {
@@ -502,7 +504,6 @@ app.post("/api/save-game-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.post("/api/save-game-data2", async (req, res) => {
   try {
@@ -513,15 +514,43 @@ app.post("/api/save-game-data2", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    console.log("Received SessionID:", SessionID);
+
+
+    // Query to get ChildID from the Session table
+    const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+    const childResult = await pool.query(childQuery, [SessionID]);
+
+    console.log("Session Query Result:", childResult.rows);
+
+    if (childResult.rows.length === 0) {
+      return res.status(404).json({ error: "SessionID not found" });
+    }
+
+    const ChildID = childResult.rows[0]["ChildID"]; // ✅ Use correct case
+
+    console.log("Retrieved ChildID:", ChildID);
+
+    // Query to get Age and Gender from the Child table
+    console.log("Querying Child table for ChildID:", ChildID);
+    const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+    const childDetailsResult = await pool.query(childDetailsQuery, [ChildID]);
+
+    console.log("Child Query Result:", childDetailsResult.rows);
+
+
+    const { Age, Gender } = childDetailsResult.rows[0];
+
     const level = 2; // Hardcoded level
 
+    // Insert game data into the database
     const query = `
-      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO balloongame (timestamp, sessionDuration, correcttaps, missedballoons, incorrectclicks, totaltaps, level, "SessionID", "Age", "Gender")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING index
     `;
 
-    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID]);
+    const result = await pool.query(query, [Timestamp, SessionDuration, CorrectTaps, MissedBalloons, IncorrectClicks, TotalTaps, level, SessionID, Age, Gender]);
 
     res.status(200).json({ message: "Game data saved successfully", index: result.rows[0].index });
   } catch (error) {
