@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile-selection">
+              <ListItemButton component={Link} to="/profile">
                 <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Profile" sx={{ color: "#003366" }} />
               </ListItemButton>
