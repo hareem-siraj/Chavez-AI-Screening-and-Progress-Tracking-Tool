@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Grid, Typography, Avatar} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import backgroundImage from "../assets/bg.jpeg";
 import logo from "../assets/logo.png";
@@ -8,6 +8,21 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserId, selectChild } from "../components/redux/store";
 import { useNavigate } from 'react-router-dom';
+
+// Avatar images mapping
+import avatar1 from "../assets/avatars/1.png";
+import avatar2 from "../assets/avatars/2.png";
+import avatar3 from "../assets/avatars/3.png";
+import avatar4 from "../assets/avatars/4.png";
+import avatar5 from "../assets/avatars/5.png";
+
+const avatars = [
+  { id: 1, src: avatar1 },
+  { id: 2, src: avatar2 },
+  { id: 3, src: avatar3 },
+  { id: 4, src: avatar4 },
+  { id: 5, src: avatar5 }
+];
 
 const ProfileSelection: React.FC = () => {
   const [children, setChildren] = useState<any[]>([]);
@@ -93,7 +108,13 @@ const ProfileSelection: React.FC = () => {
                 }}
                 onClick={() => handleSelectChild(Child.ChildID)}
               >
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>{Child.ChildID}</Typography>
+              <Avatar
+                  src={Child.Avatar ? avatars.find(a => a.id === Number(Child.Avatar))?.src : ""}
+                  sx={{ width: 60, height: 60, bgcolor: "#ffffff" }}
+                />
+                <Typography variant="body1" sx={{ fontWeight: "bold", mt: 1 }}>
+                  {Child.Name}
+                </Typography>
               </Box>
             </Grid>
           ))}

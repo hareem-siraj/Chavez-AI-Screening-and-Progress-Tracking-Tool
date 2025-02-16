@@ -378,12 +378,18 @@ app.get("/api/get-child-profile", async (req, res) => {
   const { ChildID } = req.query; // Get ChildID from the request query
 
   try {
-    const query = `SELECT * FROM "ChildProfile" WHERE "ChildID" = $1;`;
+    if (!ChildID) {
+      return res.status(400).json({ message: "ChildID is required" });
+    }
+
+    const query = `SELECT * FROM "Child" WHERE "ChildID" = $1;`;
     const result = await pool.query(query, [ChildID]);
 
     if (result.rows.length > 0) {
+      console.log("Returning Child Profile:", result.rows[0]); // Debugging log
       res.json(result.rows[0]); // Send child profile
     } else {
+      console.warn("No child profile found in database!");
       res.status(404).json({ message: "Child profile not found" });
     }
   } catch (error) {
@@ -391,6 +397,7 @@ app.get("/api/get-child-profile", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 app.post("/api/save-game-data2", async (req, res) => {

@@ -9,6 +9,20 @@ import { useSelector, useDispatch } from "react-redux";
 // import { setSessionIds } from "../components/redux/actions";
 import { setSessionIds } from "./redux/store";
 import axios from "axios";
+import avatar1 from "../assets/avatars/1.png";
+import avatar2 from "../assets/avatars/2.png";
+import avatar3 from "../assets/avatars/3.png";
+import avatar4 from "../assets/avatars/4.png";
+import avatar5 from "../assets/avatars/5.png";
+
+const avatars = [
+  { id: 1, src: avatar1 },
+  { id: 2, src: avatar2 },
+  { id: 3, src: avatar3 },
+  { id: 4, src: avatar4 },
+  { id: 5, src: avatar5 }
+];
+
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
@@ -16,6 +30,7 @@ const Dashboard: React.FC = () => {
   const sessionData = useSelector((state: any) => state.sessionData); 
   const [questionnaireCompleted, setQuestionnaireCompleted] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [childProfile, setChildProfile] = useState<any>(null);
 
   useEffect(() => {
     const storedStatus = localStorage.getItem("questionnaireCompleted");
@@ -24,9 +39,23 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (selectedChildId) {
+      fetchChildProfile(selectedChildId);
       fetchSessionData(selectedChildId);
     }
   }, [selectedChildId]);
+
+  const fetchChildProfile = async (childId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/get-child-profile`, {
+        params: { ChildID: childId }
+      });
+      if (response.data) {
+        setChildProfile(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching child profile:", error);
+    }
+  };
 
   const fetchSessionData = async (childId: string) => {
     try {
@@ -156,13 +185,32 @@ const Dashboard: React.FC = () => {
 
         <Grid container spacing={3}>
 
-          {/* Child Profile Card */}
-          <Grid item xs={12} md={6}>
+
+           {/* Child Profile Card
+           <Grid item xs={12} md={6}>
             <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
               <Avatar sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }}>C</Avatar>
               <Box ml={3}>
                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
-                  {selectedChildId ? `Kid ${selectedChildId}` : "No Child Selected"}
+                  {selectedChildId ? Kid ${selectedChildId} : "No Child Selected"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#666" }}>
+                  Track and manage your child’s assessment journey here.
+                </Typography>
+              </Box>
+            </Box>
+          </Grid> */}
+
+          {/* Child Profile Card */}
+          <Grid item xs={12} md={6}>
+            <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
+            <Avatar 
+                src={childProfile && childProfile.Avatar ? avatars.find(a => a.id === childProfile.Avatar)?.src : ""}
+                sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }} 
+              />
+              <Box ml={3}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
+                  {childProfile ? childProfile.Name : "No Child Selected"}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#666" }}>
                   Track and manage your child’s assessment journey here.
