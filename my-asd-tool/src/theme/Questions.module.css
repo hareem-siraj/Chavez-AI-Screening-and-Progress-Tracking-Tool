@@ -4,15 +4,17 @@ body {
   background-color: #F5F9FF;
 }
 
-/* Main Page Layout */
 .progress-sidebar {
-  width: 250px;
+  width: 250px; /* Ensures fixed width */
+  min-width: 250px; /* Prevents shrinking */
+  max-width: 250px; /* Prevents expanding */
   background-color: #F0F4FF;
   padding: 16px;
   border-left: 2px solid #E0E0E0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-shrink: 0; /* Prevents resizing */
 }
 
 /* Updated Question Box */
@@ -104,30 +106,39 @@ body {
   cursor: not-allowed;
 }
 
-/* Progress Sidebar */
+/* Progress Button Styling */
 .progress-button {
   width: 100%;
-  justify-content: center;
+  justify-content: space-between;
   border: 2px solid #4A90E2;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
   font-weight: bold;
   text-transform: none;
-  padding: 12px 16px;
+  padding: 14px 20px; /* Increased padding */
   font-size: 16px;
-  border-radius: 12px;
+  border-radius: 16px; /* Rounded corners */
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   cursor: default;
   background-color: white;
   color: #003366;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between text & checkmark */
+  margin-bottom: 12px; /* Increased spacing between items */
 }
 
 /* Change Progress Button Color When Answered */
 .progress-button.answered {
   background-color: #4CAF50 !important; /* Green */
-  color: white !important; /* White text */
+  color: white !important;
   border: 2px solid #4CAF50 !important;
 }
 
+/* Checkmark Icon Styling */
+.progress-button .check-icon {
+  color: white;
+  font-size: 20px; /* Slightly larger checkmark */
+}
 
 
   

@@ -493,7 +493,7 @@ const evaluateCurrentQuestion = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile-selection">
+              <ListItemButton component={Link} to="/profile">
                 <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Profile" sx={{ color: "#003366" }} />
               </ListItemButton>
@@ -617,7 +617,7 @@ const evaluateCurrentQuestion = () => {
 
     {/* Progress Sidebar */}
 
-    <Box className="progress-sidebar">
+    <Box className="progress-sidebar" sx={{ width: "200px", flexShrink: 0 }}>
       <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
         Progress
       </Typography>
@@ -629,7 +629,7 @@ const evaluateCurrentQuestion = () => {
               disableElevation
               disabled
               className={`progress-button ${q.answered ? "answered" : ""}`}
-              sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+              sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",minWidth: "180px" }}
             >
               Question {i + 1}
               {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />} {/* Add checkmark if answered */}

@@ -44,6 +44,8 @@ import Gamefollow from 'components/follow';
 import Human from 'components/human';
 import Puzzle from 'components/puzzle';
 
+import ChildProfile from 'components/profile';
+
 import store from './components/redux/store';  // Import the Redux store
 
 const App: React.FC = () => {
@@ -80,6 +82,7 @@ const App: React.FC = () => {
             <Route path="/human" element={<Human/>} />
             <Route path='/questionnaire-urdu' element={<QuestionComponent/>} />
             <Route path="/puzzle" element={<Puzzle/>} /> 
+            <Route path="/profile" element={<ChildProfile />} />
           </Routes>
         </Router>
       </ThemeProvider>

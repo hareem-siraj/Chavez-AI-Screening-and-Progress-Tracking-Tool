@@ -1,123 +1,3 @@
-// import express from "express";
-// import pkg from "pg"; // Import pg module
-// import dotenv from "dotenv";
-// import cors from "cors"; // Import cors
-
-
-// dotenv.config();
-
-// // 
-// const { Client } = pkg;
-// const app = express();
-// const port = 5001;
-
-// // Enable CORS
-// app.use(cors({
-//   origin: "http://localhost:3000",
-//   methods: ["GET", "POST"],
-//   credentials: true
-// }));
-
-// app.use(express.json()); // Middleware to parse JSON
-
-// const client = new Client(process.env.DATABASE_URL);
-
-// (async () => {
-//   await client.connect();
-//   try {
-//     const results = await client.query("SELECT NOW()");
-//     console.log(results);
-//   } catch (err) {
-//     console.error("error executing query:", err);
-//   } finally {
-//     client.end();
-//   }
-// })();
-
-// // Create User Account Route
-// app.post("/api/create-account", async (req, res) => {
-//   const { name, email, userId, password } = req.body;
-
-//   console.log("Received request to create account:", req.body);
-
-//   try {
-//     if (!name || !email || !userId || !password) {
-//       return res.status(400).json({ message: "All fields are required" });
-//     }
-
-//     // Check if the email already exists
-//     const emailCheckQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
-//     const emailCheckResult = await client.query(emailCheckQuery, [email]);
-//     if (emailCheckResult.rows.length > 0) {
-//       return res.status(400).json({ message: "Email already exists" });
-//     }
-
-//     // Check if the userId already exists
-//     const userIdCheckQuery = 'SELECT * FROM "User" WHERE "UserID" = $1';
-//     const userIdCheckResult = await client.query(userIdCheckQuery, [userId]);
-//     if (userIdCheckResult.rows.length > 0) {
-//       return res.status(400).json({ message: "UserID already exists" });
-//     }
-
-//     // Insert new user into CockroachDB
-//     const insertQuery = `
-//       INSERT INTO "User" ("UserID", "Name", "Email", "Password", "Role")
-//       VALUES ($1, $2, $3, $4, $5) RETURNING *;
-//     `;
-//     const values = [userId, name, email, password, "user"]; // Default role is "user"
-//     const result = await client.query(insertQuery, values);
-
-//     // Exclude password from response
-//     const createdUser = result.rows[0];
-//     delete createdUser.Password;
-
-//     res.status(201).json(createdUser);
-//   } catch (error) {
-//     console.error("❌ Error inserting user:", error);
-//     res.status(500).json({ message: "Error creating account" });
-//   }
-// });
-
-// // ✅ Fix SQL syntax for login query
-// app.post("/api/login", async (req, res) => {
-//   const { Email, Password } = req.body;
-
-//   try {
-//     if (!Email || !Password) {
-//       return res.status(400).json({ message: "Email and password are required" });
-//     }
-
-//     // ✅ Fix missing quotes in the SQL query
-//     const query = 'SELECT * FROM "User" WHERE "Email" = $1';
-//     const result = await client.query(query, [Email]);
-
-//     if (result.rows.length === 0) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const user = result.rows[0];
-
-//     // ✅ Compare passwords securely (store hashed passwords in production)
-//     if (user.Password !== Password) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-
-//     delete user.Password; // Remove password from response
-//     res.status(200).json(user);
-//   } catch (error) {
-//     console.error("Error logging in user:", error);
-//     res.status(500).json({ message: "Error during login" });
-//   }
-// });
-
-// // Start Express server
-// app.listen(port, () => {
-//   console.log(`🚀 Server running at http://localhost:${port}`);
-// });
-
-
-
-
 import express from "express";
 import pkg from "pg"; // Default import
 import dotenv from "dotenv";
@@ -149,16 +29,6 @@ const pool = new Pool({
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
 });
-
-
-// const transporter = nodemailer.createTransport(
-//   nodemailerMailjetTransport({
-//     auth: {
-//       apiKey: process.env.MAILJET_API_KEY, // Mailjet API Key
-//       apiSecret: process.env.MAILJET_API_SECRET, // Mailjet API Secret
-//     },
-//   })
-// );
 
 
 app.post("/api/create-account", async (req, res) => {
@@ -307,20 +177,20 @@ app.get("/api/children/:UserID", async (req, res) => {
 
 // Updated endpoint for profile creation
 app.post("/api/save-child-profile", async (req, res) => {
-  const { ChildID, Name, Gender, Age, UserID } = req.body;
+  const { ChildID, Name, Gender, Age, UserID, Avatar } = req.body; // Ensure Avatar is included
 
   try {
     // Check if all necessary fields are provided
-    if (!ChildID || !Name || !Gender || !Age || !UserID) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!ChildID || !Name || !Gender || !Age || !UserID || Avatar === undefined) {
+      return res.status(400).json({ message: "All fields are required, including Avatar" });
     }
 
     // Insert new child profile into the database
     const insertQuery = `
-      INSERT INTO "Child" ("ChildID", "UserID", "Name", "Age", "Gender", "ASDProbability")
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+      INSERT INTO "Child" ("ChildID", "UserID", "Name", "Age", "Gender", "Avatar", "ASDProbability")
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
     `;
-    const values = [ChildID, UserID, Name, Age, Gender, null]; // ASDProbability is null for now
+    const values = [ChildID, UserID, Name, Age, Gender, Avatar, null]; // ASDProbability is null for now
     const result = await pool.query(insertQuery, values);
 
     // Send response with the newly created child profile
@@ -330,6 +200,7 @@ app.post("/api/save-child-profile", async (req, res) => {
     res.status(500).json({ message: "Error saving child profile" });
   }
 });
+
 
 
 // Utility function to generate unique random IDs
@@ -504,6 +375,25 @@ app.post("/api/save-game-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.get("/api/get-child-profile", async (req, res) => {
+  const { ChildID } = req.query; // Get ChildID from the request query
+
+  try {
+    const query = `SELECT * FROM "ChildProfile" WHERE "ChildID" = $1;`;
+    const result = await pool.query(query, [ChildID]);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]); // Send child profile
+    } else {
+      res.status(404).json({ message: "Child profile not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching child profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 app.post("/api/save-game-data2", async (req, res) => {
   try {
