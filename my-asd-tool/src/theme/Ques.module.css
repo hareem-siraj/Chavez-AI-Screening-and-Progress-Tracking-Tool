@@ -1,0 +1,252 @@
+/* Container: flex layout */
+.container {
+    display: flex;
+    min-height: 100vh;
+    flex-wrap: wrap; /* Ensures elements wrap in smaller screen sizes */
+  }
+  
+  /* Left Sidebar: unchanged */
+  .sidebar {
+    background-color: #a5aab5;
+    color: #0074cc; /* Updated font color to blue */
+    width: 20%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  
+  .sidebar .logo {
+    text-align: center;
+    margin-bottom: 20px; /* Reduced gap between logo and sidebar items */
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    font-size: 20px;
+    margin-top: 10px; /* Reduced top margin for tighter spacing */
+  }
+  
+  .sidebar li {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 10px;
+  }
+  
+  .sidebar li .icon {
+    margin-right: 10px;
+  }
+  
+  .sidebar li:hover,
+  .sidebar .active {
+    text-decoration: underline;
+    background-color: #ccc;
+  }
+  
+  .logout {
+    margin-top: 30px;
+    font-weight: bold;
+  }
+  
+  /* Main Content Area */
+  .main {
+    background-color: #0f89d5;
+    color: white;
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  
+  /* Path styling */
+  .path {
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  /* Question Section */
+  .question {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    margin: 10px 10px 0 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #005fa3;
+    color: white;
+  }
+  
+  button.selected {
+    background-color: #ffffff;
+    color: #0f89d5;
+    border: 2px solid #0f89d5;
+  }
+  
+  .followUps {
+    margin-top: 20px;
+  }
+  
+  .followUp {
+    margin-bottom: 10px;
+  }
+  
+  .submitButton {
+    background-color: #0074cc;
+    color: white;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  .submitButton:hover {
+    background-color: #005fa3;
+  }
+  
+  /* Right Sidebar for Progress */
+  .progressSidebar {
+    background-color: #eaeaea;
+    color: #333;
+    width: 20%;
+    padding: 20px;
+    border-left: 2px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .progressSidebar h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .progressSidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .progressSidebar li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 16px;
+  }
+  
+  .progressSidebar .completed {
+    background-color: #c8e6c9; /* Light green for completed */
+    color: #2e7d32;
+  }
+  
+  .progressSidebar .unanswered {
+    background-color: #ffcdd2; /* Light red for unanswered */
+    color: #c62828;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+  
+    .sidebar,
+    .progressSidebar {
+      width: 100%;
+      padding: 10px;
+    }
+  
+    .main {
+      padding: 20px;
+    }
+  
+    .progressSidebar {
+      border-left: none;
+      border-top: 2px solid #ccc;
+    }
+  }
+  
+  .recentSession {
+    background-color: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .recentSession h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+  }
+  .recentSession p {
+    margin: 5px 0;
+    font-size: 1em;
+    color: #555;
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .main {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .sidebar {
+    width: 250px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-left: 1px solid #ccc;
+  }
+  
+  .sidebar h3 {
+    margin-bottom: 15px;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+  
+  .sidebar .current {
+    background-color: #ffecb3;
+  }
+  
+  .sidebar .answered {
+    background-color: #c8e6c9;
+  }
+  
+  .sidebar .unanswered {
+    background-color: #ffcdd2;
+  }
+  

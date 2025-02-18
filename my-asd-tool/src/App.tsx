@@ -29,6 +29,7 @@ import FinalScore from './components/Score';
 import FinalScoreUrdu from './components/Score_Urdu';
 
 import Questions from './components/Questionnaire';
+import QC from './components/Questionnaire_Ammar';
 import QuestionComponent from 'components/Questionnaire_Urdu';
 
 import Report from './components/Report';
@@ -83,6 +84,9 @@ const App: React.FC = () => {
             <Route path='/questionnaire-urdu' element={<QuestionComponent/>} />
             <Route path="/puzzle" element={<Puzzle/>} /> 
             <Route path="/profile" element={<ChildProfile />} />
+
+            
+            <Route path='/qc' element={<QC/>} />
           </Routes>
         </Router>
       </ThemeProvider>

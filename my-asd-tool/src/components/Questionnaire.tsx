@@ -16,7 +16,7 @@ const QuestionLogic = require("../components/questionnaireLogic");
 type FollowUps = { yes: string[]; no: string[]; [key: string]: string[] };
 type Question = { id: number; text: string; followUps: FollowUps };
 
-const QuestionComponent: React.FC = () => {
+const Questions: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [progress, setProgress] = useState<
@@ -643,6 +643,6 @@ const evaluateCurrentQuestion = () => {
   );
 };
 
-export default QuestionComponent;
+export default Questions;
 
 

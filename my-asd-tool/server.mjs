@@ -456,6 +456,39 @@ app.post("/api/save-game-data2", async (req, res) => {
   }
 });
 
+// Endpoint to receive speech analysis data
+app.post("/api/save-audio-data", async (req, res) => {
+  try {
+    const { SessionID, MFCC_Mean, ResponseLatency, SpeechConfidence, SpeechOnsetDelay, EcholaliaScore, Prediction, Timestamp } = req.body;
+
+    if (!SessionID || !Timestamp) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    console.log("Received audio data for SessionID:", SessionID);
+
+    // Insert into SpeechData table
+    const speechDataQuery = `
+      INSERT INTO "SpeechData" ("SessionID", "MFCC_Mean", "ResponseLatency", "SpeechConfidence", "SpeechOnsetDelay", "EcholaliaScore", "Timestamp")
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `;
+    await pool.query(speechDataQuery, [SessionID, MFCC_Mean, ResponseLatency, SpeechConfidence, SpeechOnsetDelay, EcholaliaScore, Timestamp]);
+
+    // Insert into SpeechAnalysis table
+    const analysisQuery = `
+      INSERT INTO "SpeechAnalysis" ("SessionID", "PredictionLabel", "Timestamp")
+      VALUES ($1, $2, $3)
+    `;
+    await pool.query(analysisQuery, [SessionID, Prediction, Timestamp]);
+
+    res.status(200).json({ message: "Audio data saved successfully" });
+  } catch (error) {
+    console.error("Error saving audio data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
