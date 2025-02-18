@@ -488,6 +488,190 @@ app.post("/api/save-audio-data", async (req, res) => {
   }
 });
 
+app.post("/api/savePuzzleMetrics", async (req, res) => {
+  try {
+    const metricsData = req.body.data; // Expecting an array
+
+    if (!Array.isArray(metricsData) || metricsData.length === 0) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    const client = await pool.connect();
+
+    try {
+      // Start transaction
+      await client.query('BEGIN');
+
+      for (const metric of metricsData) {
+        // Convert string timestamp to proper timestamp format
+        const timestamp = new Date(metric.timestamp);
+        
+        // Query to get ChildID from the Session table
+        const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+        const childResult = await client.query(childQuery, [metric.session_id]);
+
+        if (childResult.rows.length === 0) {
+          throw new Error(`SessionID ${metric.session_id} not found`);
+        }
+
+        const ChildID = childResult.rows[0]["ChildID"];
+
+        // Query to get Age and Gender from the Child table
+        const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+        const childDetailsResult = await client.query(childDetailsQuery, [ChildID]);
+
+        if (childDetailsResult.rows.length === 0) {
+          throw new Error(`ChildID ${ChildID} not found`);
+        }
+
+        const { Age, Gender } = childDetailsResult.rows[0];
+        const level = 1; // Hardcoded level as in balloon game
+
+        const insertQuery = `
+          INSERT INTO public."Puzzle" (
+            "timestamp",
+            attempt_number,
+            correct_emotion,
+            selected_emotion,
+            reaction_time,
+            is_correct,
+            cumulative_time,
+            "SessionID",
+            "Age",
+            "Gender",
+            level
+          ) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        `;
+
+        await client.query(insertQuery, [
+          timestamp,  // Now passing the converted timestamp
+          metric.attempt_number,
+          metric.correct_emotion,
+          metric.selected_emotion,
+          metric.reaction_time,
+          metric.is_correct,
+          metric.cumulative_time,
+          BigInt(metric.session_id), // Ensure bigint conversion
+          Age,
+          Gender,
+          level
+        ]);
+      }
+
+      // Commit transaction
+      await client.query('COMMIT');
+      res.status(201).json({ message: "Metrics saved successfully!" });
+
+    } catch (error) {
+      // Rollback transaction on error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
+  } catch (error) {
+    console.error("Error saving metrics:", error);
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
+  }
+});
+
+
+app.post("/api/savePuzzleMetrics2", async (req, res) => {
+  try {
+    const metricsData = req.body.data; // Expecting an array
+
+    if (!Array.isArray(metricsData) || metricsData.length === 0) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    const client = await pool.connect();
+
+    try {
+      // Start transaction
+      await client.query('BEGIN');
+
+      for (const metric of metricsData) {
+        // Convert string timestamp to proper timestamp format
+        const timestamp = new Date(metric.timestamp);
+        
+        // Query to get ChildID from the Session table
+        const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+        const childResult = await client.query(childQuery, [metric.session_id]);
+
+        if (childResult.rows.length === 0) {
+          throw new Error(`SessionID ${metric.session_id} not found`);
+        }
+
+        const ChildID = childResult.rows[0]["ChildID"];
+
+        // Query to get Age and Gender from the Child table
+        const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+        const childDetailsResult = await client.query(childDetailsQuery, [ChildID]);
+
+        if (childDetailsResult.rows.length === 0) {
+          throw new Error(`ChildID ${ChildID} not found`);
+        }
+
+        const { Age, Gender } = childDetailsResult.rows[0];
+        const level = 2; // Hardcoded level as in balloon game
+
+        const insertQuery = `
+          INSERT INTO public."Puzzle" (
+            "timestamp",
+            attempt_number,
+            correct_emotion,
+            selected_emotion,
+            reaction_time,
+            is_correct,
+            cumulative_time,
+            "SessionID",
+            "Age",
+            "Gender",
+            level
+          ) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        `;
+
+        await client.query(insertQuery, [
+          timestamp,  // Now passing the converted timestamp
+          metric.attempt_number,
+          metric.correct_emotion,
+          metric.selected_emotion,
+          metric.reaction_time,
+          metric.is_correct,
+          metric.cumulative_time,
+          BigInt(metric.session_id), // Ensure bigint conversion
+          Age,
+          Gender,
+          level
+        ]);
+      }
+
+      // Commit transaction
+      await client.query('COMMIT');
+      res.status(201).json({ message: "Metrics saved successfully!" });
+
+    } catch (error) {
+      // Rollback transaction on error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
+  } catch (error) {
+    console.error("Error saving metrics:", error);
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
+  }
+});
 
 // Start the server
 app.listen(port, () => {

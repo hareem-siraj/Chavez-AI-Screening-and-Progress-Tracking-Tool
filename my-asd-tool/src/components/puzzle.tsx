@@ -1,15 +1,21 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import styles from "../theme/Questions.module.css";
-// import logo from "../assets/logo.png"; // Adjust the path based on your project structure
 import { Box, Typography } from "@mui/material";
 import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
 import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const Puzzle: React.FC = () => {
+  const location = useLocation();
+  // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
+  const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
+  console.log("SessionID:", sessionID);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "/Build/unityWebGL.loader.js"; // Fixed the path
@@ -24,7 +30,6 @@ const Puzzle: React.FC = () => {
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
-      {/* Sidebar */}
      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
@@ -79,32 +84,28 @@ const Puzzle: React.FC = () => {
         </Box>
       </Box>
 
-      <Box flexGrow={1} p={3} bgcolor="#e6f4ff">
-        <Box className={styles.main}>
-          <div className={styles.path}>Gamified Assesments</div>
-          <div>
-            <iframe
-              src="Game2\index.html" 
-              width="100%"
-              height="100%"
-              style={{
-                border: "none",
-                position: "absolute",
-                top: 100,
-                left: 200,
-                transform: "scale(0.8)", // Scales the iframe down
-                transformOrigin: "top left", // Ensures scaling happens relative to the top-left corner
-                right: 0,
-                bottom: 0,
-              }}
-              allowFullScreen
-            ></iframe>
-          </div>
-          <div className={styles.comingSoon}>
-            {/* <h1>Coming Soon</h1> */}
-          </div>
-        </Box>
-      </Box>
+      <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+        <iframe
+          src={`/PUZZLE_BUILD/index.html?SessionID=${sessionID}`}
+          
+          width="100%"
+          height="100%"
+          style={{
+            border: "none",
+            position: "absolute",
+            top: 100,
+            left: 200,
+            transform: "scale(0.8)",
+            transformOrigin: "top left",
+            right: 0,
+            bottom: 0,
+          }}
+          allow="microphone; fullscreen"
+          allowFullScreen
+          title="Unity Game"
+        ></iframe>
+      </div>
+
     </Box>
   );
 };

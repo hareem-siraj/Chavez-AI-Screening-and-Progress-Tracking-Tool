@@ -86,7 +86,7 @@ const FlashCard: React.FC = () => {
 
       <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
         <iframe
-          src={`/FLASH_BUILD/index.html?SessionID=${sessionID}`}
+          src={`/build1234/index.html?SessionID=${sessionID}`}
           
           width="100%"
           height="100%"
