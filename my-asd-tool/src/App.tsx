@@ -47,6 +47,8 @@ import Puzzle from 'components/puzzle';
 
 import ChildProfile from 'components/profile';
 
+import Audio from 'components/Audio';
+
 import store from './components/redux/store';  // Import the Redux store
 
 const App: React.FC = () => {
@@ -84,7 +86,8 @@ const App: React.FC = () => {
             <Route path='/questionnaire-urdu' element={<QuestionComponent/>} />
             <Route path="/puzzle" element={<Puzzle/>} /> 
             <Route path="/profile" element={<ChildProfile />} />
-
+            <Route path="/audio-analysis" element={<Audio/>} />
+            {/* <Route path="/audio-analysis-urdu" element={<Audio/>} /> */}
             
             <Route path='/qc' element={<QC/>} />
           </Routes>

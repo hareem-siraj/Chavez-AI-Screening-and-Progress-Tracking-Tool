@@ -153,6 +153,12 @@ const Dashboard: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
+              <ListItemButton component={Link} to="/audio-analysis">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
               <ListItemButton component={Link} to="/reports">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
@@ -290,6 +296,9 @@ const Dashboard: React.FC = () => {
                 </Button>
                 <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/game-selection" fullWidth>
                   Gamified Assessments
+                </Button>
+                <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/audio-analysis" fullWidth>
+                  Speech Analysis
                 </Button>
                 <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/reports" fullWidth>
                   Reports

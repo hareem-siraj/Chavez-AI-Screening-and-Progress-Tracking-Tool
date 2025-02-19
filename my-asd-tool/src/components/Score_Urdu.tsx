@@ -48,6 +48,12 @@ const FinalScoreUrdu: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
+              <ListItemButton component={Link} to="/audio-analysis">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
               <ListItemButton component={Link} to="/reports-urdu">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="رپورٹس" sx={{ color: "#003366" }}/>
