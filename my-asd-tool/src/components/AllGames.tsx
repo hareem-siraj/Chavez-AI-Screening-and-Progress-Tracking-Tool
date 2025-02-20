@@ -13,7 +13,7 @@ const GameScreen: React.FC = () => {
   const games = [
     { name: "POP THE BALLOON", route: "/balloon" },
     { name: "FOLLOW THE FISH", route: "/follow" },
-    { name: "FLASH CARDS", route: "/flashcard" },
+    // { name: "FLASH CARDS", route: "/flashcard" },
     { name: "HUMAN VS OBJECT", route: "/human" },
     { name: "EMOTION PUZZLE", route: "/puzzle" },
   ];

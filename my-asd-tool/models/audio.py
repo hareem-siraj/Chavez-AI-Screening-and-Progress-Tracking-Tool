@@ -1,17 +1,29 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 import librosa
 import numpy as np
 import joblib
 import os
 import requests
+import sounddevice as sd
+import wave
 from pydub import AudioSegment
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load trained model
-MODEL_PATH = "random_forest.pkl"
+MODEL_PATH = "models/random_forest.pkl"
 rf_model = joblib.load(MODEL_PATH)
 
 app = FastAPI()
+
+# ✅ Allow CORS for React Frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 
 # Ensure upload directory exists
 UPLOAD_DIR = "uploads"
@@ -19,6 +31,33 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Your Node.js server URL
 NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
+
+# Recording configuration
+SAMPLE_RATE = 44100
+RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 40)]  # Start and stop times in seconds
+
+
+# 🎤 Function to record audio at specific timestamps
+def record_audio(start_time, duration, session_id):
+    file_name = f"{session_id}_recording_{start_time}-{start_time+duration}.wav"
+    file_path = os.path.join(UPLOAD_DIR, file_name)
+
+    print(f"Recording audio from {start_time}s for {duration}s...")
+    
+    # Start recording
+    recording = sd.rec(int(duration * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype=np.int16)
+    sd.wait()
+
+    # Save as WAV file
+    with wave.open(file_path, "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(SAMPLE_RATE)
+        wf.writeframes(recording.tobytes())
+
+    return file_path
+
+
 
 # Function to extract features
 def extract_features(audio_path):
@@ -41,47 +80,58 @@ def extract_features(audio_path):
     features = np.concatenate([mfcc_mean, [response_latency, speech_confidence, speech_onset_delay, echolalia_score]])
     return features.reshape(1, -1), mfcc_mean.tolist(), response_latency, speech_confidence, speech_onset_delay, echolalia_score
 
-@app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+# 🎬 API endpoint: Starts recording at predefined timestamps
+@app.post("/process-video/")
+async def process_video(session_data: dict):
+    session_id = session_data.get("sessionID", 0)
+    
+    if not session_id:
+        raise HTTPException(status_code=400, detail="SessionID is required.")
 
-    # Save uploaded file
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
+    recorded_files = []
 
-    # Extract SessionID from filename
-    try:
-        session_id = int(file.filename.split("_")[0])
-    except ValueError:
-        return {"error": "Invalid filename format. SessionID must be an integer at the start."}
+    # Record audio at predefined timestamps
+    for start, stop in RECORD_TIMESTAMPS:
+        duration = stop - start
+        file_path = record_audio(start, duration, session_id)
+        recorded_files.append(file_path)
 
-    # Convert if needed
-    if file.filename.endswith(".m4a"):
-        audio = AudioSegment.from_file(file_path, format="m4a")
-        file_path = file_path.replace(".m4a", ".wav")
-        audio.export(file_path, format="wav")
+    return process_and_store_recordings(recorded_files, session_id)
 
-    # Extract features and predict
-    features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(file_path)
-    prediction = rf_model.predict(features)[0]
-    label = "Autistic" if prediction == 1 else "Neurotypical"
+# 🎯 Process, Predict, and Store Data
+def process_and_store_recordings(recorded_files, session_id):
+    results = []
 
-    # Send data to Node.js server
-    payload = {
-        "SessionID": session_id,
-        "MFCC_Mean": [float(x) for x in mfcc_mean],  # Convert to float
-        "ResponseLatency": float(response_latency),   # Convert to float
-        "SpeechConfidence": float(speech_confidence), # Convert to float
-        "SpeechOnsetDelay": float(speech_onset_delay), # Convert to float
-        "EcholaliaScore": float(echolalia_score),     # Convert to float
-        "Prediction": label,
-        "Timestamp": datetime.now().isoformat()
-    }
+    for file_path in recorded_files:
+        print(f"Processing {file_path}...")
 
-    try:
-        response = requests.post(NODE_SERVER_URL, json=payload)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Failed to send data to server.mjs: {str(e)}"}
+        # Extract speech features
+        features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(file_path)
+        
+        # Predict ASD or Neurotypical
+        prediction = rf_model.predict(features)[0]
+        label = "Autistic" if prediction == 1 else "Neurotypical"
 
-    return {"file": file.filename, "SessionID": session_id, "prediction": label}
+        # Prepare data for storage
+        payload = {
+            "SessionID": session_id,
+            "MFCC_Mean": [float(x) for x in mfcc_mean],  # Convert to float
+            "ResponseLatency": float(response_latency),   # Convert to float
+            "SpeechConfidence": float(speech_confidence), # Convert to float
+            "SpeechOnsetDelay": float(speech_onset_delay), # Convert to float
+            "EcholaliaScore": float(echolalia_score),     # Convert to float
+            "Prediction": label,
+            "Timestamp": datetime.now().isoformat()
+        }
+
+        # Send to Node.js API for storage
+        try:
+            response = requests.post(NODE_SERVER_URL, json=payload)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to send data to server: {str(e)}")
+
+        print(f"Stored result: {file_path} - {label}")
+        results.append({"file": file_path, "SessionID": session_id, "prediction": label})
+
+    return {"status": "Completed processing all recordings.", "results": results}

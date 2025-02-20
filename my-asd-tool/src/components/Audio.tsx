@@ -9,12 +9,29 @@ import { Link } from "react-router-dom";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
 import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import axios from "axios";
+import { response } from "express";
 
 const Audio: React.FC = () => {
   const location = useLocation();
+  // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
 
+  const [videoLoaded, setVideoLoaded] = React.useState(false);
+
+  useEffect(() => {
+    if (videoLoaded) {
+      console.log("Video loaded");
+
+      //call FastAPI to start video processing
+      axios.post("http://localhost:8000/process-video/", { sessionID })
+        .then(response => {
+          console.log("Audio processing started:", response.data);}
+        )
+        .catch(error => {console.error("Error starting audio processing:", error)});
+    }
+  }, [videoLoaded]);
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
@@ -50,12 +67,6 @@ const Audio: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
               <ListItemButton component={Link} to="/reports">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
@@ -78,13 +89,22 @@ const Audio: React.FC = () => {
         </Box>
       </Box>
 
-      <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
-
-      </div>
-
+      {/* Video Display */}
+      <Box flex="1" display="flex" justifyContent="center" alignItems="center">
+        <video
+          id="video"
+          width="80%"
+          height="auto"
+          controls
+          autoPlay
+          onLoadedData={() => setVideoLoaded(true)}
+        >
+          <source src="/audiogame1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </Box>
     </Box>
   );
 };
 
 export default Audio;
-
