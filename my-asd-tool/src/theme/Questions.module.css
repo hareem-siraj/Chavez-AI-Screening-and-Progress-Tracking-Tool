@@ -140,6 +140,37 @@ body {
   font-size: 20px; /* Slightly larger checkmark */
 }
 
+.greeting {
+  font-family: 'Arial', sans-serif;
+  color:#003366;
+  font-size: 30px;
+}
+  
+.heading1{
+  font-family: 'Arial', sans-serif;
+  color:#003366;
+  font-size: 15px;
+}
 
-  
-  
+.heading2{
+  font-family: 'Arial', sans-serif;
+  color:#003366;
+  font-size: 20px;
+}
+
+
+.table{
+  color: #000 !important;
+}
+
+.table2{
+  color: blue !important;
+}
+
+.table3{
+  color: darkblue !important;
+}
+
+.table4{
+  color: black !important;
+}

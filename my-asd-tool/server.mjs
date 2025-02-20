@@ -673,6 +673,91 @@ app.post("/api/savePuzzleMetrics2", async (req, res) => {
   }
 });
 
+// app.get("/api/allSessions/:ChildID", async (req, res) => {
+//   const { ChildID } = req.params;
+
+//   try {
+//     // Query to fetch all SessionIDs for the given ChildID
+//     const query = `SELECT "SessionID" FROM "Session" WHERE "ChildID" = $1 ORDER BY "SessionID" DESC`;
+//     const result = await pool.query(query, [ChildID]);
+
+//     if (result.rows.length === 0) {
+//       // return res.status(404).json({ message: "No sessions found for this ChildID" });
+      
+//       return res.status(200).json({ sessions: [] });
+      
+//     }
+
+//     // Extract session IDs into an array
+//     const sessionIDs = result.rows.map(row => row.SessionID);
+
+//     res.status(200).json({ sessions: sessionIDs });
+//   } catch (error) {
+//     console.error("Error fetching sessions:", error);
+//     res.status(500).json({ message: "Error fetching sessions" });
+//   }
+// });
+
+// Get Questionnaire Data
+app.get("/api/questionnaire", async (req, res) => {
+  const { sessionId } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM "Questionnaire" WHERE "Session_ID" = $1',
+      [sessionId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+// Get Speech Analysis Data
+app.get("/api/speech-analysis", async (req, res) => {
+  const { sessionId } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM "SpeechAnalysis" WHERE "SessionID" = $1',
+      [sessionId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+// Get Balloon Game Data
+app.get("/api/balloon-game", async (req, res) => {
+  const { sessionId } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM balloongame WHERE "SessionID" = $1',
+      [sessionId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+// Get Emotion Puzzle Data
+app.get("/api/emotion-puzzle", async (req, res) => {
+  const { sessionId } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
+      [sessionId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
