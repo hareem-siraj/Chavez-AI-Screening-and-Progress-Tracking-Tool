@@ -236,9 +236,10 @@ const CreateAccount: React.FC = () => {
       </Container>
 
       {/* Footer Links at the bottom of the page */}
-      <Box
+      {/* <Box
         sx={{
           width: "100%",
+          height: "50",
           padding: 2,
           display: "flex",
           justifyContent: "space-evenly",
@@ -254,7 +255,7 @@ const CreateAccount: React.FC = () => {
         <Typography variant="body2">Team</Typography>
         <Typography variant="body2">Solutions</Typography>
         <Typography variant="body2">Security</Typography>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
