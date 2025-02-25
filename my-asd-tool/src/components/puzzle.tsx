@@ -92,7 +92,7 @@ const Puzzle: React.FC = () => {
 
       <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
         <iframe
-          src={`/PUZZLE_BUILD/index.html?SessionID=${sessionID}`}
+          src={`/PUZZLE_BUILD2/index.html?SessionID=${sessionID}`}
           
           width="100%"
           height="100%"
