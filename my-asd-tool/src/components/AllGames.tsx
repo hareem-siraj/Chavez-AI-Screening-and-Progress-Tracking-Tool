@@ -7,7 +7,12 @@ import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icon
 import { useSelector } from "react-redux";
 
 const GameScreen: React.FC = () => {
-  const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
+  // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
+
+  const SessionID = useSelector((state: any) => state.sessionData?.SessionID) || sessionStorage.getItem("sessionID");
+
+  console.log("Session ID:", SessionID); // Debugging: Check if the value is assigned correctly
+  
 
   console.log("SessionID:", SessionID);
   const games = [
