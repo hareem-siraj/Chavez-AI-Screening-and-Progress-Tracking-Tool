@@ -34,7 +34,7 @@ NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
 
 # Recording configuration
 SAMPLE_RATE = 44100
-RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 40)]  # Start and stop times in seconds
+RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 51)]  # Start and stop times in seconds
 
 
 # 🎤 Function to record audio at specific timestamps
@@ -57,6 +57,18 @@ def record_audio(start_time, duration, session_id):
 
     return file_path
 
+# 🎤 Function to combine audio files
+def combine_audio_files(file_paths, session_id):
+    combined = AudioSegment.empty()
+    
+    for file in file_paths:
+        audio = AudioSegment.from_wav(file)
+        combined += audio  # Append each audio segment
+
+    combined_path = os.path.join(UPLOAD_DIR, f"{session_id}_combined.wav")
+    combined.export(combined_path, format="wav")
+
+    return combined_path
 
 
 # Function to extract features
@@ -96,24 +108,37 @@ async def process_video(session_data: dict):
         file_path = record_audio(start, duration, session_id)
         recorded_files.append(file_path)
 
-    return process_and_store_recordings(recorded_files, session_id)
+    # 🛠️ Combine all recorded files into a single audio file
+    combined_audio_path = combine_audio_files(recorded_files, session_id)
+
+    # Process and store the combined recording
+    return process_and_store_recordings(combined_audio_path, session_id)
+
+    # return process_and_store_recordings(recorded_files, session_id)
 
 # 🎯 Process, Predict, and Store Data
-def process_and_store_recordings(recorded_files, session_id):
-    results = []
+def process_and_store_recordings(combined_audio_path, session_id):
+    print(f"Processing combined audio file: {combined_audio_path}")
 
-    for file_path in recorded_files:
-        print(f"Processing {file_path}...")
+    # Extract speech features
+    features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(combined_audio_path)
 
-        # Extract speech features
-        features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(file_path)
+    # Predict ASD or Neurotypical
+    prediction = rf_model.predict(features)[0]
+    label = "Autistic" if prediction == 1 else "Neurotypical"
+
+    # for file_path in recorded_files:
+    #     print(f"Processing {file_path}...")
+
+    #     # Extract speech features
+    #     features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(file_path)
         
-        # Predict ASD or Neurotypical
-        prediction = rf_model.predict(features)[0]
-        label = "Autistic" if prediction == 1 else "Neurotypical"
+    #     # Predict ASD or Neurotypical
+    #     prediction = rf_model.predict(features)[0]
+    #     label = "Autistic" if prediction == 1 else "Neurotypical"
 
         # Prepare data for storage
-        payload = {
+    payload = {
             "SessionID": session_id,
             "MFCC_Mean": [float(x) for x in mfcc_mean],  # Convert to float
             "ResponseLatency": float(response_latency),   # Convert to float
@@ -125,13 +150,11 @@ def process_and_store_recordings(recorded_files, session_id):
         }
 
         # Send to Node.js API for storage
-        try:
+    try:
             response = requests.post(NODE_SERVER_URL, json=payload)
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as e:
             print(f"Failed to send data to server: {str(e)}")
 
-        print(f"Stored result: {file_path} - {label}")
-        results.append({"file": file_path, "SessionID": session_id, "prediction": label})
-
-    return {"status": "Completed processing all recordings.", "results": results}
+    print(f"Stored result: {combined_audio_path} - {label}")
+    return {"status": "Processing completed.", "sessionID": session_id, "prediction": label}
