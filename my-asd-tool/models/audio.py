@@ -206,3 +206,19 @@ async def start_eye_tracking(data: dict):
     except Exception as e:
         print(f"Error starting eye tracking: {str(e)}")
         return {"error": str(e)}
+
+@app.post("/stop-eyetracking/")
+async def stop_eye_tracking(data: dict):
+    session_id = data.get("sessionID", 0)
+    print(f"Stopping eye tracking for SessionID: {session_id}")
+
+    try:
+        # Create stop signal file
+        stop_signal_file = f"stop_signal_{session_id}.txt"
+        with open(stop_signal_file, "w") as f:
+            f.write("stop")
+
+        return {"message": "Eye tracking stop signal sent"}
+    except Exception as e:
+        print(f"Error stopping eye tracking: {str(e)}")
+        return {"error": str(e)}

@@ -1,77 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useRef } from "react";
-// import styles from "../theme/Questions.module.css";
-// // import logo from "../assets/logo.png"; // Adjust the path based on your project structure
-// import { Box } from "@mui/material";
-// import { useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { response } from "express";
-
-// const GamifiedAssesments: React.FC = () => {
-//   const iframeRef = useRef<HTMLIFrameElement>(null);
-//   const navigate = useNavigate();
-//   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
-//   console.log("SessionID:", sessionID);
-
-//   // Add event listener for messages from the iframe
-//   useEffect(() => {
-//     const handleMessage = (event: MessageEvent) => {
-//       // Handle message from Unity WebGL
-//       if (event.data === "gameEnded") {
-//         console.log("Game ended message received");
-//         // Navigate using React Router instead of window.location
-//         navigate("/game-selection");
-//       }
-//     };
-
-//     // Add event listener
-//     window.addEventListener("message", handleMessage);
-
-//     // Clean up event listener when component unmounts
-//     return () => {
-//       window.removeEventListener("message", handleMessage);
-//     };
-//   }, [navigate]);
-
-//   return (
-//     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
-//       {/* Sidebar */}
-//           <Box flexGrow={1} p={3} bgcolor="#e6f4ff">
-//             <Box className={styles.main}>
-//               <div className={styles.path}>Gamified Assessments</div>
-//               <div>
-//                 <iframe
-//                   ref={iframeRef}
-//                   // src="FISH_BUILD/index.html"
-//                   src={`/FISH_BUILD/index.html?SessionID=${sessionID}`}
-//                   width="100%"
-//                   height="100%"
-//                   style={{
-//                     border: "none",
-//                     position: "absolute",
-//                     top: 0,
-//                     left: 0,
-//                     width: "100vw",
-//                     height: "100vh",
-//                   }}
-//                   allowFullScreen
-//                   sandbox="allow-scripts allow-same-origin allow-top-navigation"
-//                 ></iframe>
-//               </div>
-//             </Box>
-//           </Box>
-
-//     </Box>
-
-//   );
-// };
-
-// export default GamifiedAssesments;
-
-
-
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -87,9 +13,34 @@ const GamifiedAssesments: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const navigate = useNavigate();
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
+
   console.log("SessionID:", sessionID);
   const [eyeTrackingStatus, setEyeTrackingStatus] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   
+  const stopEyeTracking = async () => {
+    if (!sessionID) {
+      console.error("Cannot stop eye tracking: SessionID is missing");
+      return;
+    }
+  
+    console.log("Stopping eye tracking for SessionID:", sessionID);
+  
+    try {
+      const response = await axios.post("http://localhost:8000/stop-eyetracking/", {
+        sessionID: sessionID,
+      });
+  
+      console.log("Eye tracking stop response:", response.data);
+      if (response.data.message) {
+        console.log("Eye tracking stopped successfully");
+        setEyeTrackingStatus("idle");
+      } else {
+        console.error("Eye tracking failed to stop:", response.data.error);
+      }
+    } catch (error) {
+      console.error("Error stopping eye tracking:", error);
+    }
+  };
 
   // Add event listener for messages from the iframe
   useEffect(() => {
@@ -97,6 +48,7 @@ const GamifiedAssesments: React.FC = () => {
       // Handle message from Unity WebGL
       if (event.data === "gameEnded") {
         console.log("Game ended message received");
+        stopEyeTracking();
         // Navigate using React Router instead of window.location
         navigate("/game-selection");
       }

@@ -758,6 +758,62 @@ app.get("/api/emotion-puzzle", async (req, res) => {
   }
 });
 
+app.post("/api/save-follow-data", async (req, res) => {
+  try {
+    const { SessionID, ScanPath, Timestamp } = req.body;
+
+    // Validate input
+    if (!SessionID || !ScanPath || !Array.isArray(ScanPath)) {
+      return res.status(400).json({ error: "Missing required fields or invalid ScanPath format" });
+    }
+
+    console.log("Received SessionID:", SessionID);
+
+    // Get ChildID from Session table
+    const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+    const childResult = await pool.query(childQuery, [SessionID]);
+
+    console.log("Session Query Result:", childResult.rows);
+
+    if (childResult.rows.length === 0) {
+      return res.status(404).json({ error: "SessionID not found" });
+    }
+
+    const ChildID = childResult.rows[0]["ChildID"];
+
+    console.log("Retrieved ChildID:", ChildID);
+
+    // Get Age and Gender from Child table
+    console.log("Querying Child table for ChildID:", ChildID);
+    const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+    const childDetailsResult = await pool.query(childDetailsQuery, [ChildID]);
+
+    console.log("Child Query Result:", childDetailsResult.rows);
+
+    if (childDetailsResult.rows.length === 0) {
+      return res.status(404).json({ error: "ChildID not found" });
+    }
+
+    const { Age, Gender } = childDetailsResult.rows[0];
+
+    // Insert follow data into FollowData table
+    const query = `
+      INSERT INTO "FollowData" ("SessionID", "ScanPath", "Gender", "Age", "Timestamp")
+      VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
+      RETURNING "ID"
+    `;
+
+    const result = await pool.query(query, [SessionID, JSON.stringify(ScanPath), Gender, Age, Timestamp || null]);
+
+    res.status(200).json({ message: "Follow data saved successfully", id: result.rows[0].id });
+
+  } catch (error) {
+    console.error("Error saving follow data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
