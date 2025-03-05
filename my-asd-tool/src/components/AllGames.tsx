@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
 import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import { setSessionIds } from "./redux/store";
+import { useDispatch } from "react-redux";
 
 const GameScreen: React.FC = () => {
   // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
@@ -22,6 +24,16 @@ const GameScreen: React.FC = () => {
     { name: "HUMAN VS OBJECT", route: "/human" },
     { name: "EMOTION PUZZLE", route: "/puzzle" },
   ];
+
+  const dispatch = useDispatch();
+
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   return (
     <Box display="flex" minHeight="100vh">
@@ -74,7 +86,7 @@ const GameScreen: React.FC = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>

@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styles from "../theme/QuestionnairePage.module.css";
 import { setFinalScore } from "./redux/store"; // Import the action
-
+import { setSessionIds } from "./redux/store";
 
 // Import QuestionLogic
 const QuestionLogic = require("../components/questionnaireLogic");
@@ -56,6 +56,13 @@ const Questions: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -784,7 +791,7 @@ const evaluateCurrentQuestion = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>

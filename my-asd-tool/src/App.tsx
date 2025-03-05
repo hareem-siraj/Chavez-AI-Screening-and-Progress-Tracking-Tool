@@ -36,12 +36,12 @@ import QuestionComponent from 'components/Questionnaire_Urdu';
 
 import Report from './components/Report';
 import Setting from './components/Settings';
-import AutismGuide from './components/AutismGuide';
+// import AutismGuide from './components/AutismGuide';
 import ProfileSettings from './components/ProfileSetting';
 
 import GameScreen from './components/AllGames';
 
-import Flashcard from './components/flashcard';
+// import Flashcard from './components/flashcard';
 import Balloon from './components/balloon';
 import Gamefollow from 'components/follow';
 import Human from 'components/human';
@@ -73,7 +73,7 @@ const App: React.FC = () => {
             <Route path="/create-profile" element={<ProfileCreation />} />
             <Route path="/create-profile-urdu" element={<ProfileCreationUrdu />} />
             <Route path="/questionnaire" element={<QC1 />} />
-            <Route path="/autism-guide" element={<AutismGuide />} />
+            {/* <Route path="/autism-guide" element={<AutismGuide />} /> */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard-urdu" element={<DashboardUrdu />} />
             <Route path="/reports" element={<Report />} />
@@ -81,7 +81,7 @@ const App: React.FC = () => {
             <Route path="/game-selection" element={<GameScreen />} />
             <Route path="/Score" element={<FinalScore />} />
             <Route path="/Score-Urdu" element={<FinalScoreUrdu />} />
-            <Route path="/flashcard" element={<Flashcard/>} />
+            {/* <Route path="/flashcard" element={<Flashcard/>} /> */}
             <Route path="/follow" element={<Gamefollow/>} />
             <Route path="/balloon" element={<Balloon/>} />
             <Route path="/human" element={<Human/>} />

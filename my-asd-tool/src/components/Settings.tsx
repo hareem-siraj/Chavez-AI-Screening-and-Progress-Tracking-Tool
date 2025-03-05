@@ -6,10 +6,23 @@ import {List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider} fro
 import { Person, QuestionAnswer, Settings, Logout} from "@mui/icons-material";
 import { Box, Typography} from "@mui/material";
 import { Home, Assessment } from "@mui/icons-material";
+import { setSessionIds } from "./redux/store";
+import { useDispatch } from "react-redux";
+
 
 const Setting: React.FC = () => {
   // Get the UserID from the Redux store
   const UserID = useSelector((state: any) => state.UserID);
+
+  const dispatch = useDispatch();
+
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#F5F9FF">
@@ -63,7 +76,7 @@ const Setting: React.FC = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>

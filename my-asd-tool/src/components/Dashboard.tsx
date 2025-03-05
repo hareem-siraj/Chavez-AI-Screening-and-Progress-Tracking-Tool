@@ -57,6 +57,13 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
+
   const fetchSessionData = async (childId: string) => {
     try {
       const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
@@ -169,7 +176,7 @@ const Dashboard: React.FC = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>

@@ -11,12 +11,24 @@ import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icon
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { response } from "express";
+import { setSessionIds } from "./redux/store";
+import { useDispatch } from "react-redux";
 
 const Audio: React.FC = () => {
   const location = useLocation();
   // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
+
+  const dispatch = useDispatch();
+
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   const [videoLoaded, setVideoLoaded] = React.useState(false);
 
@@ -67,6 +79,12 @@ const Audio: React.FC = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
+              <ListItemButton component={Link} to="/audio-analysis">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
               <ListItemButton component={Link} to="/reports">
                 <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
                 <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
@@ -77,7 +95,7 @@ const Audio: React.FC = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>
@@ -85,7 +103,6 @@ const Audio: React.FC = () => {
                 </ListItemButton>
               </ListItem>
             </List>
-            
         </Box>
       </Box>
 

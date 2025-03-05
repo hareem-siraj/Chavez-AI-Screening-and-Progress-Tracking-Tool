@@ -5,12 +5,22 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider} from "@mui/material";
 import { Person, QuestionAnswer, Settings, Logout} from "@mui/icons-material";
+import { setSessionIds } from "./redux/store";
+import { useDispatch } from "react-redux";
 
 const FinalScore: React.FC = () => {
   // Get Redux state for session and score data
   const sessionData = useSelector((state: any) => state.sessionData);
   const finalScore = useSelector((state: any) => state.finalScore); // Add `finalScore` to Redux state management
 
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
@@ -63,7 +73,7 @@ const FinalScore: React.FC = () => {
           <Divider />
             <List>
               <ListItem disablePadding>
-                <ListItemButton component={Link} to="/sign-in">
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
                   <ListItemIcon>
                     <Logout sx={{ color: "#003366" }} />
                   </ListItemIcon>

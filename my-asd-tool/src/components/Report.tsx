@@ -276,12 +276,22 @@ import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Me
 import { Person, QuestionAnswer, Settings, Logout, Home, Assessment } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import axios from "axios";
+import { setSessionIds } from "./redux/store";
+import { useDispatch } from "react-redux";
 
 const Report: React.FC = () => {
   const UserID = useSelector((state: any) => state.UserID);
   const selectedChildId = useSelector((state: any) => state.selectedChildId);
   const [childProfile, setChildProfile] = useState<any>(null);
   const sessionData = useSelector((state: any) => state.sessionData);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); // Clear stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
 
   useEffect(() => {
     if (selectedChildId) {
@@ -383,14 +393,16 @@ const Report: React.FC = () => {
             </ListItem>
           </List>
           <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/sign-in">
-                <ListItemIcon><Logout sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
+                  <ListItemIcon>
+                    <Logout sx={{ color: "#003366" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
         </Box>
       </Box>
         
