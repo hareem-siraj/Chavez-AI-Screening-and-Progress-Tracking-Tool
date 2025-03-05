@@ -222,3 +222,53 @@ async def stop_eye_tracking(data: dict):
     except Exception as e:
         print(f"Error stopping eye tracking: {str(e)}")
         return {"error": str(e)}
+    
+@app.post("/start-eyetracking2/")
+async def start_eye_tracking2(data: dict):
+    session_id = data.get("sessionID", 0)
+    print(f"Starting eye tracking for SessionID: {session_id}")
+
+    try:
+        # Get absolute path to the script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        script_path = os.path.join(current_dir, "human.py")
+        
+        # Make sure the script exists
+        if not os.path.exists(script_path):
+            return {"error": f"Eye tracking script not found at {script_path}"}
+        
+        # Launch the subprocess with proper permissions
+        # Use 'python' instead of 'python3' if running on Windows
+        process = subprocess.Popen(
+            ["python3", script_path, str(session_id)], 
+            # Redirect output to prevent blocking
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            # Run in background
+            start_new_session=True
+        )
+        
+        # Check if process started successfully
+        if process.poll() is None:  # None means it's still running
+            return {"message": "Eye tracking started successfully", "process_id": process.pid}
+        else:
+            return {"error": "Failed to start eye tracking process"}
+    except Exception as e:
+        print(f"Error starting eye tracking: {str(e)}")
+        return {"error": str(e)}
+
+@app.post("/stop-eyetracking2/")
+async def stop_eye_tracking2(data: dict):
+    session_id = data.get("sessionID", 0)
+    print(f"Stopping eye tracking for SessionID: {session_id}")
+
+    try:
+        # Create stop signal file
+        stop_signal_file = f"stop2_signal_{session_id}.txt"
+        with open(stop_signal_file, "w") as f:
+            f.write("stop")
+
+        return {"message": "Eye tracking stop signal sent"}
+    except Exception as e:
+        print(f"Error stopping eye tracking: {str(e)}")
+        return {"error": str(e)}
