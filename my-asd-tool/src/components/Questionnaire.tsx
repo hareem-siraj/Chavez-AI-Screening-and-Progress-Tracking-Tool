@@ -1,20 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Box, Button, Typography, List, ListItem, ListItemButton, 
-  ListItemIcon, ListItemText, Divider
+  Box, 
+  Typography, 
+  Button, 
+  List, 
+  ListItem,
+  Divider, 
+  ListItemButton, 
+  ListItemIcon, 
+  ListItemText
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, Logout} from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Home from '@mui/icons-material/Home';
+import Person from '@mui/icons-material/Person';
+import QuestionAnswer from '@mui/icons-material/QuestionAnswer';
+import Assessment from '@mui/icons-material/Assessment';
+import Logout from '@mui/icons-material/Logout';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import styles from "../theme/QuestionnairePage.module.css";
 import { setFinalScore } from "./redux/store"; // Import the action
-import styles from "../theme/Questions.module.css"; // Import custom styles
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
+
+// Import QuestionLogic
 const QuestionLogic = require("../components/questionnaireLogic");
 
-type FollowUps = { yes: string[]; no: string[]; [key: string]: string[] };
-type Question = { id: number; text: string; followUps: FollowUps };
+type FollowUps = {
+  yes: string[];
+  no: string[];
+  [key: string]: string[];
+};
+
+type Question = {
+  id: number;
+  text: string;
+  followUps: FollowUps;
+};
+
 
 const Questions: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -24,9 +47,13 @@ const Questions: React.FC = () => {
   >(Array(20).fill({ answered: false, selected: null, result: null }));
   const [followUpResponses, setFollowUpResponses] = useState<{ [key: string]: boolean }>({});
   const [score, setScore] = useState<number | null>(null);
+  // Add this state to track dynamic follow-ups
+  const [dynamicFollowUps, setDynamicFollowUps] = useState<string[]>([]);
+
 
   // Redux state
   const sessionData = useSelector((state: any) => state.sessionData);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -64,11 +91,11 @@ const Questions: React.FC = () => {
             yes: [
               "Does he/she often ignore sounds?",
               "Does he/she often ignore people?",
-              // "Has your child’s hearing been tested?",
-              // "What were the results of the hearing test? (choose one):",
-              // "⁪ Hearing in normal range",
-              // "⁪ Hearing below normal",
-              // "⁪ Results inconclusive or not definitive",
+              "Has your child’s hearing been tested?",
+              "What were the results of the hearing test? (choose one):",
+              "⁪ Hearing in normal range",
+              "⁪ Hearing below normal",
+              "⁪ Results inconclusive or not definitive",
             ],
             no: [],
           },
@@ -168,19 +195,24 @@ const Questions: React.FC = () => {
           }
         },
         {
+          // id: 8,
+          // text: "Is your child interested in other children? (FOR EXAMPLE, does your child watch them, smile at them, or go to them?)",
+          // followUps: {
+          //   yes: [
+          //     "Does he/she play with children outside the family?",
+          //     "Does he/she try to engage with other children?",
+          //     "Does he/she make vocalizations to get their attention?"
+          //   ],
+          //   no: [
+          //     "Does he/she avoid other children?",
+          //     "Does he/she respond when approached by other children?"
+          //   ]
+          // }
+          // ####### Modified Question 8 #######
           id: 8,
           text: "Is your child interested in other children? (FOR EXAMPLE, does your child watch them, smile at them, or go to them?)",
-          followUps: {
-            yes: [
-              "Does he/she play with children outside the family?",
-              "Does he/she try to engage with other children?",
-              "Does he/she make vocalizations to get their attention?"
-            ],
-            no: [
-              "Does he/she avoid other children?",
-              "Does he/she respond when approached by other children?"
-            ]
-          }
+          followUps: { yes: [], no: [] } // Empty arrays for dynamic follow-ups
+          // ##################################
         },
         {
           id: 9,
@@ -209,9 +241,15 @@ const Questions: React.FC = () => {
             yes: [
               "Does he/she look up when called?",
               "Does he/she talk or babble in response?",
-              "Does he/she stop their activity when you call their name?"
+              "Does he/she stop their activity when you call their name?",
+              "Does he/she ignore you when called?",
+              "Does he/she respond only when in front of you?",
+              "Does he/she respond only if touched?"
             ],
             no: [
+              "Does he/she look up when called?",
+              "Does he/she talk or babble in response?",
+              "Does he/she stop their activity when you call their name?",
               "Does he/she ignore you when called?",
               "Does he/she respond only when in front of you?",
               "Does he/she respond only if touched?"
@@ -220,14 +258,13 @@ const Questions: React.FC = () => {
         },
         {
           id: 11,
-          text: "When you smile at ____________, does he/she smile back at you?",
+          text: "When you smile at your child, does he/she smile back at you?",
           followUps: {
-            yes: [
+            yes: [],
+            no: [
               "Does your child smile when you smile?",
               "Does your child smile when you enter the room?",
-              "Does your child smile when you return from being away?"
-            ],
-            no: [
+              "Does your child smile when you return from being away?",
               "Does he/she always smile?",
               "Does he/she smile at a favorite toy or activity?",
               "Does he/she smile randomly or at nothing in particular?"
@@ -237,23 +274,7 @@ const Questions: React.FC = () => {
         {
           id: 12,
           text: "Does ___________ get upset by everyday noises?",
-          followUps: {
-            yes: [
-              "Does your child have a negative reaction to a washing machine?",
-              "Does your child have a negative reaction to babies crying?",
-              "Does your child have a negative reaction to a vacuum cleaner?",
-              "Does your child have a negative reaction to a hairdryer?",
-              "Does your child have a negative reaction to traffic?",
-              "Does your child have a negative reaction to babies squealing or screeching?",
-              "Does your child have a negative reaction to loud music?",
-              "Does your child have a negative reaction to the telephone/doorbell ringing?",
-              "Does your child have a negative reaction to noisy places such as supermarkets or restaurants?"
-            ],
-            no: [
-              "Does your child calmly cover his/her ears?",
-              "Does your child tell you that he/she does not like the noise?"
-            ]
-          }
+          followUps: { yes: [], no: [] } // Empty arrays for dynamic follow-ups
         },
         {
           id: 13,
@@ -278,46 +299,259 @@ const Questions: React.FC = () => {
               "Does he/she look you in the eye when you are talking to him/her?"
             ],
             no: [
-              "Does your child look you in the eye every day?",
-              "On a day when you are together all day, does he/she look you in the eye at least 5 times?"
+              "Does he/she look you in the eye when he/she needs something?",
+              "Does he/she look you in the eye when you are playing with him/her?",
+              "Does he/she look you in the eye during feeding?",
+              "Does he/she look you in the eye during diaper changes?",
+              "Does he/she look you in the eye when you are reading him/her a story?",
+              "Does he/she look you in the eye when you are talking to him/her?"
             ]
           }
         },
-        
+        {
+          id: 15,
+          text: "Does your child try to copy what you do?",
+          followUps: {
+            yes: [
+              "Does your child try to copy you if you stick out your tongue?",
+              "Does your child try to copy you if you clap your hands?",
+              "Does your child try to copy you if you wave good bye?",
+              "Does your child try to copy you if you make a funny sound?",
+              "Does your child try to copy you if you blow a kiss?",
+              "Does your child try to copy you if you put your fingers to your lips to signal 'Shhh'?"
+            ],
+            no: [
+              "Does your child try to copy you if you stick out your tongue?",
+              "Does your child try to copy you if you clap your hands?",
+              "Does your child try to copy you if you wave good bye?",
+              "Does your child try to copy you if you make a funny sound?",
+              "Does your child try to copy you if you blow a kiss?",
+              "Does your child try to copy you if you put your fingers to your lips to signal 'Shhh'?"
+            ]
+  }
+        },
+        {
+          id: 16,
+          text: " If you turn your head to look at something, does your child look around to see what you are looking at? ",
+          followUps: {
+            yes: [],  // No follow-ups needed for Yes response
+            no: [
+              // Pass examples
+              "Does your child look toward the thing you are looking at?",
+              "Does your child point toward the thing you are looking at?",
+              "Does your child look around to see what you are looking at?",
+              // Fail examples
+              "Does your child look at your face?",
+              "Does your child ignore you?",
+            ]
+          }
+        },
+        {
+          id: 17,
+          text: "Does your child try to get you to watch him/her?",
+          followUps: {
+            yes: [
+              "Does your child say 'Look!' or 'Watch me!'?",
+              "Does your child babble or make a noise to get you to watch what he/she is doing?",
+              "Does your child look at you to get praise or comment?",
+              "Does your child keep looking to see if you are looking?"
+            ],
+ 
+            no: [
+              "Does your child say 'Look!' or 'Watch me!'?",
+              "Does your child babble or make a noise to get you to watch what he/she is doing?",
+              "Does your child look at you to get praise or comment?",
+              "Does your child keep looking to see if you are looking?"
+            ]
+          }
+        },
+        {
+          id: 18,
+          text: "Does your child understand when you tell them to do something?",
+          followUps: {
+            yes: [
+              "When you are dressed to go out and you tell your child to get their shoes, do they understand?",
+              "If it is dinnertime and food is on the table, and you tell the child to sit down, will they come sit at the table?",
+              "If you say, 'Show me your shoe' without pointing, making gestures, or giving hints (when you are not going out or getting dressed), does your child show you their shoe? ",
+              "If you ask for another object without pointing, making gestures, or giving hints, does your child bring it to you?",
+              "If you say, “Put the book on the chair” without pointing, making gestures, or giving any other hints, does your child put the book on the chair?"
+              
+            ],
+ 
+            no: [
+              "When you are dressed to go out and you tell your child to get their shoes, do they understand?",
+              "If it is dinnertime and food is on the table, and you tell the child to sit down, will they come sit at the table?",
+              "If you say, 'Show me your shoe' without pointing, making gestures, or giving hints (when you are not going out or getting dressed), does your child show you their shoe? ",
+              "If you ask for another object without pointing, making gestures, or giving hints, does your child bring it to you?",
+              "If you say, “Put the book on the chair” without pointing, making gestures, or giving any other hints, does your child put the book on the chair?"
+            ]
+          }
+        },
+        {
+          id: 19,
+          text: "If something new happens, does your child look at your face to see how you feel about it?",
+          followUps: {
+            yes: [],
+ 
+            no: [
+              "If your child hears a strange or scary noise, will he/she look at you before responding?",
+              "Does your child look at you when someone new approaches?",
+              "Does your child look at you when he/she is faced with something unfamiliar or a little scary?",
+            ]
+          }
+        },
+        {
+          id: 20,
+          text: "Does your child enjoy movement activites like being bounced or swung?",
+          followUps: {
+            yes: [],
+ 
+            no: [
+              "Does your child laugh or smile",
+              "Does your child talk or babble",
+              "Does your child request more by holding out his/her arms"
+            ]
+          }
+        }
       ]);
     };
     fetchQuestions();
   }, []);
 
-
   const currentQuestion = questions[currentQuestionIndex];
   const selectedOption = progress[currentQuestionIndex]?.selected;
 
+    // ########## Modified handleOptionChange ##########
 
-    // Handle main question response
+    // Modify handleOptionChange to set dynamic follow-ups
     const handleOptionChange = (option: "yes" | "no") => {
+      // const updatedProgress = [...progress];
+      // updatedProgress[currentQuestionIndex] = {
+      //   ...updatedProgress[currentQuestionIndex],
+      //   answered: true,
+      //   selected: option,
+      // };
+      // setProgress(updatedProgress);
+    
+      // // For Question 8, use dynamic follow-ups
+      // if (currentQuestion.id === 8) {
+      //   const followUps = QuestionLogic.getFollowUpQuestions(
+      //     currentQuestion.id,
+      //     option === "yes" ? "Yes" : "No"
+      //   );
+        
+      //   if (followUps && Array.isArray(followUps)) {
+      //     setDynamicFollowUps(followUps);
+      //     const initialFollowUps: { [key: string]: boolean } = {};
+      //     followUps.forEach((question: string) => {
+      //       initialFollowUps[question] = false;
+      //     });
+      //     setFollowUpResponses(initialFollowUps);
+      //   }
+      // } else {
+      //   // For other questions, use static follow-ups from the questions array
+      //   const followUps = currentQuestion.followUps[option] || [];
+      //   setDynamicFollowUps(followUps);
+        
+      //   const initialFollowUps: { [key: string]: boolean } = {};
+      //   followUps.forEach((question: string) => {
+      //     initialFollowUps[question] = false;
+      //   });
+      //   setFollowUpResponses(initialFollowUps);
+      // }
       const updatedProgress = [...progress];
-      updatedProgress[currentQuestionIndex] = {
-        ...updatedProgress[currentQuestionIndex],
-        answered: true,
-        selected: option,
-      };
-      setProgress(updatedProgress);
-  
-      // Reset follow-up responses for the selected option
+    updatedProgress[currentQuestionIndex] = {
+      ...updatedProgress[currentQuestionIndex],
+      answered: true,
+      selected: option,
+    };
+    setProgress(updatedProgress);
+
+    // Handle questions with dynamic follow-ups
+    if (currentQuestion.id === 8 || currentQuestion.id === 12) {
+      // For questions with dynamic follow-ups
+      const followUps = QuestionLogic.getFollowUpQuestions(
+        currentQuestion.id,
+        option === "yes" ? "Yes" : "No"
+      );
+      
+      if (followUps && Array.isArray(followUps)) {
+        setDynamicFollowUps(followUps);
+        const initialFollowUps: { [key: string]: boolean } = {};
+        followUps.forEach((question: string) => {
+          initialFollowUps[question] = false;
+        });
+        setFollowUpResponses(initialFollowUps);
+      } else {
+        // Reset if no follow-ups
+        setDynamicFollowUps([]);
+        setFollowUpResponses({});
+      }
+    } else {
+      // For questions with static follow-ups
+      const followUps = currentQuestion.followUps[option] || [];
+      setDynamicFollowUps(followUps);
+      
       const initialFollowUps: { [key: string]: boolean } = {};
-      currentQuestion.followUps[option]?.forEach((question) => {
-        initialFollowUps[question] = false; // Use question text as key
+      followUps.forEach((question: string) => {
+        initialFollowUps[question] = false;
       });
       setFollowUpResponses(initialFollowUps);
+      } 
     };
-  
-    // Handle follow-up responses
+
     const handleFollowUpChange = (followUpQuestion: string, option: "yes" | "no") => {
       const updatedResponses = { ...followUpResponses };
       updatedResponses[followUpQuestion] = option === "yes";
       setFollowUpResponses(updatedResponses);
+    
+      // Special handling for Question 8
+      if (currentQuestion.id === 8) {
+        if (followUpQuestion === "Is he/she interested in children who are not his/her brother or sister?" ||
+            followUpQuestion === "When you are at the playground or supermarket, does your child usually respond to other children?") {
+          
+          if (option === "no") {
+            // Load secondary follow-ups
+            const secondaryFollowUps = QuestionLogic.getSecondaryFollowUps(8, false);
+            setDynamicFollowUps(secondaryFollowUps);
+          } else if (option === "yes" && followUpQuestion.includes("brother or sister")) {
+            setDynamicFollowUps([]); // Clear follow-ups as it's a direct pass
+          } else {
+            // Load behavior options
+            const behaviorOptions = QuestionLogic.getSecondaryFollowUps(8, false);
+            setDynamicFollowUps([...behaviorOptions, "Does he/she respond to other children more than half of the time?"]);
+          }
+        }
+      }
+      if (currentQuestion.id === 12) {
+        const firstSetResponses = [
+          "Does your child have a negative reaction to a washing machine?",
+          "Does your child have a negative reaction to babies crying?",
+          "Does your child have a negative reaction to a vacuum cleaner?",
+          "Does your child have a negative reaction to a hairdryer?",
+          "Does your child have a negative reaction to traffic?",
+          "Does your child have a negative reaction to babies squealing or screeching?",
+          "Does your child have a negative reaction to loud music?",
+          "Does your child have a negative reaction to the telephone/doorbell ringing?",
+          "Does your child have a negative reaction to noisy places such as supermarkets or restaurants?"
+        ];
+    
+        // Count yes responses to first set
+        const yesCount = firstSetResponses.reduce((count, question) => 
+          updatedResponses[question] === true ? count + 1 : count, 0
+        );
+    
+        // If more than one yes in first set, show second set
+        if (yesCount > 1) {
+          const secondaryFollowUps = QuestionLogic.getSecondaryFollowUps(12, true);
+          setDynamicFollowUps(secondaryFollowUps);
+        }
+      }
     };
+    
+    // ################################################
+  
+    
 
     // Evaluate the current question using QuestionLogic
 const evaluateCurrentQuestion = () => {
@@ -373,6 +607,24 @@ const evaluateCurrentQuestion = () => {
     case 14:
       result = QuestionLogic.evaluate_response_14(mainAnswer, followUpResponses);
       break;
+    case 15:
+      result = QuestionLogic.evaluate_response_15(mainAnswer, followUpResponses);
+      break;
+    case 16:
+      result = QuestionLogic.evaluate_response_16(mainAnswer, followUpResponses);
+      break;
+    case 17:
+      result = QuestionLogic.evaluate_response_17(mainAnswer, followUpResponses);
+      break;
+    case 18:
+      result = QuestionLogic.evaluate_response_18(mainAnswer, followUpResponses);
+      break;
+    case 19:
+      result = QuestionLogic.evaluate_response_19(mainAnswer, followUpResponses);
+      break;
+    case 20:
+      result = QuestionLogic.evaluate_response_20(mainAnswer, followUpResponses);
+      break;
     default:
       result = QuestionLogic.evaluate_response(currentQuestion.id, mainAnswer, followUpResponses);
   }
@@ -380,6 +632,7 @@ const evaluateCurrentQuestion = () => {
       console.log(`Evaluating Question ${currentQuestion.id}:`, result); // Debug
       return result;
     };
+  
 
     const handleNext = async () => {
       if (currentQuestionIndex < questions.length) {
@@ -433,40 +686,45 @@ const evaluateCurrentQuestion = () => {
       }
     };
 
+
     const calculateFinalScore = async (latestProgress: { answered: boolean; selected: string | null; result: boolean | null }[]) => {
+      // Debug: Log the final state of progress before score calculation
       console.log("Final progress state before score calculation:", latestProgress);
     
-      const totalScore = latestProgress.reduce((score, question) => (question.result ? score + 1 : score), 0);
-      console.log("Calculated total score:", totalScore);
+      // Ensure `result` is aggregated correctly
+      const totalScore = latestProgress.reduce((score: number, question) => {
+        if (question.result === true) {
+          return score + 1;
+        }
+        return score;
+      }, 0);
     
+      // Debug: Log the calculated score
+      console.log("Calculated total score:", totalScore);
+
       const finalScore = Math.floor(totalScore);
+
       console.log("Calculated total score (integer):", finalScore);
     
-      setScore(finalScore);
-      dispatch(setFinalScore(finalScore));
+      setScore(totalScore);
+    
+      dispatch(setFinalScore(totalScore));
     
       try {
-        const response = await fetch("http://localhost:5001/api/save-final-score", {
+        await fetch("http://localhost:5001/api/save-final-score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            questionnaireID: String(sessionData.QuestionnaireID), // Ensure it's a string
-            sessionID: String(sessionData.SessionID), // Ensure it's a number
-            finalScore: finalScore,
+            questionnaireID: sessionData.QuestionnaireID,
+            sessionID: sessionData.SessionID,
+            finalScore: totalScore,
           }),
         });
-    
-        if (!response.ok) {
-          throw new Error("Failed to save final score");
-        }
-        console.log("Final score saved successfully.");
       } catch (error) {
         console.error("Error saving final score:", error);
       }
     
       navigate("/Score");
-      localStorage.setItem("questionnaireCompleted", "true"); // Save status
-      alert("Questionnaire submitted successfully!");
     };
 
   const handleBack = () => {
@@ -477,9 +735,8 @@ const evaluateCurrentQuestion = () => {
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#F5F9FF">
-      
-     {/* Sidebar */}
-     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+      {/* Sidebar Navigation */}
+      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -538,117 +795,116 @@ const evaluateCurrentQuestion = () => {
             
         </Box>
       </Box>
-     {/* Main Content */}
-    <Box flexGrow={1} p={4}>
 
-   {/* Question Box */}
-<Box className={styles.questionBox}>
-  <Typography variant="h5" className={styles.questionText}>
-    {currentQuestion?.text}
-  </Typography>
-  <Box className={styles.options}>
-    <Button
-      className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
-      onClick={() => handleOptionChange("yes")}
-    >
-      Yes
-    </Button>
-    <Button
-      className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
-      onClick={() => handleOptionChange("no")}
-    >
-      No
-    </Button>
-  </Box>
-</Box>
+      {/* Main Content Area */}
+      <Box flexGrow={1} p={4}>
+        {/* Existing Questionnaire Component Content */}
+        {/* Question Box */}
+        <Box className={styles.questionBox}>
+          <Typography variant="h5" className={styles.questionText}>
+            {currentQuestion?.text}
+          </Typography>
+          <Box className={styles.options}>
+            <Button
+              className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
+              onClick={() => handleOptionChange("yes")}
+            >
+              Yes
+            </Button>
+            <Button
+              className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
+              onClick={() => handleOptionChange("no")}
+            >
+              No
+            </Button>
+          </Box>
+        </Box>
 
+        {/* Follow-Up Questions */}
+        {selectedOption && dynamicFollowUps.length > 0 && (
+          <Box className={styles.followUpBox}>
+            <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+              Follow-Up Questions
+            </Typography>
+            {dynamicFollowUps.map((followUp, index) => (
+              <Box key={index} className={styles.followUpQuestion}>
+                <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
+                  {followUp}
+                </Typography>
+                <Box display="flex" gap={2} mt={1}>
+                  <Button
+                    className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
+                    onClick={() => handleFollowUpChange(followUp, "yes")}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
+                    onClick={() => handleFollowUpChange(followUp, "no")}
+                  >
+                    No
+                  </Button>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
 
-   {/* Follow-Up Questions */}
-{selectedOption && currentQuestion.followUps[selectedOption]?.length > 0 && (
-  <Box className={styles.followUpBox}>
-    <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-      Follow-Up Questions
-    </Typography>
-    {currentQuestion.followUps[selectedOption].map((followUp, index) => (
-      <Box key={index} className={styles.followUpQuestion}>
-        <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
-          {followUp}
-        </Typography>
-        <Box display="flex" gap={2} mt={1}>
+        {/* Navigation Buttons */}
+        <Box display="flex" justifyContent="space-between" mt={3}>
           <Button
-            className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
-            onClick={() => handleFollowUpChange(followUp, "yes")}
+            className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
+            onClick={handleBack}
+            disabled={currentQuestionIndex === 0}
           >
-            Yes
+            Back
           </Button>
-          <Button
-            className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
-            onClick={() => handleFollowUpChange(followUp, "no")}
-          >
-            No
-          </Button>
+          
+          {currentQuestionIndex === questions.length - 1 ? (
+            <Button
+              className={`${styles.navButton} ${styles.selectedButton}`}
+              onClick={handleNext}
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
+              Next
+            </Button>
+          )}
         </Box>
       </Box>
-    ))}
-  </Box>
-)}
 
-
-{/* Navigation Buttons */}
-<Box display="flex" justifyContent="space-between" mt={3}>
-  <Button
-    className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
-    onClick={handleBack}
-    disabled={currentQuestionIndex === 0}
-  >
-    Back
-  </Button>
-  
-  {currentQuestionIndex === questions.length - 1 ? (
-    <Button
-      className={`${styles.navButton} ${styles.selectedButton}`}
-      onClick={handleNext}
-    >
-      Submit
-    </Button>
-  ) : (
-    <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
-      Next
-    </Button>
-  )}
-</Box>
-
-
-    </Box>
-
-    {/* Progress Sidebar */}
-
-    <Box className="progress-sidebar" sx={{ width: "200px", flexShrink: 0 }}>
-      <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-        Progress
-      </Typography>
-      <List>
-        {progress.map((q, i) => (
-          <ListItem key={i} disablePadding>
-            <Button
-              variant="contained"
-              disableElevation
-              disabled
-              className={`progress-button ${q.answered ? "answered" : ""}`}
-              sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",minWidth: "180px" }}
-            >
-              Question {i + 1}
-              {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />} {/* Add checkmark if answered */}
-            </Button>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-
+      {/* Progress Sidebar */}
+      <Box className="progress-sidebar" sx={{ width: "250px", flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+          Progress
+        </Typography>
+        <List>
+          {progress.map((q, i) => (
+            <ListItem key={i} disablePadding>
+              <Button
+                variant="contained"
+                disableElevation
+                disabled
+                className={`progress-button ${q.answered ? "answered" : ""}`}
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  width: "100%",
+                  minWidth: "180px" 
+                }}
+              >
+                Question {i + 1}
+                {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
+              </Button>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
     </Box>
   );
 };
 
 export default Questions;
-
-

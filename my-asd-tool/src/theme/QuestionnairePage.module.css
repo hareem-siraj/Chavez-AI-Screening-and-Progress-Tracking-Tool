@@ -1,0 +1,154 @@
+/* Question Box */
+.questionBox {
+    background-color: #003366; /* Deep Blue */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 80%;
+    margin: auto;
+  }
+  
+  /* Question Text */
+  .questionText {
+    color: white; /* White Text */
+    font-weight: bold;
+  }
+  
+  /* Answer Buttons Container */
+  .options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    color: white;
+  }
+  
+  /* Option Buttons */
+  .optionButton {
+    background-color: white;
+    color: #003366;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid #003366;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .optionButton:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .optionButton.selected {
+    background-color: #003366 !important;
+    color: white !important;
+    border: 2px solid white !important;
+  }
+  
+  /* Follow-Up Box */
+  .followUpBox {
+    background-color: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  .followUpQuestion {
+    margin-bottom: 10px;
+  }
+  
+  .followUpQuestion p {
+    color: #003366;
+    font-weight: bold;
+  }
+  
+  /* Navigation Buttons */
+  .navButton {
+    background-color: #003366;
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 2px solid #003366;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .navButton:hover {
+    opacity: 0.9;
+  }
+  
+  /* When Button is Selected */
+  .navButton.selectedButton {
+    background-color: white !important;
+    color: #003366 !important;
+    border: 2px solid #003366 !important;
+  }
+  
+  /* Disabled Button */
+  .disabledButton {
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    border: 2px solid #cccccc !important;
+    cursor: not-allowed;
+  }
+  
+  /* Specific Styles for Progress Tracking */
+  .progressTracking {
+    width: 250px;
+    background-color: #F0F4FF;
+    padding: 16px;
+    border-left: 2px solid #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .progressItem {
+    width: 100%;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .progressButton {
+    width: 100%;
+    justify-content: space-between;
+    border: 2px solid #4A90E2;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    text-transform: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 16px;
+    background-color: white;
+    color: #003366;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .progressButton.answered {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border: 2px solid #4CAF50 !important;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .questionBox {
+      max-width: 95%;
+    }
+  
+    .options {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .optionButton {
+      width: 100%;
+    }
+  }

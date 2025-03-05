@@ -28,8 +28,10 @@ import DashboardUrdu from './components/Dashboard_Urdu'
 import FinalScore from './components/Score';
 import FinalScoreUrdu from './components/Score_Urdu';
 
-import Questions from './components/Questionnaire';
-import QC from './components/Questionnaire_Ammar';
+// import Questions from './components/Questionnaire_Old';
+// import QC from './components/Questionnaire_Ammar';
+import QC1 from './components/Questionnaire';
+
 import QuestionComponent from 'components/Questionnaire_Urdu';
 
 import Report from './components/Report';
@@ -70,7 +72,7 @@ const App: React.FC = () => {
             <Route path="/edit-profile" element={<ProfileSettings />} />
             <Route path="/create-profile" element={<ProfileCreation />} />
             <Route path="/create-profile-urdu" element={<ProfileCreationUrdu />} />
-            <Route path="/questionnaire" element={<Questions />} />
+            <Route path="/questionnaire" element={<QC1 />} />
             <Route path="/autism-guide" element={<AutismGuide />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard-urdu" element={<DashboardUrdu />} />
@@ -89,7 +91,8 @@ const App: React.FC = () => {
             <Route path="/audio-analysis" element={<Audio/>} />
             {/* <Route path="/audio-analysis-urdu" element={<Audio/>} /> */}
             
-            <Route path='/qc' element={<QC/>} />
+            {/* <Route path='/qc' element={<QC/>} />
+            <Route path='/ammar' element={<QC1/>} /> */}
           </Routes>
         </Router>
       </ThemeProvider>
