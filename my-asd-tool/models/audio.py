@@ -161,18 +161,7 @@ def process_and_store_recordings(combined_audio_path, session_id):
     return {"status": "Processing completed.", "sessionID": session_id, "prediction": label}
 
 
-# 🎯 API: Start Eye Tracking
-# @app.post("/start-eyetracking/")
-# async def start_eye_tracking(data: dict):
-#     session_id = data.get("sessionID", 0)
-#     print(f"Starting eye tracking for SessionID: {session_id}")
-
-#     try:
-#         subprocess.Popen(["python3", "models/try.py", session_id])  # Ensure this script exists
-#         return {"message": "Eye tracking started successfully"}
-#     except Exception as e:
-#         return {"error": str(e)}
-    
+# 🎯 API: Start Eye Tracking    
 @app.post("/start-eyetracking/")
 async def start_eye_tracking(data: dict):
     session_id = data.get("sessionID", 0)
@@ -216,6 +205,7 @@ async def stop_eye_tracking(data: dict):
         # Create stop signal file
         stop_signal_file = f"stop_signal_{session_id}.txt"
         with open(stop_signal_file, "w") as f:
+            f.write("stop")
             f.write("stop")
 
         return {"message": "Eye tracking stop signal sent"}
@@ -266,6 +256,7 @@ async def stop_eye_tracking2(data: dict):
         # Create stop signal file
         stop_signal_file = f"stop2_signal_{session_id}.txt"
         with open(stop_signal_file, "w") as f:
+            f.write("stop")
             f.write("stop")
 
         return {"message": "Eye tracking stop signal sent"}

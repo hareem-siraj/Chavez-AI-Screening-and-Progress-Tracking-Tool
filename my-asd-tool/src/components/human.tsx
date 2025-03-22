@@ -138,30 +138,58 @@ const Human: React.FC = () => {
   console.log("SessionID:", sessionID);
   const [eyeTrackingStatus, setEyeTrackingStatus] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   
+  // const stopEyeTracking = async () => {
+  //   if (!sessionID) {
+  //     console.error("Cannot stop eye tracking: SessionID is missing");
+  //     return;
+  //   }
+  
+  //   console.log("Stopping eye tracking for SessionID:", sessionID);
+  
+  //   try {
+  //     const response = await axios.post("http://localhost:8000/stop-eyetracking2/", {
+  //       sessionID: sessionID,
+  //     });
+  
+  //     console.log("Eye tracking stop response:", response.data);
+  //     if (response.data.message) {
+  //       console.log("Eye tracking stopped successfully");
+  //       setEyeTrackingStatus("idle");
+  //     } else {
+  //       console.error("Eye tracking failed to stop:", response.data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error stopping eye tracking:", error);
+  //   }
+  // };
+
   const stopEyeTracking = async () => {
     if (!sessionID) {
-      console.error("Cannot stop eye tracking: SessionID is missing");
-      return;
+        console.error("Cannot stop eye tracking: SessionID is missing");
+        return;
     }
-  
+
     console.log("Stopping eye tracking for SessionID:", sessionID);
-  
+
     try {
-      const response = await axios.post("http://localhost:8000/stop-eyetracking2/", {
-        sessionID: sessionID,
-      });
-  
-      console.log("Eye tracking stop response:", response.data);
-      if (response.data.message) {
-        console.log("Eye tracking stopped successfully");
-        setEyeTrackingStatus("idle");
-      } else {
-        console.error("Eye tracking failed to stop:", response.data.error);
-      }
+        const response = await axios.post("http://localhost:8000/stop-eyetracking2/", { sessionID });
+        console.log("Eye tracking stop response:", response.data);
+
+        if (response.data.message) {
+            console.log("Eye tracking stopped successfully");
+            setEyeTrackingStatus("idle");
+
+            // Delay navigation slightly to ensure camera stops
+            setTimeout(() => {
+                navigate("/game-selection");
+            }, 1000);
+        } else {
+            console.error("Eye tracking failed to stop:", response.data.error);
+        }
     } catch (error) {
-      console.error("Error stopping eye tracking:", error);
+        console.error("Error stopping eye tracking:", error);
     }
-  };
+};
 
   // Add event listener for messages from the iframe
   useEffect(() => {
@@ -240,6 +268,9 @@ const Human: React.FC = () => {
           <Box flexGrow={1} p={3} bgcolor="#e6f4ff">
             <Box className={styles.main}>
               <div className={styles.path}>Gamified Assessments</div>
+              {eyeTrackingStatus === 'starting' && " (Starting eye tracking...)"}
+              {eyeTrackingStatus === 'running' && " (Eye tracking active)"}
+              {eyeTrackingStatus === 'error' && " (Eye tracking error)"}
               <div>
                 <iframe
                   ref={iframeRef}

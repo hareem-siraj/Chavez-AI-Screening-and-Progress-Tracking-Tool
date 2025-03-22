@@ -192,7 +192,7 @@ if scanpath:
     plt.savefig(output_image, facecolor='black', dpi=300, bbox_inches='tight')
     print(f"Scanpath visualization saved as {output_image}")
 
-    plt.show()
+    # plt.show()
     plt.close() 
 
 else:
