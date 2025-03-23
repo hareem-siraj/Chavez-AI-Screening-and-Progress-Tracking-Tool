@@ -4,7 +4,7 @@ import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider} from "@mui/material";
-import { Person, QuestionAnswer, Settings, Logout} from "@mui/icons-material";
+import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
 import { setSessionIds } from "./redux/store";
 import { useDispatch } from "react-redux";
 
@@ -129,6 +129,7 @@ const FinalScore: React.FC = () => {
             >
               Back to Dashboard
             </Button>
+
             <Button
               variant="outlined"
               fullWidth
@@ -138,9 +139,9 @@ const FinalScore: React.FC = () => {
                 color: "#003366",
               }}
               component={Link}
-              to="/reports"
+              to="/game-selection"
             >
-              View Reports
+              Next: Gamified Assesments
             </Button>
           </Box>
         </Box>

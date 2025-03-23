@@ -268,21 +268,46 @@ app.get("/api/recent-session/:ChildID", async (req, res) => {
 
 
 // Endpoint to save a question response
+// app.post("/api/save-question-response", async (req, res) => {
+//   const { questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
+
+//   try {
+//     const insertOrUpdateQuery = `
+//       INSERT INTO "Question" ("QuestionID", "QuestionnaireID", "Question_Text", "FollowUpQs_Ans", "Result", "MainQs_Ans")
+//       VALUES ($1, $2, $3, $4, $5, $6)
+//       ON CONFLICT ("QuestionID", "QuestionnaireID")
+//       DO UPDATE SET 
+//         "Question_Text" = EXCLUDED."Question_Text",
+//         "FollowUpQs_Ans" = EXCLUDED."FollowUpQs_Ans",
+//         "Result" = EXCLUDED."Result",
+//         "MainQs_Ans" = EXCLUDED."MainQs_Ans";
+//     `;
+//     const values = [questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans]; // All values are valid, including booleans
+//     await pool.query(insertOrUpdateQuery, values);
+
+//     res.status(200).json({ message: "Question response saved successfully." });
+//   } catch (error) {
+//     console.error("Error saving question response:", error);
+//     res.status(500).json({ message: "Error saving question response." });
+//   }
+// });
+
 app.post("/api/save-question-response", async (req, res) => {
-  const { questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
+  const { questionID, sessionID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
 
   try {
     const insertOrUpdateQuery = `
-      INSERT INTO "Question" ("QuestionID", "QuestionnaireID", "Question_Text", "FollowUpQs_Ans", "Result", "MainQs_Ans")
+      INSERT INTO "Question" ("QuestionID", "Question_Text", "FollowUpQs_Ans", "Result", "MainQs_Ans", "SessionID")
       VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT ("QuestionID", "QuestionnaireID")
+      ON CONFLICT ("QuestionID", "SessionID")
       DO UPDATE SET 
         "Question_Text" = EXCLUDED."Question_Text",
         "FollowUpQs_Ans" = EXCLUDED."FollowUpQs_Ans",
         "Result" = EXCLUDED."Result",
         "MainQs_Ans" = EXCLUDED."MainQs_Ans";
     `;
-    const values = [questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans]; // All values are valid, including booleans
+
+    const values = [questionID, question_text, followup_Qs_ans, result, main_qs_ans, sessionID];  
     await pool.query(insertOrUpdateQuery, values);
 
     res.status(200).json({ message: "Question response saved successfully." });
@@ -291,6 +316,7 @@ app.post("/api/save-question-response", async (req, res) => {
     res.status(500).json({ message: "Error saving question response." });
   }
 });
+
 
 // Endpoint to save the final score of the questionnaire
 app.post("/api/save-final-score", async (req, res) => {
@@ -399,6 +425,7 @@ app.get("/api/get-child-profile", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 
@@ -867,6 +894,259 @@ app.post("/api/save-human-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+// sameen end points
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+// Get Follow the Fish Data
+app.get("/api/follow-data", async (req, res) => {
+  let { sessionId } = req.query;
+
+  try {
+    if (!sessionId) {
+      return res.status(400).json({ error: "SessionID is required" });
+    }
+
+    // Convert sessionId to an integer
+    sessionId = parseInt(sessionId, 10);
+    if (isNaN(sessionId)) {
+      return res.status(400).json({ error: "Invalid SessionID format" });
+    }
+
+    console.log("Fetching Follow Data for SessionID:", sessionId);
+
+    const result = await pool.query(
+      'SELECT * FROM "FollowData" WHERE "SessionID" = $1',
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No follow data found for this session." });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching Follow the Fish data:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// Get Human vs Object Data
+app.get("/api/human-vs-object", async (req, res) => {
+  const { sessionId } = req.query;
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM "HumanData" WHERE "SessionID" = $1',
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No data found for Human vs Object." });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching Human vs Object data:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.get("/api/progress/:SessionID", async (req, res) => {
+  const { SessionID } = req.params;
+
+  try {
+    // Check if the session exists
+    const sessionCheckQuery = `SELECT * FROM "Session" WHERE "SessionID" = $1`;
+    const sessionCheckResult = await pool.query(sessionCheckQuery, [SessionID]);
+
+    if (sessionCheckResult.rows.length === 0) {
+      return res.status(404).json({ message: "Session not found." });
+    }
+
+    // Get the number of answered questions
+    const questionnaireQuery = `SELECT COUNT(*) AS answered FROM "Question" WHERE "QuestionnaireID" = (SELECT "QuestionnaireID" FROM "Session" WHERE "SessionID" = $1)`;
+    const questionnaireResult = await pool.query(questionnaireQuery, [SessionID]);
+    const questionsAnswered = parseInt(questionnaireResult.rows[0].answered) || 0;
+
+    // Fetch game completion statuses
+    const balloonGameQuery = `SELECT COUNT(*) AS completed FROM balloongame WHERE "SessionID" = $1`;
+    const balloonGameResult = await pool.query(balloonGameQuery, [SessionID]);
+
+    const followGameQuery = `SELECT COUNT(*) AS completed FROM "FollowData" WHERE "SessionID" = $1`;
+    const followGameResult = await pool.query(followGameQuery, [SessionID]);
+
+    const humanGameQuery = `SELECT COUNT(*) AS completed FROM "HumanData" WHERE "SessionID" = $1`;
+    const humanGameResult = await pool.query(humanGameQuery, [SessionID]);
+
+    const puzzleGameQuery = `SELECT COUNT(*) AS completed FROM "Puzzle" WHERE "SessionID" = $1`;
+    const puzzleGameResult = await pool.query(puzzleGameQuery, [SessionID]);
+
+    const speechQuery = `SELECT COUNT(*) AS completed FROM "SpeechAnalysis" WHERE "SessionID" = $1`;
+    const speechResult = await pool.query(speechQuery, [SessionID]);
+
+    // Check completion statuses
+    const questionnaireCompleted = questionsAnswered >= 20;
+    const balloonCompleted = parseInt(balloonGameResult.rows[0].completed) > 0;
+    const followCompleted = parseInt(followGameResult.rows[0].completed) > 0;
+    const humanCompleted = parseInt(humanGameResult.rows[0].completed) > 0;
+    const puzzleCompleted = parseInt(puzzleGameResult.rows[0].completed) > 0;
+    const speechCompleted = parseInt(speechResult.rows[0].completed) > 0;
+    
+    const gamesCompleted = balloonCompleted && followCompleted && humanCompleted && puzzleCompleted;
+    const isSessionComplete = questionnaireCompleted && gamesCompleted && speechCompleted;
+
+    res.status(200).json({
+      sessionId: SessionID,
+      questionnaireCompleted,
+      questionsAnswered,  // ✅ This will now be returned in API response
+      games: {
+        balloonGame: balloonCompleted,
+        followTheFish: followCompleted,
+        humanVsObject: humanCompleted,
+        emotionPuzzle: puzzleCompleted,
+      },
+      speechCompleted,
+      isSessionComplete,
+    });
+
+  } catch (error) {
+    console.error("Error fetching progress:", error);
+    res.status(500).json({ message: "Server error while fetching progress." });
+  }
+});
+
+
+app.get("/api/get-session/:ChildID", async (req, res) => {
+  const { ChildID } = req.params;
+  
+  try {
+    const query = `
+      SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+      FROM "Session" 
+      WHERE "ChildID" = $1 
+      ORDER BY "SessionID" DESC 
+      LIMIT 1;
+    `;
+    const result = await pool.query(query, [ChildID]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No active session found for this ChildID" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+//progress tracking sameen
+app.get("/api/progress/:SessionID", async (req, res) => {
+  const { SessionID } = req.params;
+
+  try {
+    // Check if the session exists
+    const sessionCheckQuery = `SELECT * FROM "Session" WHERE "SessionID" = $1`;
+    const sessionCheckResult = await pool.query(sessionCheckQuery, [SessionID]);
+
+    if (sessionCheckResult.rows.length === 0) {
+      return res.status(404).json({ message: "Session not found." });
+    }
+
+    // Check questionnaire progress
+    const questionnaireQuery = `SELECT COUNT(*) AS answered FROM "Question" WHERE "QuestionnaireID" = (SELECT "QuestionnaireID" FROM "Session" WHERE "SessionID" = $1)`;
+    const questionnaireResult = await pool.query(questionnaireQuery, [SessionID]);
+
+    // Check all 4 game completions
+    const balloonGameQuery = `SELECT COUNT(*) AS completed FROM balloongame WHERE "SessionID" = $1`;
+    const balloonGameResult = await pool.query(balloonGameQuery, [SessionID]);
+
+    const followGameQuery = `SELECT COUNT(*) AS completed FROM "FollowData" WHERE "SessionID" = $1`;
+    const followGameResult = await pool.query(followGameQuery, [SessionID]);
+
+    const humanGameQuery = `SELECT COUNT(*) AS completed FROM "HumanData" WHERE "SessionID" = $1`;
+    const humanGameResult = await pool.query(humanGameQuery, [SessionID]);
+
+    const puzzleGameQuery = `SELECT COUNT(*) AS completed FROM "Puzzle" WHERE "SessionID" = $1`;
+    const puzzleGameResult = await pool.query(puzzleGameQuery, [SessionID]);
+
+    // Check speech analysis completion
+    const speechQuery = `SELECT COUNT(*) AS completed FROM "SpeechAnalysis" WHERE "SessionID" = $1`;
+    const speechResult = await pool.query(speechQuery, [SessionID]);
+
+    // Determine progress
+    const questionnaireCompleted = parseInt(questionnaireResult.rows[0].answered) >= 20;
+    const balloonCompleted = parseInt(balloonGameResult.rows[0].completed) > 0;
+    const followCompleted = parseInt(followGameResult.rows[0].completed) > 0;
+    const humanCompleted = parseInt(humanGameResult.rows[0].completed) > 0;
+    const puzzleCompleted = parseInt(puzzleGameResult.rows[0].completed) > 0;
+    const speechCompleted = parseInt(speechResult.rows[0].completed) > 0;
+
+    // Check if all 4 games are completed
+    const gamesCompleted = balloonCompleted && followCompleted && humanCompleted && puzzleCompleted;
+
+    // Session completion check
+    const isSessionComplete = questionnaireCompleted && gamesCompleted && speechCompleted;
+
+    res.status(200).json({
+      sessionId: SessionID,
+      questionnaireCompleted,
+      games: {
+        balloonGame: balloonCompleted,
+        followTheFish: followCompleted,
+        humanVsObject: humanCompleted,
+        emotionPuzzle: puzzleCompleted,
+      },
+      speechCompleted,
+      isSessionComplete,
+    });
+
+  } catch (error) {
+    console.error("Error fetching progress:", error);
+    res.status(500).json({ message: "Server error while fetching progress." });
+  }
+});
+
+
+// sameen coded seesion 4-3-25 = all sessionid against a child
+// ✅ **Endpoint: Fetch All Sessions for a Child**
+app.get("/api/allSessions/:ChildID", async (req, res) => {
+  const { ChildID } = req.params;
+
+  try {
+    const query = `
+      SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+      FROM "Session" 
+      WHERE "ChildID" = $1 
+      ORDER BY "SessionID" DESC;
+    `;
+    const result = await pool.query(query, [ChildID]);
+
+    if (result.rows.length === 0) {
+      return res.status(200).json({ sessions: [] });
+    }
+
+    res.status(200).json({ sessions: result.rows });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).json({ message: "Error fetching sessions" });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

@@ -665,7 +665,8 @@ const evaluateCurrentQuestion = () => {
     
         const questionData = {
           questionID: currentQuestion.id,
-          questionnaireID: sessionData.QuestionnaireID,
+          // questionnaireID: sessionData.QuestionnaireID,
+          sessionID: sessionData.SessionID,
           question_text: currentQuestion.text,
           followup_Qs_ans: followUpResponses,
           main_qs_ans: selectedOption === "yes",
