@@ -1,9 +1,27 @@
 import React, { useState, useEffect } from "react";
-import styles from "../theme/Questions.module.css";
+import { 
+  Box, 
+  Typography, 
+  Button, 
+  List, 
+  ListItem,
+  Divider, 
+  ListItemButton, 
+  ListItemIcon, 
+  ListItemText
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Home from '@mui/icons-material/Home';
+import Person from '@mui/icons-material/Person';
+import QuestionAnswer from '@mui/icons-material/QuestionAnswer';
+import Assessment from '@mui/icons-material/Assessment';
+import Logout from '@mui/icons-material/Logout';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setFinalScore } from "./redux/store"; // Import the action
+import styles from "../theme/QuestionnairePage.module.css"; // Using the same styles as English version
+import { setFinalScore, setSessionIds } from "./redux/store"; // Import the actions
 
 // Import QuestionLogic
 const QuestionLogic = require("../components/questionnaireLogic");
@@ -11,7 +29,7 @@ const QuestionLogic = require("../components/questionnaireLogic");
 type FollowUps = {
   yes: string[];
   no: string[];
-  [key: string]: string[]; // To handle more dynamic cases
+  [key: string]: string[];
 };
 
 type Question = {
@@ -20,20 +38,29 @@ type Question = {
   followUps: FollowUps;
 };
 
-const QuestionComponent: React.FC = () => {
+const QuestionnaireUrdu: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [progress, setProgress] = useState<
     { answered: boolean; selected: "yes" | "no" | null; result: boolean | null }[]
-  >(Array(20).fill({ answered: false, selected: null, result: null }));
+  >(Array(14).fill({ answered: false, selected: null, result: null }));
   const [followUpResponses, setFollowUpResponses] = useState<{ [key: string]: boolean }>({});
   const [score, setScore] = useState<number | null>(null);
+  const [dynamicFollowUps, setDynamicFollowUps] = useState<string[]>([]);
 
   // Redux state
   const sessionData = useSelector((state: any) => state.sessionData);
+  const childName = sessionData.ChildName || "آپ کا بچہ"; // Use child name or default
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/sign-in";
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -220,7 +247,7 @@ const QuestionComponent: React.FC = () => {
         },
         {
             id: 11,
-            text: "جب آپ ____________ پر مسکراتے ہیں تو کیا وہ/وہ آپ کو واپس مسکراتا/مسکراتی ہے؟",
+            text: `جب آپ ${childName} پر مسکراتے ہیں تو کیا وہ/وہ آپ کو واپس مسکراتا/مسکراتی ہے؟`,
             followUps: {
                 yes: [
                     "کیا آپ کے مسکرانے پر آپ کا بچہ مسکراتا/مسکراتی ہے؟",
@@ -236,7 +263,7 @@ const QuestionComponent: React.FC = () => {
         },
         {
             id: 12,
-            text: "کیا ___________ روزمرہ کی آوازوں سے پریشان ہوتا/ہوتی ہے؟",
+            text: `کیا ${childName} روزمرہ کی آوازوں سے پریشان ہوتا/ہوتی ہے؟`,
             followUps: {
                 yes: [
                     "کیا آپ کے بچے کو واشنگ مشین کی آواز پر منفی ردعمل ہوتا ہے؟",
@@ -259,15 +286,13 @@ const QuestionComponent: React.FC = () => {
             id: 13,
             text: "کیا آپ کا بچہ بغیر کسی چیز کو تھامے چلتا ہے؟",
             followUps: {
-                yes: [
-                    // "کیا وہ/وہ بغیر کسی چیز کو تھامے چلتا/چلتی ہے؟",
-                ],
+                yes: [],
                 no: [],
             },
         },
         {
             id: 14,
-            text: "کیا ___________ آپ سے بات کرتے ہوئے، کھیلتے ہوئے، یا اس کا لباس بدلتے وقت آپ کی آنکھوں میں دیکھتا/دیکھتی ہے؟",
+            text: `کیا ${childName} آپ سے بات کرتے ہوئے، کھیلتے ہوئے، یا اس کا لباس بدلتے وقت آپ کی آنکھوں میں دیکھتا/دیکھتی ہے؟`,
             followUps: {
                 yes: [
                     "کیا وہ کسی چیز کی ضرورت ہونے پر آپ کی آنکھوں میں دیکھتا/دیکھتی ہے؟",
@@ -287,191 +312,165 @@ const QuestionComponent: React.FC = () => {
       ]);
     };
     fetchQuestions();
-  }, []);
+  }, [childName]); // Add childName to dependency array
 
   const currentQuestion = questions[currentQuestionIndex];
   const selectedOption = progress[currentQuestionIndex]?.selected;
 
+  // Handle main question response
+  const handleOptionChange = (option: "yes" | "no") => {
+    const updatedProgress = [...progress];
+    updatedProgress[currentQuestionIndex] = {
+      ...updatedProgress[currentQuestionIndex],
+      answered: true,
+      selected: option,
+    };
+    setProgress(updatedProgress);
 
-    // Handle main question response
-    const handleOptionChange = (option: "yes" | "no") => {
+    // Reset follow-up responses for the selected option
+    const followUps = currentQuestion?.followUps[option] || [];
+    setDynamicFollowUps(followUps);
+    
+    const initialFollowUps: { [key: string]: boolean } = {};
+    followUps.forEach((question) => {
+      initialFollowUps[question] = false;
+    });
+    setFollowUpResponses(initialFollowUps);
+  };
+
+  // Handle follow-up responses
+  const handleFollowUpChange = (followUpQuestion: string, option: "yes" | "no") => {
+    const updatedResponses = { ...followUpResponses };
+    updatedResponses[followUpQuestion] = option === "yes";
+    setFollowUpResponses(updatedResponses);
+  };
+
+  // Evaluate the current question using QuestionLogic
+  const evaluateCurrentQuestion = () => {
+    const mainAnswer = selectedOption === "yes" ? "Yes" : "No";
+    
+    let result;
+    switch (currentQuestion.id) {
+      case 1:
+        result = QuestionLogic.evaluate_response_1(mainAnswer, followUpResponses);
+        break;
+      case 2:
+        result = QuestionLogic.evaluate_response_2(mainAnswer, followUpResponses);
+        break;
+      case 3:
+        result = QuestionLogic.evaluate_response_3(mainAnswer, followUpResponses);
+        break;
+      case 4:
+        result = QuestionLogic.evaluate_response_4(mainAnswer, followUpResponses);
+        break;
+      case 5:
+        result = QuestionLogic.evaluate_response_5(mainAnswer, followUpResponses, false);
+        break;
+      case 6:
+        result = QuestionLogic.evaluate_response_6(mainAnswer, followUpResponses);
+        break;
+      case 7:
+        result = QuestionLogic.evaluate_response_7(mainAnswer, followUpResponses);
+        break;
+      case 8:
+        result = QuestionLogic.evaluate_response_8(mainAnswer, followUpResponses);
+        break;
+      case 9:
+        result = QuestionLogic.evaluate_response_9(mainAnswer, followUpResponses);
+        break;
+      case 10:
+        result = QuestionLogic.evaluate_response_10(mainAnswer, followUpResponses);
+        break;
+      case 11:
+        result = QuestionLogic.evaluate_response_11(mainAnswer, followUpResponses);
+        break;
+      case 12:
+        result = QuestionLogic.evaluate_response_12(mainAnswer, followUpResponses);
+        break;
+      case 13:
+        result = QuestionLogic.evaluate_response_13(mainAnswer, followUpResponses);
+        break;
+      case 14:
+        result = QuestionLogic.evaluate_response_14(mainAnswer, followUpResponses);
+        break;
+      default:
+        result = QuestionLogic.evaluate_response(currentQuestion.id, mainAnswer, followUpResponses);
+    }
+      
+    console.log(`Evaluating Question ${currentQuestion.id}:`, result);
+    return result;
+  };
+
+  const handleNext = async () => {
+    if (currentQuestionIndex < questions.length) {
+      const result = evaluateCurrentQuestion();
+  
       const updatedProgress = [...progress];
       updatedProgress[currentQuestionIndex] = {
         ...updatedProgress[currentQuestionIndex],
         answered: true,
-        selected: option,
+        selected: selectedOption,
+        result,
       };
+  
       setProgress(updatedProgress);
   
-      // Reset follow-up responses for the selected option
-      const initialFollowUps: { [key: string]: boolean } = {};
-      currentQuestion.followUps[option]?.forEach((question) => {
-        initialFollowUps[question] = false; // Use question text as key
-      });
-      setFollowUpResponses(initialFollowUps);
-    };
+      const questionData = {
+        questionID: currentQuestion.id,
+        questionnaireID: sessionData.QuestionnaireID,
+        question_text: currentQuestion.text,
+        followup_Qs_ans: followUpResponses,
+        main_qs_ans: selectedOption === "yes",
+        result,
+      };
   
-    // Handle follow-up responses
-    const handleFollowUpChange = (followUpQuestion: string, option: "yes" | "no") => {
-      const updatedResponses = { ...followUpResponses };
-      updatedResponses[followUpQuestion] = option === "yes";
-      setFollowUpResponses(updatedResponses);
-    };
-
-    // Evaluate the current question using QuestionLogic
-const evaluateCurrentQuestion = () => {
-  const mainAnswer = selectedOption === "yes" ? "Yes" : "No";
-
-    // Debug: Log main answer and follow-up responses
-  console.log(`Evaluating Question ${currentQuestion.id}`);
-  console.log("Main Answer:", mainAnswer);
-  console.log("Follow-Up Responses:", followUpResponses);
-  
-  let result;
-
-  switch (currentQuestion.id) {
-    case 1:
-      result = QuestionLogic.evaluate_response_1(mainAnswer, followUpResponses);
-      break;
-    case 2:
-      result = QuestionLogic.evaluate_response_2(mainAnswer, followUpResponses);
-      break;
-    case 3:
-      result = QuestionLogic.evaluate_response_3(mainAnswer, followUpResponses);
-      break;
-    case 4:
-      result = QuestionLogic.evaluate_response_4(mainAnswer, followUpResponses);
-      break;
-    case 5:
-      result = QuestionLogic.evaluate_response_5(mainAnswer, followUpResponses, false);
-      break;
-    case 6:
-      result = QuestionLogic.evaluate_response_6(mainAnswer, followUpResponses);
-      break;
-    case 7:
-      result = QuestionLogic.evaluate_response_7(mainAnswer, followUpResponses);
-      break;
-    case 8:
-      result = QuestionLogic.evaluate_response_8(mainAnswer, followUpResponses);
-      break;
-    case 9:
-      result = QuestionLogic.evaluate_response_9(mainAnswer, followUpResponses);
-      break;
-    case 10:
-      result = QuestionLogic.evaluate_response_10(mainAnswer, followUpResponses);
-      break;
-    case 11:
-      result = QuestionLogic.evaluate_response_11(mainAnswer, followUpResponses);
-      break;
-    case 12:
-      result = QuestionLogic.evaluate_response_12(mainAnswer, followUpResponses);
-      break;
-    case 13:
-      result = QuestionLogic.evaluate_response_13(mainAnswer, followUpResponses);
-      break;
-    case 14:
-      result = QuestionLogic.evaluate_response_14(mainAnswer, followUpResponses);
-      break;
-    default:
-      result = QuestionLogic.evaluate_response(currentQuestion.id, mainAnswer, followUpResponses);
-  }
-    
-      console.log(`Evaluating Question ${currentQuestion.id}:`, result); // Debug
-      return result;
-    };
-
-    const handleNext = async () => {
-      if (currentQuestionIndex < questions.length) {
-        const result = evaluateCurrentQuestion(); // Returns boolean (true for PASS, false for FAIL)
-    
-        // Debug: Log the current result
-        console.log(`Question ${currentQuestion.id} result:`, result);
-    
-        // Update progress for the current question
-        const updatedProgress = [...progress];
-        updatedProgress[currentQuestionIndex] = {
-          ...updatedProgress[currentQuestionIndex],
-          answered: true,
-          selected: selectedOption,
-          result,
-        };
-    
-        // Debug: Log progress state before and after updating
-        console.log("Progress before update:", progress);
-        console.log("Progress after update:", updatedProgress);
-    
-        setProgress(updatedProgress); // Set updated progress state
-    
-        const questionData = {
-          questionID: currentQuestion.id,
-          questionnaireID: sessionData.QuestionnaireID,
-          question_text: currentQuestion.text,
-          followup_Qs_ans: followUpResponses,
-          main_qs_ans: selectedOption === "yes",
-          result,
-        };
-    
-        try {
-          const response = await fetch("http://localhost:5001/api/save-question-response", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(questionData),
-          });
-    
-          // Debug: Log the API response
-          console.log("Save question response API response:", response.status);
-        } catch (error) {
-          console.error("Error saving question response:", error);
-        }
-    
-        if (currentQuestionIndex < questions.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        } else {
-          calculateFinalScore(updatedProgress); // Pass updatedProgress to avoid stale state
-        }
-      }
-    };
-
-
-    const calculateFinalScore = async (latestProgress: { answered: boolean; selected: string | null; result: boolean | null }[]) => {
-      // Debug: Log the final state of progress before score calculation
-      console.log("Final progress state before score calculation:", latestProgress);
-    
-      // Ensure `result` is aggregated correctly
-      const totalScore = latestProgress.reduce((score: number, question) => {
-        if (question.result === true) {
-          return score + 1;
-        }
-        return score;
-      }, 0);
-    
-      // Debug: Log the calculated score
-      console.log("Calculated total score:", totalScore);
-
-      const finalScore = Math.floor(totalScore);
-
-      console.log("Calculated total score (integer):", finalScore);
-    
-      setScore(totalScore);
-    
-      dispatch(setFinalScore(totalScore));
-    
       try {
-        await fetch("http://localhost:5001/api/save-final-score", {
+        await fetch("http://localhost:5001/api/save-question-response", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            questionnaireID: sessionData.QuestionnaireID,
-            sessionID: sessionData.SessionID,
-            finalScore: totalScore,
-          }),
+          body: JSON.stringify(questionData),
         });
       } catch (error) {
-        console.error("Error saving final score:", error);
+        console.error("Error saving question response:", error);
       }
-    
-      navigate("/Score-urdu");
-    };
+  
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        calculateFinalScore(updatedProgress);
+      }
+    }
+  };
+
+  const calculateFinalScore = async (latestProgress: { answered: boolean; selected: string | null; result: boolean | null }[]) => {
+    const totalScore = latestProgress.reduce((score: number, question) => {
+      if (question.result === true) {
+        return score + 1;
+      }
+      return score;
+    }, 0);
+  
+    const finalScore = Math.floor(totalScore);
+  
+    setScore(finalScore);
+    dispatch(setFinalScore(finalScore));
+  
+    try {
+      await fetch("http://localhost:5001/api/save-final-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionnaireID: sessionData.QuestionnaireID,
+          sessionID: sessionData.SessionID,
+          finalScore: finalScore,
+        }),
+      });
+    } catch (error) {
+      console.error("Error saving final score:", error);
+    }
+  
+    navigate("/Score-urdu");
+  };
 
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
@@ -480,114 +479,171 @@ const evaluateCurrentQuestion = () => {
   };
 
   return (
-    <div className={styles.container}>
-      {/* Display All Session Data */}
-      <div className={styles.recentSession}>
-        {sessionData && sessionData.SessionID && sessionData.QuestionnaireID ? (
-          <div>
-            <h3>Session Details</h3>
-            <p>
-              <strong>Session ID:</strong> {sessionData.SessionID}
-            </p>
-            <p>
-              <strong>Questionnaire ID:</strong> {sessionData.QuestionnaireID}
-            </p>
-            <p>
-              <strong>Game Session ID:</strong> {sessionData.GameSessionID || "Not Available"}
-            </p>
-            <p>
-              <strong>Report ID:</strong> {sessionData.ReportID || "Not Available"}
-            </p>
-          </div>
-        ) : (
-          <p>No session data available.</p>
-        )}
-      </div>
+    <Box display="flex" minHeight="100vh" bgcolor="#F5F9FF">
+      {/* Sidebar Navigation */}
+      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+        <Box>
+          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
+            Chavez
+          </Typography>
+          <Divider />
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/dashboard">
+                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="ڈیش بورڈ" sx={{ color: "#003366", textAlign: "right" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/profile">
+                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="پروفائل" sx={{ color: "#003366", textAlign: "right" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/questionnaire-urdu">
+                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="سوالنامہ" sx={{ color: "#003366", textAlign: "right" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/game-selection-urdu">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="کھیل" sx={{ color: "#003366", textAlign: "right" }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/reports-urdu">
+                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
+                <ListItemText primary="رپورٹس" sx={{ color: "#003366", textAlign: "right" }} />
+              </ListItemButton>
+            </ListItem>
+          </List>
 
-      <div className={styles.main}>
-        <div className={styles.path}>Screening Questionnaire</div>
-        {questions.length > 0 ? (
-          <div className={styles.question}>
-            <h2>{currentQuestion?.text}</h2>
-            <div>
-              <button
-                className={selectedOption === "yes" ? styles.selected : ""}
-                onClick={() => handleOptionChange("yes")}
-              >
-                Yes
-              </button>
-              <button
-                className={selectedOption === "no" ? styles.selected : ""}
-                onClick={() => handleOptionChange("no")}
-              >
-                No
-              </button>
-            </div>
+          <Divider />
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout sx={{ color: "#003366" }} />
+                </ListItemIcon>
+                <ListItemText primary="لاگ آؤٹ" primaryTypographyProps={{ sx: { color: "#003366", textAlign: "right" } }} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+      </Box>
 
-            {selectedOption && currentQuestion.followUps[selectedOption]?.length > 0 && (
-              <div className={styles.followUps}>
-                <h3>Follow-up Questions</h3>
-                {currentQuestion.followUps[selectedOption].map((followUp, idx) => (
-                  <div key={idx} className={styles.followUp}>
-                    <p>{followUp}</p>
-                    <button
-                      className={followUpResponses[followUp] === true ? styles.selected : ""}
-                      onClick={() => handleFollowUpChange(followUp, "yes")}
-                    >
-                      Yes
-                    </button>
-                    <button
-                      className={followUpResponses[followUp] === false ? styles.selected : ""}
-                      onClick={() => handleFollowUpChange(followUp, "no")}
-                    >
-                      No
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className={styles.loading}>Loading questions...</div>
-        )}
-
-        <div className={styles.navigation}>
-          <button onClick={handleBack} disabled={currentQuestionIndex === 0}>
-            Back
-          </button>
-          <button
-            onClick={handleNext}
-            disabled={!progress[currentQuestionIndex]?.answered}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className={styles.sidebar}>
-        <h3>Progress</h3>
-        <ul>
-          {progress.map((question, index) => (
-            <li
-              key={index}
-              className={
-                index === currentQuestionIndex
-                  ? styles.current
-                  : question.answered
-                  ? styles.answered
-                  : styles.unanswered
-              }
+      {/* Main Content Area */}
+      <Box flexGrow={1} p={4}>
+        {/* Question Box */}
+        <Box className={styles.questionBox} dir="rtl">
+          <Typography variant="h5" className={styles.questionText}>
+            {currentQuestion?.text}
+          </Typography>
+          <Box className={styles.options}>
+            <Button
+              className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
+              onClick={() => handleOptionChange("yes")}
             >
-              Question {index + 1}:{" "}
-              {question.answered ? (question.result ? "Pass" : "Fail") : "Unanswered"}
-            </li>
+              ہاں
+            </Button>
+            <Button
+              className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
+              onClick={() => handleOptionChange("no")}
+            >
+              نہیں
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Follow-Up Questions */}
+        {selectedOption && dynamicFollowUps.length > 0 && (
+          <Box className={styles.followUpBox} dir="rtl">
+            <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+              متعلقہ سوالات
+            </Typography>
+            {dynamicFollowUps.map((followUp, index) => (
+              <Box key={index} className={styles.followUpQuestion}>
+                <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
+                  {followUp}
+                </Typography>
+                <Box display="flex" gap={2} mt={1}>
+                  <Button
+                    className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
+                    onClick={() => handleFollowUpChange(followUp, "yes")}
+                  >
+                    ہاں
+                  </Button>
+                  <Button
+                    className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
+                    onClick={() => handleFollowUpChange(followUp, "no")}
+                  >
+                    نہیں
+                  </Button>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* Navigation Buttons */}
+        <Box display="flex" justifyContent="space-between" mt={3}>
+          <Button
+            className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
+            onClick={handleBack}
+            disabled={currentQuestionIndex === 0}
+          >
+            پیچھے
+          </Button>
+          
+          {currentQuestionIndex === questions.length - 1 ? (
+            <Button
+              className={`${styles.navButton} ${styles.selectedButton}`}
+              onClick={handleNext}
+            >
+              جمع کرائیں
+            </Button>
+          ) : (
+            <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
+              آگے
+            </Button>
+          )}
+        </Box>
+      </Box>
+
+      {/* Progress Sidebar */}
+      <Box width="250px" flexShrink={0} p={2} bgcolor="#ffffff" borderLeft="1px solid #ddd">
+        <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+          پیشرفت
+        </Typography>
+        <List>
+          {progress.map((q, i) => (
+            <ListItem key={i} disablePadding sx={{ mb: 1 }}>
+              <Button
+                variant="contained"
+                disableElevation
+                disabled
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  width: "100%",
+                  minWidth: "180px",
+                  backgroundColor: q.answered ? "#e3f2fd" : "#f5f5f5",
+                  color: "#003366"
+                }}
+              >
+                {`سوال ${i + 1}`}
+                {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
+              </Button>
+            </ListItem>
           ))}
-        </ul>
-      </div>
-    </div>
+        </List>
+      </Box>
+    </Box>
   );
 };
 
-export default QuestionComponent;
+export default QuestionnaireUrdu;
 

@@ -226,7 +226,7 @@ async def start_eye_tracking2(data: dict):
         
         # Launch the subprocess with proper permissions
         process = subprocess.Popen(
-            ["python3", script_path, str(session_id)], 
+            ["python", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
