@@ -52,6 +52,7 @@ import ChildProfile from 'components/profile';
 import Audio from 'components/Audio';
 
 import store from './components/redux/store';  // Import the Redux store
+// import ProgressOverview from './components/ProgressOverview';
 
 const App: React.FC = () => {
   return (
@@ -93,6 +94,7 @@ const App: React.FC = () => {
             
             {/* <Route path='/qc' element={<QC/>} />
             <Route path='/ammar' element={<QC1/>} /> */}
+            {/* <Route path="/progress-overview" element={<ProgressOverview />} /> ✅ Add this */}
           </Routes>
         </Router>
       </ThemeProvider>

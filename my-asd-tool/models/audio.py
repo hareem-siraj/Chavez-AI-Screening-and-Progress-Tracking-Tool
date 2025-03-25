@@ -9,7 +9,10 @@ import wave
 from pydub import AudioSegment
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import subprocess
+import json
+import importlib.util
 
 # Load trained model
 MODEL_PATH = "models/random_forest.pkl"
@@ -35,7 +38,7 @@ NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
 
 # Recording configuration
 SAMPLE_RATE = 44100
-RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 51)]  # Start and stop times in seconds
+RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 59)]  # Start and stop times in seconds
 
 
 # 🎤 Function to record audio at specific timestamps
@@ -263,3 +266,33 @@ async def stop_eye_tracking2(data: dict):
     except Exception as e:
         print(f"Error stopping eye tracking: {str(e)}")
         return {"error": str(e)}
+    
+
+# 📊 API: Generate Autism Report
+    
+class ReportRequest(BaseModel):
+    data: str  # JSON string
+
+file_path = os.path.join(os.path.dirname(__file__), "report_gemini.py")
+
+# Load module
+spec = importlib.util.spec_from_file_location("report_gemini", file_path)
+report_gemini = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(report_gemini)
+
+@app.post("/api/generate-report")
+async def generate_report(req: ReportRequest):
+    try:
+        report_data = json.loads(req.data)
+        report_text = report_gemini.generate_autism_report(report_data)
+        # report_gemini.export_report_to_pdf(report_text, filename="autism_report.pdf")
+
+        # return {"report": report_text}
+        return report_text
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/download-report")
+async def download_report():
+    from fastapi.responses import FileResponse
+    return FileResponse("autism_report.pdf", media_type="application/pdf", filename="autism_report.pdf")
