@@ -118,8 +118,6 @@ async def process_video(session_data: dict):
     # Process and store the combined recording
     return process_and_store_recordings(combined_audio_path, session_id)
 
-    # return process_and_store_recordings(recorded_files, session_id)
-
 # 🎯 Process, Predict, and Store Data
 def process_and_store_recordings(combined_audio_path, session_id):
     print(f"Processing combined audio file: {combined_audio_path}")
@@ -130,16 +128,6 @@ def process_and_store_recordings(combined_audio_path, session_id):
     # Predict ASD or Neurotypical
     prediction = rf_model.predict(features)[0]
     label = "Autistic" if prediction == 1 else "Neurotypical"
-
-    # for file_path in recorded_files:
-    #     print(f"Processing {file_path}...")
-
-    #     # Extract speech features
-    #     features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(file_path)
-        
-    #     # Predict ASD or Neurotypical
-    #     prediction = rf_model.predict(features)[0]
-    #     label = "Autistic" if prediction == 1 else "Neurotypical"
 
         # Prepare data for storage
     payload = {
@@ -180,7 +168,6 @@ async def start_eye_tracking(data: dict):
             return {"error": f"Eye tracking script not found at {script_path}"}
         
         # Launch the subprocess with proper permissions
-        # Use 'python' instead of 'python3' if running on Windows
         process = subprocess.Popen(
             ["python3", script_path, str(session_id)], 
             # Redirect output to prevent blocking
@@ -231,13 +218,11 @@ async def start_eye_tracking2(data: dict):
             return {"error": f"Eye tracking script not found at {script_path}"}
         
         # Launch the subprocess with proper permissions
-        # Use 'python' instead of 'python3' if running on Windows
         process = subprocess.Popen(
             ["python3", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            # Run in background
             start_new_session=True
         )
         
@@ -285,9 +270,6 @@ async def generate_report(req: ReportRequest):
     try:
         report_data = json.loads(req.data)
         report_text = report_gemini.generate_autism_report(report_data)
-        # report_gemini.export_report_to_pdf(report_text, filename="autism_report.pdf")
-
-        # return {"report": report_text}
         return report_text
     except Exception as e:
         return {"error": str(e)}
