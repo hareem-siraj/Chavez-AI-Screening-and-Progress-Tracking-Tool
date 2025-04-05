@@ -3,11 +3,11 @@
 import React, { useEffect, useRef } from "react";
 import styles from "../theme/Questions.module.css";
 // import logo from "../assets/logo.png"; // Adjust the path based on your project structure
-import { Box, Typography, } from "@mui/material";
-import { Home, Assessment } from "@mui/icons-material";
-import { Link } from "react-router-dom";
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
-import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
+import { Box } from "@mui/material";
+// import { Home, Assessment } from "@mui/icons-material";
+// import { Link } from "react-router-dom";
+// import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
+// import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -23,8 +23,26 @@ const Balloon: React.FC = () => {
       // Handle message from Unity WebGL
       if (event.data === "gameEnded") {
         console.log("Game ended message received");
+
+
+        const markBalloonStatusAndNavigate = async () => {
+          try {
+            await fetch(`http://localhost:5001/api/mark-balloon-status-true/${sessionID}`, {
+              method: "POST",
+            });
+            console.log("Balloon status marked as true");
+          } catch (error) {
+            console.error("Error marking balloon status:", error);
+          }
+  
+          navigate("/game-selection");
+        };
+  
+        markBalloonStatusAndNavigate();
+
+
         // Navigate using React Router instead of window.location
-        navigate("/game-selection");
+        // navigate("/game-selection");
       }
     };
 

@@ -723,11 +723,16 @@ const evaluateCurrentQuestion = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            questionnaireID: sessionData.QuestionnaireID,
+            // questionnaireID: sessionData.QuestionnaireID,
             sessionID: sessionData.SessionID,
             finalScore: totalScore,
           }),
         });
+
+        await fetch(`http://localhost:5001/api/mark-ques-status-true/${sessionData.SessionID}`, {
+          method: "POST",
+        });
+        
       } catch (error) {
         console.error("Error saving final score:", error);
       }

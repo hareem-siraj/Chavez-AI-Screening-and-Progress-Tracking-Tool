@@ -149,6 +149,18 @@ def process_and_store_recordings(combined_audio_path, session_id):
             print(f"Failed to send data to server: {str(e)}")
 
     print(f"Stored result: {combined_audio_path} - {label}")
+
+
+    # CALL API HERE "/api/mark-speech-status-true/:sessionId"
+    try:
+        speech_status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
+        status_response = requests.post(speech_status_url)
+        status_response.raise_for_status()
+        print(f"✅ Speech status updated for SessionID: {session_id}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Failed to update SpeechStatus: {str(e)}")
+
+        
     return {"status": "Processing completed.", "sessionID": session_id, "prediction": label}
 
 

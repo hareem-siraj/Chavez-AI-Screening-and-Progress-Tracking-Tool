@@ -215,25 +215,36 @@ app.post("/api/start-session", async (req, res) => {
   try {
     // Generate random unique IDs
     const SessionID = generateRandomId();
-    const QuestionnaireID = generateRandomId();
-    const GameSessionID = generateRandomId();
-    const ReportID = generateRandomId();
+    // const QuestionnaireID = generateRandomId();
+    // const GameSessionID = generateRandomId();
+    // const ReportID = generateRandomId();
 
     // Insert the new session into the database
+    // const insertQuery = `
+    //   INSERT INTO "Session" ("ChildID", "SessionID", "QuestionnaireID", "GameSessionID", "ReportID")
+    //   VALUES ($1, $2, $3, $4, $5) RETURNING *;
+    // `;
+
     const insertQuery = `
-      INSERT INTO "Session" ("ChildID", "SessionID", "QuestionnaireID", "GameSessionID", "ReportID")
-      VALUES ($1, $2, $3, $4, $5) RETURNING *;
-    `;
-    const values = [ChildID, SessionID, QuestionnaireID, GameSessionID, ReportID];
+    INSERT INTO "Session" ("ChildID", "SessionID")
+    VALUES ($1, $2) RETURNING *;
+  `;
+
+    // const values = [ChildID, SessionID, QuestionnaireID, GameSessionID, ReportID];
+    const values = [ChildID, SessionID];
     const result = await pool.query(insertQuery, values);
 
     // Return the new session data
+    // res.status(201).json({
+    //   session: result.rows[0],
+    //   SessionID,
+    //   QuestionnaireID,
+    //   GameSessionID,
+    //   ReportID,
+    // });
     res.status(201).json({
       session: result.rows[0],
       SessionID,
-      QuestionnaireID,
-      GameSessionID,
-      ReportID,
     });
   } catch (error) {
     console.error("Error creating session:", error);
@@ -320,11 +331,11 @@ app.post("/api/save-question-response", async (req, res) => {
 
 // Endpoint to save the final score of the questionnaire
 app.post("/api/save-final-score", async (req, res) => {
-  const { questionnaireID, sessionID, finalScore } = req.body;
+  const {sessionID, finalScore } = req.body;
 
   try {
     // Ensure sessionID is a number and questionnaireID is a string
-    if (!questionnaireID || !sessionID || finalScore === undefined) {
+    if (!sessionID || finalScore === undefined) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
@@ -1033,8 +1044,15 @@ app.get("/api/get-session/:ChildID", async (req, res) => {
   const { ChildID } = req.params;
   
   try {
+    // const query = `
+    //   SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+    //   FROM "Session" 
+    //   WHERE "ChildID" = $1 
+    //   ORDER BY "SessionID" DESC 
+    //   LIMIT 1;
+    // `;
     const query = `
-      SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+      SELECT "SessionID"
       FROM "Session" 
       WHERE "ChildID" = $1 
       ORDER BY "SessionID" DESC 
@@ -1054,82 +1072,21 @@ app.get("/api/get-session/:ChildID", async (req, res) => {
 });
 
 
-//progress tracking sameen
-app.get("/api/progress/:SessionID", async (req, res) => {
-  const { SessionID } = req.params;
-
-  try {
-    // Check if the session exists
-    const sessionCheckQuery = `SELECT * FROM "Session" WHERE "SessionID" = $1`;
-    const sessionCheckResult = await pool.query(sessionCheckQuery, [SessionID]);
-
-    if (sessionCheckResult.rows.length === 0) {
-      return res.status(404).json({ message: "Session not found." });
-    }
-
-    // Check questionnaire progress
-    const questionnaireQuery = `SELECT COUNT(*) AS answered FROM "Question" WHERE "QuestionnaireID" = (SELECT "QuestionnaireID" FROM "Session" WHERE "SessionID" = $1)`;
-    const questionnaireResult = await pool.query(questionnaireQuery, [SessionID]);
-
-    // Check all 4 game completions
-    const balloonGameQuery = `SELECT COUNT(*) AS completed FROM balloongame WHERE "SessionID" = $1`;
-    const balloonGameResult = await pool.query(balloonGameQuery, [SessionID]);
-
-    const followGameQuery = `SELECT COUNT(*) AS completed FROM "FollowData" WHERE "SessionID" = $1`;
-    const followGameResult = await pool.query(followGameQuery, [SessionID]);
-
-    const humanGameQuery = `SELECT COUNT(*) AS completed FROM "HumanData" WHERE "SessionID" = $1`;
-    const humanGameResult = await pool.query(humanGameQuery, [SessionID]);
-
-    const puzzleGameQuery = `SELECT COUNT(*) AS completed FROM "Puzzle" WHERE "SessionID" = $1`;
-    const puzzleGameResult = await pool.query(puzzleGameQuery, [SessionID]);
-
-    // Check speech analysis completion
-    const speechQuery = `SELECT COUNT(*) AS completed FROM "SpeechAnalysis" WHERE "SessionID" = $1`;
-    const speechResult = await pool.query(speechQuery, [SessionID]);
-
-    // Determine progress
-    const questionnaireCompleted = parseInt(questionnaireResult.rows[0].answered) >= 20;
-    const balloonCompleted = parseInt(balloonGameResult.rows[0].completed) > 0;
-    const followCompleted = parseInt(followGameResult.rows[0].completed) > 0;
-    const humanCompleted = parseInt(humanGameResult.rows[0].completed) > 0;
-    const puzzleCompleted = parseInt(puzzleGameResult.rows[0].completed) > 0;
-    const speechCompleted = parseInt(speechResult.rows[0].completed) > 0;
-
-    // Check if all 4 games are completed
-    const gamesCompleted = balloonCompleted && followCompleted && humanCompleted && puzzleCompleted;
-
-    // Session completion check
-    const isSessionComplete = questionnaireCompleted && gamesCompleted && speechCompleted;
-
-    res.status(200).json({
-      sessionId: SessionID,
-      questionnaireCompleted,
-      games: {
-        balloonGame: balloonCompleted,
-        followTheFish: followCompleted,
-        humanVsObject: humanCompleted,
-        emotionPuzzle: puzzleCompleted,
-      },
-      speechCompleted,
-      isSessionComplete,
-    });
-
-  } catch (error) {
-    console.error("Error fetching progress:", error);
-    res.status(500).json({ message: "Server error while fetching progress." });
-  }
-});
-
-
 // sameen coded seesion 4-3-25 = all sessionid against a child
 // ✅ **Endpoint: Fetch All Sessions for a Child**
 app.get("/api/allSessions/:ChildID", async (req, res) => {
   const { ChildID } = req.params;
 
   try {
+    // const query = `
+    //   SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+    //   FROM "Session" 
+    //   WHERE "ChildID" = $1 
+    //   ORDER BY "SessionID" DESC;
+    // `;
+
     const query = `
-      SELECT "SessionID", "QuestionnaireID", "GameSessionID", "ReportID" 
+      SELECT "SessionID"
       FROM "Session" 
       WHERE "ChildID" = $1 
       ORDER BY "SessionID" DESC;
@@ -1144,6 +1101,173 @@ app.get("/api/allSessions/:ChildID", async (req, res) => {
   } catch (error) {
     console.error("Error fetching sessions:", error);
     res.status(500).json({ message: "Error fetching sessions" });
+  }
+});
+
+app.get("/api/get-session-status-by-id/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+        "SessionID", 
+        "FishStatus", 
+        "HumanObjStatus", 
+        "EmotionStatus", 
+        "SpeechStatus", 
+        "BalloonStatus", 
+        "QuesStatus"
+      FROM "Session"
+      WHERE "SessionID" = $1`,
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error fetching session status by ID:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-speech-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "SpeechStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "SpeechStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating SpeechStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-ques-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "QuesStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "QuesStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating QuesStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-balloon-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "BalloonStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "BalloonStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating BalloonStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-emotion-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "EmotionStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "EmotionStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating EmotionStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-humanobj-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "HumanObjStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "HumanObjStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating HumanObjStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/mark-fish-status-true/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Session"
+       SET "FishStatus" = true
+       WHERE "SessionID" = $1
+       RETURNING *`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Session not found." });
+    }
+
+    res.json({ message: "FishStatus marked as true.", session: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating FishStatus:", error);
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 

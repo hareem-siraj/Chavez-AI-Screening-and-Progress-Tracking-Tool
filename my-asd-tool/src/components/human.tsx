@@ -175,13 +175,27 @@ const Human: React.FC = () => {
         const response = await axios.post("http://localhost:8000/stop-eyetracking2/", { sessionID });
         console.log("Eye tracking stop response:", response.data);
 
+        const markBalloonStatusAndNavigate = async () => {
+          try {
+            await fetch(`http://localhost:5001/api/mark-humanobj-status-true/${sessionID}`, {
+              method: "POST",
+            });
+            console.log("HvObj status marked as true");
+          } catch (error) {
+            console.error("Error marking balloon status:", error);
+          }
+  
+          navigate("/game-selection");
+        };
+
         if (response.data.message) {
             console.log("Eye tracking stopped successfully");
             setEyeTrackingStatus("idle");
 
             // Delay navigation slightly to ensure camera stops
             setTimeout(() => {
-                navigate("/game-selection");
+                // navigate("/game-selection");
+                markBalloonStatusAndNavigate();
             }, 1000);
         } else {
             console.error("Eye tracking failed to stop:", response.data.error);
@@ -199,7 +213,7 @@ const Human: React.FC = () => {
         console.log("Game ended message received");
         stopEyeTracking();
         // Navigate using React Router instead of window.location
-        navigate("/game-selection");
+        // navigate("/game-selection");
       }
     };
 
