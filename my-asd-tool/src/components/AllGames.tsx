@@ -3,7 +3,7 @@ import { Box, Typography, Grid } from "@mui/material";
 import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
-import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
+import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { setSessionIds } from "./redux/store";
 import { useDispatch } from "react-redux";

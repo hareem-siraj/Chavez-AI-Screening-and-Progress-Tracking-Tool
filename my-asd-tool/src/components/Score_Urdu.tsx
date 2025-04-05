@@ -4,7 +4,7 @@ import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider} from "@mui/material";
-import { Person, QuestionAnswer, Settings, Logout} from "@mui/icons-material";
+import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
 
 const FinalScoreUrdu: React.FC = () => {
   // Get Redux state for session and score data

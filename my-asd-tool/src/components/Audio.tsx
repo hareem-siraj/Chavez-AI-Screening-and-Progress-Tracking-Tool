@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import styles from "../theme/Questions.module.css";
+// import { useLocation } from "react-router-dom";
+// import styles from "../theme/Questions.module.css";
 import { Box, Typography } from "@mui/material";
 import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
-import { Person, QuestionAnswer, Settings, Logout, HelpOutline } from "@mui/icons-material";
+import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { response } from "express";
+// import { response } from "express";
 import { setSessionIds } from "./redux/store";
 import { useDispatch } from "react-redux";
 
 const Audio: React.FC = () => {
-  const location = useLocation();
+  // const location = useLocation();
   // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
