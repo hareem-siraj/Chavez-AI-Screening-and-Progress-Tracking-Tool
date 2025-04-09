@@ -4,7 +4,7 @@ import pandas as pd
 import joblib
 
 # Load the trained model
-BALLOON_MODEL_PATH = "models/model_updated2.pkl"
+BALLOON_MODEL_PATH = "models/model_updated22.pkl"
 rf_balloon_model = joblib.load(BALLOON_MODEL_PATH)
 
 # Node.js API Endpoints

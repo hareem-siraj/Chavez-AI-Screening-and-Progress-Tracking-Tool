@@ -768,13 +768,27 @@ app.get("/api/speech-analysis", async (req, res) => {
   }
 });
 
-// Get Balloon Game Data
-app.get("/api/balloon-game", async (req, res) => {
-  const { sessionId } = req.query;
+// // Get Balloon Game Data
+// app.get("/api/balloon-game", async (req, res) => {
+//   const { sessionId } = req.query;
+//   try {
+//     const result = await pool.query(
+//       'SELECT * FROM balloongame WHERE "SessionID" = $1',
+//       [sessionId]
+//     );
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+app.post("/api/balloon-game", async (req, res) => {
+  const { sessionID } = req.body;
   try {
     const result = await pool.query(
       'SELECT * FROM balloongame WHERE "SessionID" = $1',
-      [sessionId]
+      [sessionID]
     );
     res.json(result.rows);
   } catch (err) {
@@ -783,13 +797,27 @@ app.get("/api/balloon-game", async (req, res) => {
   }
 });
 
-// Get Emotion Puzzle Data
-app.get("/api/emotion-puzzle", async (req, res) => {
-  const { sessionId } = req.query;
+// // Get Emotion Puzzle Data
+// app.post("/api/emotion-puzzle", async (req, res) => {
+//   const { sessionId } = req.query;
+//   try {
+//     const result = await pool.query(
+//       'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
+//       [sessionId]
+//     );
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+app.post("/api/emotion-puzzle", async (req, res) => {
+  const { sessionID } = req.body; // ✅ Correct for POST
   try {
     const result = await pool.query(
       'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
-      [sessionId]
+      [sessionID]
     );
     res.json(result.rows);
   } catch (err) {
@@ -797,6 +825,7 @@ app.get("/api/emotion-puzzle", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
 
 app.post("/api/save-follow-data", async (req, res) => {
   try {
@@ -1282,7 +1311,7 @@ app.post("/api/update-balloon-emotion-output", async (req, res) => {
 
   try {
     const result = await pool.query(
-      'UPDATE sessions SET balloonemotion_output = $1 WHERE "SessionID" = $2',
+      'UPDATE "Session" SET "balloonemotion_output" = $1 WHERE "SessionID" = $2',
       [balloonemotion_output, sessionID]
     );
 
