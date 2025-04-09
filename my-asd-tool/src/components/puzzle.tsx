@@ -17,41 +17,79 @@ const Puzzle: React.FC = () => {
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
 
-  // Add event listener for messages from the iframe
+  // // Add event listener for messages from the iframe
+  // useEffect(() => {
+  //   const handleMessage = (event: MessageEvent) => {
+  //     // Handle message from Unity WebGL
+  //     if (event.data === "gameEnded") {
+  //       console.log("Game ended message received");
+
+  //       const markBalloonStatusAndNavigate = async () => {
+  //         try {
+  //           await fetch(`http://localhost:5001/api/mark-emotion-status-true/${sessionID}`, {
+  //             method: "POST",
+  //           });
+  //           console.log("Emotion status marked as true");
+  //         } catch (error) {
+  //           console.error("Error marking balloon status:", error);
+  //         }
+  
+  //         navigate("/game-selection");
+  //       };
+  
+  //       markBalloonStatusAndNavigate();
+
+  //       // Navigate using React Router instead of window.location
+  //       // navigate("/game-selection");
+  //     }
+  //   };
+
+  //   // Add event listener
+  //   window.addEventListener("message", handleMessage);
+
+  //   // Clean up event listener when component unmounts
+  //   return () => {
+  //     window.removeEventListener("message", handleMessage);
+  //   };
+  // }, [navigate]);
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Handle message from Unity WebGL
       if (event.data === "gameEnded") {
         console.log("Game ended message received");
-
+  
         const markBalloonStatusAndNavigate = async () => {
           try {
             await fetch(`http://localhost:5001/api/mark-emotion-status-true/${sessionID}`, {
               method: "POST",
             });
-            console.log("Emotion status marked as true");
+            console.log("✅ Emotion status marked as true");
+  
+            const response = await fetch("http://localhost:8000/process-balloon-emotion/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sessionID }),
+            });
+  
+            const result = await response.json();
+            console.log("✅ FastAPI prediction result:", result);
           } catch (error) {
-            console.error("Error marking balloon status:", error);
+            console.error("❌ Error calling APIs:", error);
           }
   
           navigate("/game-selection");
         };
   
         markBalloonStatusAndNavigate();
-
-        // Navigate using React Router instead of window.location
-        // navigate("/game-selection");
       }
     };
-
-    // Add event listener
+  
     window.addEventListener("message", handleMessage);
-
-    // Clean up event listener when component unmounts
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [navigate]);
+  }, [navigate, sessionID]);
+  
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">

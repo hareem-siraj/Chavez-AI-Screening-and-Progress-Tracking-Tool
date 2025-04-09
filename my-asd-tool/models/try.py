@@ -19,9 +19,9 @@ else:
 
 # Load Dlib's face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("/Users/simalanjum/Desktop/Chavez-AI-Screening-and-Progress-Tracking-Tool/my-asd-tool/models/shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("C:\Users\Siraj\Documents\GitHub\Chavez-AI-Screening-and-Progress-Tracking-Tool\Chavez-AI-Screening-and-Progress-Tracking-Tool\my-asd-tool\models\shape_predictor_68_face_landmarks.dat")
+#C:\Users\Siraj\Documents\GitHub\Chavez-AI-Screening-and-Progress-Tracking-Tool\Chavez-AI-Screening-and-Progress-Tracking-Tool\my-asd-tool\models\shape_predictor_68_face_landmarks.dat
 # /Users/simalanjum/Desktop/Chavez-AI-Screening-and-Progress-Tracking-Tool/my-asd-tool/models/shape_predictor_68_face_landmarks.dat
-# predictor = dlib.shape_predictor("my-asd-tool/models/shape_predictor_68_face_landmarks.dat")
 
 # Function to get eye landmarks
 def get_eye_landmarks(landmarks, eye_indices):

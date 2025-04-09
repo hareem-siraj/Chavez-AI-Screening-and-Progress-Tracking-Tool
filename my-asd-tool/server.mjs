@@ -3,6 +3,7 @@ import pkg from "pg"; // Default import
 import dotenv from "dotenv";
 import cors from "cors"; // Import cors
 import nodemailer from 'nodemailer';
+// import fetch from 'node-fetch';
 import nodemailerMailjetTransport from "nodemailer-mailjet-transport";
 
 dotenv.config();
@@ -512,12 +513,13 @@ app.post("/api/save-audio-data", async (req, res) => {
     `;
     await pool.query(speechDataQuery, [SessionID, MFCC_Mean, ResponseLatency, SpeechConfidence, SpeechOnsetDelay, EcholaliaScore, Timestamp]);
 
-    // Insert into SpeechAnalysis table
-    const analysisQuery = `
-      INSERT INTO "SpeechAnalysis" ("SessionID", "PredictionLabel", "Timestamp")
-      VALUES ($1, $2, $3)
+    const updateSessionQuery = `
+      UPDATE "Session"
+      SET "audio_output" = $1
+      WHERE "SessionID" = $2
     `;
-    await pool.query(analysisQuery, [SessionID, Prediction, Timestamp]);
+    await pool.query(updateSessionQuery, [Prediction, SessionID]);
+
 
     res.status(200).json({ message: "Audio data saved successfully" });
   } catch (error) {
@@ -1270,6 +1272,31 @@ app.post("/api/mark-fish-status-true/:sessionId", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+app.post("/api/update-balloon-emotion-output", async (req, res) => {
+  const { sessionID, balloonemotion_output } = req.body;
+
+  if (!sessionID || !balloonemotion_output) {
+    return res.status(400).send("Missing sessionID or balloonemotion_output");
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE sessions SET balloonemotion_output = $1 WHERE "SessionID" = $2',
+      [balloonemotion_output, sessionID]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("Session not found");
+    }
+
+    res.status(200).send("Balloon emotion output updated successfully");
+  } catch (err) {
+    console.error("❌ Error updating balloonemotion_output:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 
 
 // Start the server
