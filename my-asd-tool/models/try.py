@@ -8,6 +8,7 @@ import os
 import requests
 import json
 from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 
 # API endpoint
@@ -198,11 +199,21 @@ if scanpath:
     # plt.show()
     plt.close() 
 
-    # Load and run prediction from .h5 model
     try:
         model = load_model("models/ftf_model.h5")
-        prediction = model.predict([output_image])
-        print("Model prediction:", prediction)
+        
+        # Load the image in grayscale and resize to 200x200
+        img = load_img(output_image, color_mode='grayscale', target_size=(200, 200))
+        img_array = img_to_array(img)
+        
+        # Normalize and reshape to (1, 200, 200, 1)
+        img_array = img_array / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        print("Image shape before prediction:", img_array.shape)  # Should be (1, 200, 200, 1)
+        
+        prediction = model.predict(img_array)[0][0]  # Get scalar float output
+        print(f"Predicted ASD probability: {prediction:.4f}")
     except Exception as e:
         print("Model prediction failed:", e)
         prediction = None
@@ -211,9 +222,9 @@ if scanpath:
     try:
         payload = {
             "sessionID": session_id,
-            "ftf_output": prediction.tolist() if prediction is not None else None
+            "ftf_output": float(prediction) if prediction is not None else None
         }
-        response = requests.post(API_URL1, json=payload, headers={"Content-Type": "application/json"})
+        response = requests.post(API_URL, json=payload, headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             print("FTF output saved successfully.")
         else:
