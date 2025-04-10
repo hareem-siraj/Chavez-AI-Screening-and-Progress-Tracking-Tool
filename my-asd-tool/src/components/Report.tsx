@@ -16,25 +16,8 @@ import {
   InputLabel,
   Box,
   Typography,
-  // Accordion,
-  // AccordionSummary,
-  // AccordionDetails,
-  // Paper,
-  // Table,
-  // TableBody,
-  // TableCell,
-  // TableContainer,
-  // TableHead,
-  // TableRow,
 } from "@mui/material";
-// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Home, Person, QuestionAnswer, Assessment, Logout } from "@mui/icons-material";
-
-
-// // Define types
-// interface SessionData {
-//   SessionID: string;
-// }
 
 interface QuestionnaireData {
   Session_ID: string;
