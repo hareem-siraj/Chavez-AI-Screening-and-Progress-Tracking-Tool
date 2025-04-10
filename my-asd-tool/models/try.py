@@ -7,9 +7,12 @@ import sys
 import os
 import requests
 import json
+from tensorflow.keras.models import load_model
+
 
 # API endpoint
-API_URL = "http://localhost:5001/api/save-follow-data" 
+# API_URL = "http://localhost:5001/api/save-follow-data" 
+API_URL = "http://localhost:5001/api/update-ftf-output"
 
 if len(sys.argv) > 1:
     session_id = sys.argv[1]  # Get sessionID from command-line argument
@@ -195,8 +198,28 @@ if scanpath:
     # plt.show()
     plt.close() 
 
+    # Load and run prediction from .h5 model
+    try:
+        model = load_model("models/ftf_model.h5")
+        prediction = model.predict([output_image])
+        print("Model prediction:", prediction)
+    except Exception as e:
+        print("Model prediction failed:", e)
+        prediction = None
+
+    # Send prediction to backend
+    try:
+        payload = {
+            "sessionID": session_id,
+            "ftf_output": prediction.tolist() if prediction is not None else None
+        }
+        response = requests.post(API_URL, json=payload, headers={"Content-Type": "application/json"})
+        if response.status_code == 200:
+            print("FTF output saved successfully.")
+        else:
+            print("Error from server:", response.status_code, response.text)
+    except Exception as e:
+        print("Failed to connect to API:", e)
 else:
     print("No eye-tracking data collected. Please ensure face detection works.")
-
-
 

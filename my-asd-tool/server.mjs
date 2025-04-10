@@ -1326,6 +1326,32 @@ app.post("/api/update-balloon-emotion-output", async (req, res) => {
   }
 });
 
+// ✅ New API route to update FTF Output
+app.post("/api/update-ftf-output", async (req, res) => {
+  const { sessionID, ftf_output } = req.body;
+
+  if (!sessionID || !ftf_output) {
+    return res.status(400).send("Missing sessionID or ftf_output");
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE "Session" SET "ftf_output" = $1 WHERE "SessionID" = $2',
+      [ftf_output, sessionID]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("Session not found");
+    }
+
+    res.status(200).send("FTF output updated successfully");
+  } catch (err) {
+    console.error("❌ Error updating ftf_output:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
 
 
 // Start the server
