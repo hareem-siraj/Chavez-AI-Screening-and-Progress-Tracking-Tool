@@ -148,81 +148,149 @@ const Report: React.FC = () => {
     }
   };
 
+  // const fetchData = async (sessionId: string) => {
+  //   try {
+  //     const responses = await Promise.allSettled([
+  //       axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
+  //       axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
+  //       axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
+  //       // axios.get("http://localhost:5001/api/balloon-game", { params: { sessionId } }),
+  //       // axios.get("http://localhost:5001/api/follow-data", { params: { sessionId } }),
+  //       // axios.get("http://localhost:5001/api/human-vs-object", { params: { sessionId } }),
+  //       // axios.get("http://localhost:5001/api/emotion-puzzle", { params: { sessionId } }),
+  //       axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
+  //     ]);
+
+  //     const newData = {
+  //       questionnaire: responses[0].status === "fulfilled" ? responses[0].value.data || [] : [],
+  //       balloonGame: responses[1].status === "fulfilled" ? responses[1].value.data || [] : [],
+  //       followFish: responses[2].status === "fulfilled" ? responses[2].value.data || [] : [],
+  //       humanVsObject: responses[3].status === "fulfilled" ? responses[3].value.data || [] : [],
+  //       // emotionPuzzle: responses[4].status === "fulfilled" ? responses[4].value.data || [] : [],
+  //       // speechAnalysis: responses[5].status === "fulfilled" ? responses[5].value.data || [] : [],
+  //     };
+
+  //     setQuestionnaire(newData.questionnaire);
+  //     setBalloonGame(newData.balloonGame);
+  //     setFollowFish(newData.followFish);
+  //     setHumanVsObject(newData.humanVsObject);
+  //     // setEmotionPuzzle(newData.emotionPuzzle);
+  //     // setSpeechAnalysis(newData.speechAnalysis);
+
+  //     const transformedData = {
+  //       questionnaire: {
+  //         mchat_score: questionnaire[0]?.Final_Score || 0,
+  //       },
+  //       pop_the_balloon: {
+  //         session_duration: balloonGame[0]?.sessionduration || 0,
+  //         correct_taps: balloonGame[0]?.correcttaps || 0,
+  //         missed_balloons: balloonGame[0]?.missedballoons || 0,
+  //         incorrect_clicks: balloonGame[0]?.incorrectclicks || 0,
+  //         total_taps: balloonGame[0]?.totaltaps || 0,
+  //         level: balloonGame[0]?.level || 1,
+  //         age: balloonGame[0]?.Age || 4,
+  //         gender: balloonGame[0]?.Gender || "Unknown"
+  //       },
+  //       emotion_puzzle: {
+  //         attempt_number: emotionPuzzle[0]?.attempt_number || 0,
+  //         correct_emotion: emotionPuzzle[0]?.correct_emotion || "",
+  //         selected_emotion: emotionPuzzle[0]?.selected_emotion || "",
+  //         reaction_time: emotionPuzzle[0]?.reaction_time || 0,
+  //         is_correct: emotionPuzzle[0]?.is_correct || false,
+  //         cumulative_time: emotionPuzzle[0]?.cumulative_time || 0,
+  //         age: emotionPuzzle[0]?.Age || 4,
+  //         gender: emotionPuzzle[0]?.Gender || "Unknown",
+  //         level: emotionPuzzle[0]?.level || 1
+  //       },
+  //       audio_analysis: {
+  //         mfcc_mean: 0.0,
+  //         response_latency: 0.0,
+  //         echolalia_score: 0.0,
+  //         speech_confidence: 0.0
+  //       }
+  //     };
+      
+
+  //     const jsonData = JSON.stringify(transformedData);
+  //     console.log("🔍 jsonData sent to Gemini:", jsonData);
+  //     const geminiResponse = await axios.post("http://localhost:8000/api/generate-report", {
+  //       data: jsonData
+  //     });
+      
+  //     console.log("🔍 Gemini response:", geminiResponse.data);
+
+  //     // setReport(geminiResponse.data.report);
+  //     setReport(geminiResponse.data); // Since you're returning the JSON directly from backend
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+
   const fetchData = async (sessionId: string) => {
     try {
       const responses = await Promise.allSettled([
         axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
-        axios.get("http://localhost:5001/api/balloon-game", { params: { sessionId } }),
-        // axios.get("http://localhost:5001/api/follow-data", { params: { sessionId } }),
-        // axios.get("http://localhost:5001/api/human-vs-object", { params: { sessionId } }),
-        axios.get("http://localhost:5001/api/emotion-puzzle", { params: { sessionId } }),
+        axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
+        axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
         axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
       ]);
-
-      const newData = {
-        questionnaire: responses[0].status === "fulfilled" ? responses[0].value.data || [] : [],
-        balloonGame: responses[1].status === "fulfilled" ? responses[1].value.data || [] : [],
-        followFish: responses[2].status === "fulfilled" ? responses[2].value.data || [] : [],
-        humanVsObject: responses[3].status === "fulfilled" ? responses[3].value.data || [] : [],
-        // emotionPuzzle: responses[4].status === "fulfilled" ? responses[4].value.data || [] : [],
-        // speechAnalysis: responses[5].status === "fulfilled" ? responses[5].value.data || [] : [],
-      };
-
-      setQuestionnaire(newData.questionnaire);
-      setBalloonGame(newData.balloonGame);
-      setFollowFish(newData.followFish);
-      setHumanVsObject(newData.humanVsObject);
-      // setEmotionPuzzle(newData.emotionPuzzle);
-      // setSpeechAnalysis(newData.speechAnalysis);
-
+  
+      const questionnaireData = responses[0].status === "fulfilled" ? responses[0].value.data || [] : [];
+      const balloonData = responses[1].status === "fulfilled" ? responses[1].value.data || [] : [];
+      const emotionData = responses[2].status === "fulfilled" ? responses[2].value.data || [] : [];
+      const speechData = responses[3].status === "fulfilled" ? responses[3].value.data || [] : [];
+  
+      // Optional: keep states updated
+      setQuestionnaire(questionnaireData);
+      setBalloonGame(balloonData);
+      setEmotionPuzzle(emotionData);
+      setSpeechAnalysis(speechData);
+  
       const transformedData = {
         questionnaire: {
-          mchat_score: questionnaire[0]?.Final_Score || 0,
+          mchat_score: questionnaireData[0]?.Final_Score || 0,
         },
         pop_the_balloon: {
-          session_duration: balloonGame[1]?.sessionduration || 0,
-          correct_taps: balloonGame[1]?.correcttaps || 0,
-          missed_balloons: balloonGame[1]?.missedballoons || 0,
-          incorrect_clicks: balloonGame[1]?.incorrectclicks || 0,
-          total_taps: balloonGame[1]?.totaltaps || 0,
-          level: balloonGame[1]?.level || 1,
-          age: balloonGame[1]?.Age || 4,
-          gender: balloonGame[1]?.Gender || "Unknown"
+          session_duration: balloonData[0]?.sessionduration || 0,
+          correct_taps: balloonData[0]?.correcttaps || 0,
+          missed_balloons: balloonData[0]?.missedballoons || 0,
+          incorrect_clicks: balloonData[0]?.incorrectclicks || 0,
+          total_taps: balloonData[0]?.totaltaps || 0,
+          level: balloonData[0]?.level || 1,
+          age: balloonData[0]?.Age || 4,
+          gender: balloonData[0]?.Gender || "Unknown"
         },
         emotion_puzzle: {
-          attempt_number: emotionPuzzle[0]?.attempt_number || 0,
-          correct_emotion: emotionPuzzle[0]?.correct_emotion || "",
-          selected_emotion: emotionPuzzle[0]?.selected_emotion || "",
-          reaction_time: emotionPuzzle[0]?.reaction_time || 0,
-          is_correct: emotionPuzzle[0]?.is_correct || false,
-          cumulative_time: emotionPuzzle[0]?.cumulative_time || 0,
-          age: emotionPuzzle[0]?.Age || 4,
-          gender: emotionPuzzle[0]?.Gender || "Unknown",
-          level: emotionPuzzle[0]?.level || 1
+          attempt_number: emotionData[0]?.attempt_number || 0,
+          correct_emotion: emotionData[0]?.correct_emotion || "",
+          selected_emotion: emotionData[0]?.selected_emotion || "",
+          reaction_time: emotionData[0]?.reaction_time || 0,
+          is_correct: emotionData[0]?.is_correct || false,
+          cumulative_time: emotionData[0]?.cumulative_time || 0,
+          age: emotionData[0]?.Age || 4,
+          gender: emotionData[0]?.Gender || "Unknown",
+          level: emotionData[0]?.level || 1
         },
         audio_analysis: {
-          mfcc_mean: 0.0,
-          response_latency: 0.0,
-          echolalia_score: 0.0,
-          speech_confidence: 0.0
+          mfcc_mean: speechData[0]?.mfcc_mean || 0.0,
+          response_latency: speechData[0]?.response_latency || 0.0,
+          echolalia_score: speechData[0]?.echolalia_score || 0.0,
+          speech_confidence: speechData[0]?.speech_confidence || 0.0
         }
       };
-      
-
+  
       const jsonData = JSON.stringify(transformedData);
       console.log("🔍 jsonData sent to Gemini:", jsonData);
       const geminiResponse = await axios.post("http://localhost:8000/api/generate-report", {
         data: jsonData
       });
-      
-      console.log("🔍 Gemini response:", geminiResponse.data);
-
-      // setReport(geminiResponse.data.report);
-      setReport(geminiResponse.data); // Since you're returning the JSON directly from backend
+  
+      setReport(geminiResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+  
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
