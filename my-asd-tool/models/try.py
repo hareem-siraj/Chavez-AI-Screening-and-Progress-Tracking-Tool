@@ -11,8 +11,8 @@ from tensorflow.keras.models import load_model
 
 
 # API endpoint
-# API_URL = "http://localhost:5001/api/save-follow-data" 
-API_URL = "http://localhost:5001/api/update-ftf-output"
+API_URL = "http://localhost:5001/api/save-follow-data" 
+API_URL1 = "http://localhost:5001/api/update-ftf-output"
 
 if len(sys.argv) > 1:
     session_id = sys.argv[1]  # Get sessionID from command-line argument
@@ -213,7 +213,7 @@ if scanpath:
             "sessionID": session_id,
             "ftf_output": prediction.tolist() if prediction is not None else None
         }
-        response = requests.post(API_URL, json=payload, headers={"Content-Type": "application/json"})
+        response = requests.post(API_URL1, json=payload, headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             print("FTF output saved successfully.")
         else:
