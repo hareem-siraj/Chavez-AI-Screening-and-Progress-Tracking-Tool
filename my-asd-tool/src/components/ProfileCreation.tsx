@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,9 @@ import avatar2 from "../assets/avatars/2.png";
 import avatar3 from "../assets/avatars/3.png";
 import avatar4 from "../assets/avatars/4.png";
 import avatar5 from "../assets/avatars/5.png";
+import {AppBar, Toolbar, IconButton } from "@mui/material";
+import logoImage from "../assets/logo.png";
+
 
 const avatars = [
   { id: 1, src: avatar1 },
@@ -24,7 +27,7 @@ const avatars = [
 const ProfileCreation: React.FC = () => {
   const userIdFromStore = useSelector((state: any) => state.UserID);
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const [childName, setChildName] = useState<string>("");
   const [childDOB, setChildDOB] = useState<string>("");
@@ -69,6 +72,11 @@ const ProfileCreation: React.FC = () => {
     try {
       setLoading(true);
       await axios.post("http://localhost:5001/api/save-child-profile", profileData);
+      const response = await axios.post("http://localhost:5001/api/start-session", {
+        ChildID: childID,
+      });
+  
+      const { SessionID } = response.data;
       navigate("/profile-selection");
     } catch (error) {
       console.error("Error creating profile:", error);
@@ -77,10 +85,32 @@ const ProfileCreation: React.FC = () => {
     }
   };
 
+    const handleLogout = () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/sign-in";
+    };
+  
+    const handleProfileSelection = () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      navigate("/profile-selection");
+    };
+
   return (
-    <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
+    <Box display="flex" flexDirection="column" minHeight="100vh">
+
+        <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+          <Toolbar sx={{ justifyContent: "space-between" }}>
+            <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
+            <Box display="flex" alignItems="center">
+              <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
+              <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
       {/* Sidebar */}
-     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
+     {/* <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
         <Box>
           <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
             Chavez
@@ -132,7 +162,7 @@ const ProfileCreation: React.FC = () => {
             </List>
             
         </Box>
-      </Box>
+      </Box> */}
 
       {/* Main Content */}
 {/* <Box flexGrow={1} p={4} bgcolor="#e6f4ff">

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Box, Button, Typography, Avatar, List, ListItem, ListItemButton, 
-  ListItemIcon, ListItemText, Divider, Grid
+  Box, Button, Typography, Avatar, List, ListItem, ListItemText, Grid, AppBar, Toolbar, IconButton
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, CheckCircle, Cancel, Logout} from "@mui/icons-material";
+import { Home, Person, CheckCircle, Cancel, Logout, Lock} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setSessionIds } from "./redux/store";
@@ -14,6 +13,8 @@ import avatar3 from "../assets/avatars/3.png";
 import avatar4 from "../assets/avatars/4.png";
 import avatar5 from "../assets/avatars/5.png";
 import { useNavigate } from "react-router-dom";
+import logoImage from "../assets/logo.png"; 
+import { keyframes } from '@mui/system';
 
 const avatars = [
   { id: 1, src: avatar1 },
@@ -30,6 +31,7 @@ const Dashboard: React.FC = () => {
   const sessionData = useSelector((state: any) => state.sessionData); 
   const [sessionStarted, setSessionStarted] = useState(false);
   const [childProfile, setChildProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -37,6 +39,7 @@ const Dashboard: React.FC = () => {
     if (selectedChildId) {
       fetchChildProfile(selectedChildId);
       fetchSessionData(selectedChildId);
+      fetchAndStoreSessionStatus(sessionData.SessionID);
     }
   }, [selectedChildId]);
 
@@ -93,14 +96,15 @@ const Dashboard: React.FC = () => {
       if (response.data) {
         const { SessionID } = response.data;
   
-        dispatch(
-          setSessionIds({
-            SessionID,
-            QuestionnaireID: null,
-            GameSessionID: null,
-            ReportID: null,
-          })
-        );
+        const sessionPayload = {
+          SessionID,
+          QuestionnaireID: null,
+          GameSessionID: null,
+          ReportID: null,
+        };
+        dispatch(setSessionIds(sessionPayload));
+        localStorage.setItem("sessionData", JSON.stringify(sessionPayload)); // <-- ADD THIS LINE
+        fetchAndStoreSessionStatus(sessionData.SessionID);
         setSessionStarted(true);
       }
     } catch (error) {
@@ -133,9 +137,9 @@ const Dashboard: React.FC = () => {
         GameSessionID: null,
         ReportID: null,
       };
-
-
       dispatch(setSessionIds(sessionPayload));
+      localStorage.setItem("sessionData", JSON.stringify(sessionPayload)); // <-- ADD THIS LINE
+      setSessionStarted(true);
   
     } catch (error) {
       console.error("Error starting session:", error);
@@ -180,6 +184,7 @@ const Dashboard: React.FC = () => {
   };
 
   const getStoredSessionStatus = () => {
+    fetchAndStoreSessionStatus(sessionData.SessionID);
     const FishStatus = localStorage.getItem("FishStatus");
     const HumanObjStatus = localStorage.getItem("HumanObjStatus");
     const EmotionStatus = localStorage.getItem("EmotionStatus");
@@ -207,86 +212,199 @@ const Dashboard: React.FC = () => {
   };
   
   useEffect(() => {
-    if (sessionData?.SessionID) {
-      fetchAndStoreSessionStatus(sessionData.SessionID);
-    }
-  }, [sessionData?.SessionID]); 
-
-  const storedStatus = getStoredSessionStatus();
+    const loadSessionStatus = async () => {
+      if (sessionData?.SessionID) {
+        await fetchAndStoreSessionStatus(sessionData.SessionID); // Wait until status is saved
+        getStoredSessionStatus(); // Then load stored status
+        setLoading(false); // Now everything is ready
+      } 
+      // else {
+      //   // 🚨 No session ID? Immediately stop loading
+      //   setLoading(false);
+      // }
+    };
   
-  return (
-    <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
-      
-      {/* Sidebar */}
-     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
-        <Box>
-          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
-            Chavez
-          </Typography>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
+    loadSessionStatus();
+  }, [sessionData?.SessionID]);
+  
+  const storedStatus = getStoredSessionStatus();
 
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleProfileSelection}>
-                  <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                  <ListItemText primary="Profile" sx={{ color: "#003366" }} />
-                </ListItemButton>
-              </ListItem>
+    // Check if all game statuses are completed
+  const allGamesCompleted = 
+    storedStatus.FishStatus && 
+    storedStatus.HumanObjStatus && 
+    storedStatus.EmotionStatus && 
+    storedStatus.BalloonStatus;
+  
+  // Determine which sections are available based on completion status
+  const isQuestionnaireAvailable = true; // Always available after session start
+  const isQuestionnaireCompleted = storedStatus.QuesStatus;
+  const isGameSelectionAvailable = storedStatus.QuesStatus;
+  const isGameSelectionCompleted = allGamesCompleted;
+  const isSpeechAnalysisAvailable = allGamesCompleted;
+  const isSpeechAnalysisCompleted = storedStatus.SpeechStatus;
+  const isReportsAvailable = storedStatus.SpeechStatus;
+  
+  const pulseAnimation = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+`;
 
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/reports">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-          </List>
+const shineAnimation = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
 
-          <Divider />
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
-                  <ListItemIcon>
-                    <Logout sx={{ color: "#003366" }} />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-                </ListItemButton>
-              </ListItem>
-            </List>
-            
-        </Box>
+  const createActionButton = (
+    text: string,
+    path: string,
+    isActive: boolean,
+    isCompleted: boolean,
+    isPrimary: boolean = false
+  ) => {
+    // Base styling
+    let buttonProps: any = {
+      variant: isPrimary ? "contained" : "outlined",
+      fullWidth: true,
+      component: (isActive && !isCompleted) ? Link : "button", // Only use Link when active AND not completed
+      to: (isActive && !isCompleted) ? path : undefined, // Only set route when active AND not completed
+      disabled: !isActive || isCompleted, // Disable if not active OR if completed
+      sx: {
+        position: "relative",
+        transition: "all 0.3s ease",
+        overflow: "hidden",
+        "&::before": isActive && !isCompleted ? {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 0,
+          opacity: 0.3,
+          background: isPrimary
+            ? 'linear-gradient(45deg, #003366, #0066cc, #003366)'
+            : 'linear-gradient(45deg, #e6f4ff, #ffffff, #e6f4ff)',
+          backgroundSize: '200% 200%',
+          animation: `${shineAnimation} 3s ease infinite`,
+        } : undefined,
+        "&:hover": isActive && !isCompleted ? {
+          transform: "translateY(-3px)",
+          boxShadow: 3,
+          "&::before": {
+            opacity: 0.5,
+          }
+        } : undefined,
+        ...(isPrimary
+          ? { bgcolor: "#003366", color: "#fff" }
+          : { borderColor: "#003366", color: "#003366" }
+        ),
+        ...(isCompleted && { bgcolor: "#e0e0e0", borderColor: "#e0e0e0", color: "#666" }),
+        ...((!isActive || isCompleted) && { // Apply disabled styles both when not active OR completed
+          bgcolor: "rgba(0, 0, 0, 0.05)",
+          borderColor: "rgba(0, 0, 0, 0.1)",
+          color: "rgba(0, 0, 0, 0.3)"
+        })
+      }
+    };
+  
+    // Adjusted button with fun effects
+    return (
+      <Box sx={{
+        position: 'relative',
+        width: '100%',
+      }}>
+        <Button {...buttonProps}>
+          <span style={{ position: 'relative', zIndex: 1 }}>{text}</span>
+          {isCompleted && (
+            <Lock
+              sx={{
+                position: "absolute",
+                top: "50%",
+                right: 10,
+                transform: "translateY(-50%)",
+                fontSize: 16,
+                opacity: 0.7,
+                zIndex: 1
+              }}
+            />
+          )}
+        </Button>
       </Box>
+    );
+  };
+
+  return (
+
+    loading ? (
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh" 
+        bgcolor="white"
+      >
+        <Typography variant="h6" color="primary">
+          Loading...
+        </Typography>
+      </Box>
+    ) : (
+
+    // <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+      
+      {/* Top Navigation Bar */}
+      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* <Typography variant="h6" sx={{ color: "#ffffff" }}>
+            Chavez
+          </Typography> */}
+          <Box component="img" 
+            src={logoImage} 
+            alt="Chavez Logo"
+            sx={{ 
+              height: 60, // Adjust height as needed
+              maxHeight: "100%",
+              py: 1 // Adds some padding on top and bottom
+            }}
+          />
+
+          <Box display="flex" alignItems="center">
+            <IconButton color="inherit" component={Link} to="/dashboard">
+              <Home />
+            </IconButton>            
+            {/* Profile and Logout */}
+            <IconButton color="inherit" onClick={handleProfileSelection}>
+              <Person />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Logout />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
 
       {/* Main Content */}
       <Box flexGrow={1} p={4}>
         
-        {/* Welcome Section */}
-        <Typography variant="h5" align="center" sx={{ color: "#003366", fontWeight: "bold", mb: 3 }}>
-        🎉 Welcome to Chavez! 🎉
-        </Typography>
 
         <Grid container spacing={3}>
 
@@ -362,39 +480,71 @@ const Dashboard: React.FC = () => {
           </Box>
         </Grid>
 
-
-          {/* CTA Buttons */}
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}> */}
+          <Grid item xs={12} sx={{ position: 'relative', '&::after': { display: 'none' } }}>
             {!sessionStarted ? (
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{ textTransform: "none", bgcolor: "#003366", color: "#ffffff" }}
-                onClick={startSession}
-              >
-                Start Session
-              </Button>
+              <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '-50%',
+                    left: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: 'radial-gradient(circle, rgba(77, 148, 255, 0.2) 0%, rgba(0, 51, 102, 0.05) 70%)',
+                    animation: `${pulseAnimation} 3s ease-in-out infinite`,
+                    zIndex: 0,
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ 
+                    textTransform: "none", 
+                    bgcolor: "#003366", 
+                    color: "#ffffff",
+                    position: 'relative',
+                    zIndex: 1,
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      bgcolor: '#004080',
+                      transform: 'translateY(-3px)',
+                      boxShadow: 3
+                    }
+                  }}
+                  onClick={startSession}
+                >
+                  Start Session
+                </Button>
+              </Box>
             ) : (
-              <Box display="flex" gap={2}>
-                <Button variant="contained" sx={{ bgcolor: "#003366", color: "#fff" }} component={Link} to="/questionnaire" fullWidth>
-                  ASD Questionnaire
-                </Button>
-                <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/game-selection" fullWidth>
-                  Gamified Assessments
-                </Button>
-                <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/audio-analysis" fullWidth>
-                  Speech Analysis
-                </Button>
-                <Button variant="outlined" sx={{ borderColor: "#003366", color: "#003366" }} component={Link} to="/reports" fullWidth>
-                  Reports
-                </Button>
+              <Box 
+                display="flex" 
+                gap={2} 
+                sx={{ 
+                  position: 'relative',
+                  p: 2,
+                  borderRadius: 2,
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(5px)',
+                  boxShadow: 'none', // Remove any shadow
+                }}
+              >
+                {createActionButton("ASD Questionnaire", "/questionnaire", isQuestionnaireAvailable, isQuestionnaireCompleted, true)}
+                {createActionButton("Gamified Assessments", "/game-selection", isGameSelectionAvailable, isGameSelectionCompleted, true)}
+                {createActionButton("Speech Analysis", "/audio-analysis", isSpeechAnalysisAvailable, isSpeechAnalysisCompleted, true)}
+                {createActionButton("Reports", "/reports", isReportsAvailable, false, true)}
               </Box>
             )}
           </Grid>
 
         </Grid>
       </Box>
+
     </Box>
+    )
   );
 };
 

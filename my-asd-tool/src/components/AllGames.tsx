@@ -1,163 +1,454 @@
-import React from "react";
-import { Box, Typography, Grid } from "@mui/material";
-import { Home, Assessment } from "@mui/icons-material";
-import { Link } from "react-router-dom";
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
-import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
-import { useSelector } from "react-redux";
+// import React, { useState, useEffect } from "react";
+// import { Box, Typography, AppBar, Toolbar, IconButton, Button, CircularProgress, GlobalStyles } from "@mui/material";
+// import { Link, useNavigate } from "react-router-dom";
+// import { Home, Person, Logout, Lock } from "@mui/icons-material";
+// import { useSelector, useDispatch } from "react-redux";
+// import { setSessionIds } from "./redux/store";
+// import logoImage from "../assets/logo.png";
+// import balloon from "../assets/balloon.png";
+// import fish from "../assets/fish.png";
+// import emotion from "../assets/emotion.png";
+// import hvo from "../assets/hvo.png";
+// import axios from "axios";
+// import Slider from "react-slick";
+// import "slick-carousel/slick/slick.css";
+// import "slick-carousel/slick/slick-theme.css";
+
+// const GameScreen: React.FC = () => {
+//   const SessionID = useSelector((state: any) => state.sessionData?.SessionID) || sessionStorage.getItem("sessionID");
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+
+//   const [storedStatus, setStoredStatus] = useState({
+//     FishStatus: false,
+//     HumanObjStatus: false,
+//     EmotionStatus: false,
+//     SpeechStatus: false,
+//     BalloonStatus: false,
+//     QuesStatus: false,
+//   });
+
+//   const [loading, setLoading] = useState(true);
+
+//   const games = [
+//     { name: "POP THE BALLOON", route: "/balloon", image: balloon, key: "BalloonStatus", description: "Tracks reaction time and motor skills." },
+//     { name: "FOLLOW THE FISH", route: "/follow", image: fish, key: "FishStatus", description: "Tracks visual tracking and attention." },
+//     { name: "HUMAN VS OBJECT", route: "/human", image: hvo, key: "HumanObjStatus", description: "Tracks preference between humans and objects." },
+//     { name: "EMOTION PUZZLE", route: "/puzzle", image: emotion, key: "EmotionStatus", description: "Tracks emotional recognition and motor skills." },
+//   ];
+
+//   const fetchAndStoreSessionStatus = async (sessionId: string) => {
+//     try {
+//       const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+//       const statusData = response.data;
+
+//       const updatedStatus = {
+//         FishStatus: statusData.FishStatus === "true",
+//         HumanObjStatus: statusData.HumanObjStatus === "true",
+//         EmotionStatus: statusData.EmotionStatus === "true",
+//         SpeechStatus: statusData.SpeechStatus === "true",
+//         BalloonStatus: statusData.BalloonStatus === "true",
+//         QuesStatus: statusData.QuesStatus === "true",
+//       };
+
+//       setStoredStatus(updatedStatus);
+//       setLoading(false);
+//     } catch (error) {
+//       console.error("Error fetching session status:", error);
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (SessionID) {
+//       fetchAndStoreSessionStatus(SessionID);
+//     }
+//   }, [SessionID]);
+
+//   const handleLogout = () => {
+//     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+//     localStorage.clear();
+//     sessionStorage.clear();
+//     window.location.href = "/sign-in";
+//   };
+
+//   const handleProfileSelection = () => {
+//     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+//     localStorage.clear();
+//     sessionStorage.clear();
+//     navigate("/profile-selection");
+//   };
+
+//   const completedGamesCount = games.filter(game => storedStatus[game.key as keyof typeof storedStatus]).length;
+//   const allGamesCompleted = completedGamesCount === games.length;
+
+//   const PrevArrow = (props: any) => {
+//     const { className, style, onClick } = props;
+//     return (
+//       <Box className={className} onClick={onClick} sx={{ ...style, display: "flex !important", alignItems: "center", justifyContent: "center", backgroundColor: "#003366", borderRadius: "50%", width: 40, height: 40, left: -50, top: "45%", zIndex: 2, cursor: "pointer", "&:hover": { backgroundColor: "#00509e" } }}>
+//         <Typography color="white" fontSize={24}>{'<'}</Typography>
+//       </Box>
+//     );
+//   };
+
+//   const NextArrow = (props: any) => {
+//     const { className, style, onClick } = props;
+//     return (
+//       <Box className={className} onClick={onClick} sx={{ ...style, display: "flex !important", alignItems: "center", justifyContent: "center", backgroundColor: "#003366", borderRadius: "50%", width: 40, height: 40, right: -50, top: "45%", zIndex: 2, cursor: "pointer", "&:hover": { backgroundColor: "#00509e" } }}>
+//         <Typography color="white" fontSize={24}>{'>'}</Typography>
+//       </Box>
+//     );
+//   };
+
+//   const [activeSlide, setActiveSlide] = useState(0);
+
+//   const settings = {
+//     dots: true,
+//     infinite: true,
+//     speed: 500,
+//     slidesToShow: 3,
+//     slidesToScroll: 1,
+//     centerMode: true,
+//     centerPadding: "60px",
+//     swipe: true,
+//     touchMove: true,
+//     arrows: true,
+//     prevArrow: <PrevArrow />,
+//     nextArrow: <NextArrow />,
+//     beforeChange: (current: number, next: number) => setActiveSlide(next),
+//     responsive: [
+//       { breakpoint: 960, settings: { slidesToShow: 2 } },
+//       { breakpoint: 600, settings: { slidesToShow: 1 } },
+//     ],
+//   };
+
+//   if (loading) {
+//     return (
+//       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5faff">
+//         <CircularProgress color="primary" size={80} />
+//       </Box>
+//     );
+//   }
+//   else {
+//     return (
+//       <Box display="flex" flexDirection="column" minHeight="100vh">
+//         <GlobalStyles styles={{
+//           '.slick-slider, .slick-list, .slick-track': {
+//             overflow: 'visible !important',
+//           }
+//         }} />
+  
+//         <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+//           <Toolbar sx={{ justifyContent: "space-between" }}>
+//             <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
+//             <Box display="flex" alignItems="center">
+//               <IconButton color="inherit" component={Link} to="/dashboard"><Home /></IconButton>
+//               <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
+//               <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
+//             </Box>
+//           </Toolbar>
+//         </AppBar>
+  
+//         <Box flexGrow={1} p={4} bgcolor="#f5faff" sx={{ overflow: "visible" }}>
+//           <Typography variant="h4" color="#003366" textAlign="center" fontWeight="bold" mb={6}>Choose a Game</Typography>
+  
+//           <Box sx={{ overflow: "visible" }}>
+//             <Slider {...settings}>
+//               {games.map((game, index) => {
+//                 const isCompleted = storedStatus[game.key as keyof typeof storedStatus];
+//                 return (
+//                   <Box key={index} position="relative" display="flex" flexDirection="column" alignItems="center" bgcolor="#ffffff" borderRadius="20px" p={3} mx={2} boxShadow={4} sx={{ height: "650px", width: "700px", overflow: "hidden", filter: activeSlide === index ? "none" : "blur(3px)", transition: "filter 0.4s, transform 0.4s, box-shadow 0.4s", textDecoration: "none", color: "inherit", "&:hover": { boxShadow: 8, transform: "scale(1.05)", ".playButton": { opacity: 1, transform: "translate(-50%, -10%)" } } }}>
+//                     <Box component="img" src={game.image} alt={game.name} sx={{ height: 400, width: "100%", objectFit: "cover", borderRadius: "12px", mb: 2 }} />
+//                     <Typography variant="h6" fontWeight="bold" textAlign="center" mb={1} sx={{ color: "#003366" }}>{game.name}</Typography>
+//                     <Typography variant="body2" textAlign="center" sx={{ color: "#003366", mb: 2 }}>{game.description}</Typography>
+  
+//                     {!isCompleted && (
+//                       <Button className="playButton" variant="contained" color="primary" component={Link} to={`${game.route}?sessionID=${SessionID}`} sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", opacity: 0, transition: "opacity 0.4s, transform 0.4s" }}>Play Game</Button>
+//                     )}
+  
+//                     {isCompleted && (
+//                       <Box position="absolute" top={0} left={0} width="100%" height="100%" bgcolor="rgba(0, 0, 0, 0.5)" display="flex" flexDirection="column" justifyContent="center" alignItems="center" borderRadius="20px">
+//                         <Lock sx={{ fontSize: 60, color: "#ffffff" }} />
+//                         <Typography variant="body1" color="#ffffff" mt={2} fontWeight="bold">✅ Completed</Typography>
+//                       </Box>
+//                     )}
+//                   </Box>
+//                 );
+//               })}
+//             </Slider>
+//           </Box>
+  
+//           {allGamesCompleted && (
+//             <Box display="flex" justifyContent="center" gap={2} mt={6}>
+//               <Button variant="contained" color="primary" onClick={() => navigate("/speech-analysis")}>Proceed to Speech Analysis</Button>
+//               <Button variant="outlined" color="primary" onClick={() => navigate("/dashboard")}>Return to Dashboard</Button>
+//             </Box>
+//           )}
+//         </Box>
+//       </Box>
+//     );
+//   }
+
+// };
+
+// export default GameScreen;
+
+
+import React, { useState, useEffect } from "react";
+import { Box, Typography, AppBar, Toolbar, IconButton, Button, CircularProgress, GlobalStyles } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { Home, Person, Logout, Lock } from "@mui/icons-material";
+import { useSelector, useDispatch } from "react-redux";
 import { setSessionIds } from "./redux/store";
-import { useDispatch } from "react-redux";
+import logoImage from "../assets/logo.png";
+import balloon from "../assets/balloon.png";
+import fish from "../assets/fish.png";
+import emotion from "../assets/emotion.png";
+import hvo from "../assets/hvo.png";
+import axios from "axios";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const GameScreen: React.FC = () => {
-  // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
-
   const SessionID = useSelector((state: any) => state.sessionData?.SessionID) || sessionStorage.getItem("sessionID");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  console.log("Session ID:", SessionID); // Debugging: Check if the value is assigned correctly
+  // const [storedStatus, setStoredStatus] = useState({
+  //   FishStatus: false,
+  //   HumanObjStatus: false,
+  //   EmotionStatus: false,
+  //   SpeechStatus: false,
+  //   BalloonStatus: false,
+  //   QuesStatus: false,
+  // });
+  const fetchAndStoreSessionStatus = async (sessionId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
   
+      const statusData = response.data;
+  
+      // Store each status value as a string
+      for (const key of [
+        "FishStatus",
+        "HumanObjStatus",
+        "EmotionStatus",
+        "SpeechStatus",
+        "BalloonStatus",
+        "QuesStatus"
+      ]) {
+        localStorage.setItem(key, statusData[key]);
+      }
+  
+    } catch (error) {
+      console.error("Error fetching session status:", error);
+    }
+  };
 
-  console.log("SessionID:", SessionID);
+  const getStoredSessionStatus = () => {
+    fetchAndStoreSessionStatus(SessionID);
+    const FishStatus = localStorage.getItem("FishStatus");
+    const HumanObjStatus = localStorage.getItem("HumanObjStatus");
+    const EmotionStatus = localStorage.getItem("EmotionStatus");
+    const SpeechStatus = localStorage.getItem("SpeechStatus");
+    const BalloonStatus = localStorage.getItem("BalloonStatus");
+    const QuesStatus = localStorage.getItem("QuesStatus");
+    
+    console.log('Stored Status:', {
+      FishStatus,
+      HumanObjStatus,
+      EmotionStatus,
+      SpeechStatus,
+      BalloonStatus,
+      QuesStatus,
+    });
+
+    return {
+      FishStatus: localStorage.getItem("FishStatus") === "true",
+      HumanObjStatus: localStorage.getItem("HumanObjStatus") === "true",
+      EmotionStatus: localStorage.getItem("EmotionStatus") === "true",
+      SpeechStatus: localStorage.getItem("SpeechStatus") === "true",
+      BalloonStatus: localStorage.getItem("BalloonStatus") === "true",
+      QuesStatus: localStorage.getItem("QuesStatus") === "true",
+    };
+  };
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSessionStatus = async () => {
+      if (SessionID) {
+        await fetchAndStoreSessionStatus(SessionID); // Wait until status is saved
+        getStoredSessionStatus(); // Then load stored status
+        setLoading(false); // Now everything is ready
+      }
+    };
+  
+    loadSessionStatus();
+  }, [SessionID]);
+
+
   const games = [
-    { name: "POP THE BALLOON", route: "/balloon" },
-    { name: "FOLLOW THE FISH", route: "/follow" },
-    // { name: "FLASH CARDS", route: "/flashcard" },
-    { name: "HUMAN VS OBJECT", route: "/human" },
-    { name: "EMOTION PUZZLE", route: "/puzzle" },
+    { name: "POP THE BALLOON", route: "/balloon", image: balloon, key: "BalloonStatus", description: "Tracks reaction time and motor skills." },
+    { name: "FOLLOW THE FISH", route: "/follow", image: fish, key: "FishStatus", description: "Tracks visual tracking and attention." },
+    { name: "HUMAN VS OBJECT", route: "/human", image: hvo, key: "HumanObjStatus", description: "Tracks preference between humans and objects." },
+    { name: "EMOTION PUZZLE", route: "/puzzle", image: emotion, key: "EmotionStatus", description: "Tracks emotional recognition and motor skills." },
   ];
 
-  const dispatch = useDispatch();
+  const storedStatus = getStoredSessionStatus();
+
+  const allGamesCompleted = 
+    storedStatus.FishStatus && 
+    storedStatus.HumanObjStatus && 
+    storedStatus.EmotionStatus && 
+    storedStatus.BalloonStatus;
 
 
   const handleLogout = () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.clear(); // Clear stored data
+    localStorage.clear();
     sessionStorage.clear();
-    window.location.href = "/sign-in"; // Redirect to login page
+    window.location.href = "/sign-in";
   };
 
-  return (
-    <Box display="flex" minHeight="100vh">
-      {/* Sidebar */}
-     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
-        <Box>
-          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
-            Chavez
-          </Typography>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile-selection">
-                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/reports">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-          </List>
+  const handleProfileSelection = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/profile-selection");
+  };
 
-          <Divider />
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
-                  <ListItemIcon>
-                    <Logout sx={{ color: "#003366" }} />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-                </ListItemButton>
-              </ListItem>
-            </List>
-            
-        </Box>
+
+  const PrevArrow = (props: any) => {
+    const { className, style, onClick } = props;
+    return (
+      <Box className={className} onClick={onClick} sx={{ ...style, display: "flex !important", alignItems: "center", justifyContent: "center", backgroundColor: "#003366", borderRadius: "50%", width: 40, height: 40, left: -50, top: "45%", zIndex: 2, cursor: "pointer", "&:hover": { backgroundColor: "#00509e" } }}>
+        <Typography color="white" fontSize={24}>{'<'}</Typography>
       </Box>
+    );
+  };
 
-      {/* Main Content */}
-      <Box
-        flexGrow={1}
-        p={4}
-        sx={{
-          background: "linear-gradient(to right, #e6f4ff, #f5faff)",
-          minHeight: "100vh",
-        }}
-      >
-        <Typography
-          variant="h4"
-          sx={{
-            color: "#003366",
-            textAlign: "center",
-            fontWeight: "bold",
-            mb: 4,
-          }}
-        >
-          Game Selection
-        </Typography>
-        <Grid container spacing={4} justifyContent="center">
-          {games.map((game, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                bgcolor="#ffffff"
-                p={4}
-                borderRadius="16px"
-                boxShadow={3}
-                sx={{
-                  height: "160px",
-                  cursor: "pointer",
-                  transition: "0.3s",
-                  textDecoration: "none",
-                  "&:hover": {
-                    boxShadow: 6,
-                    backgroundColor: "#e3f2fd",
-                    transform: "scale(1.05)",
-                  },
-                }}
-                component={Link}
-                to={`${game.route}?sessionID=${SessionID}`}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "#003366",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  {game.name}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+  const NextArrow = (props: any) => {
+    const { className, style, onClick } = props;
+    return (
+      <Box className={className} onClick={onClick} sx={{ ...style, display: "flex !important", alignItems: "center", justifyContent: "center", backgroundColor: "#003366", borderRadius: "50%", width: 40, height: 40, right: -50, top: "45%", zIndex: 2, cursor: "pointer", "&:hover": { backgroundColor: "#00509e" } }}>
+        <Typography color="white" fontSize={24}>{'>'}</Typography>
+      </Box>
+    );
+  };
+
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    centerMode: true,
+    centerPadding: "60px",
+    swipe: true,
+    touchMove: true,
+    arrows: true,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    beforeChange: (current: number, next: number) => setActiveSlide(next),
+    responsive: [
+      { breakpoint: 960, settings: { slidesToShow: 2 } },
+      { breakpoint: 600, settings: { slidesToShow: 1 } },
+    ],
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5faff">
+        <CircularProgress color="primary" size={80} />
+      </Box>
+    );
+  }
+
+  return (
+    <Box display="flex" flexDirection="column" minHeight="100vh">
+      <GlobalStyles styles={{
+        '.slick-slider, .slick-list, .slick-track': {
+          overflow: 'visible !important',
+        }
+      }} />
+
+      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
+          <Box display="flex" alignItems="center">
+            <IconButton color="inherit" component={Link} to="/dashboard"><Home /></IconButton>
+            <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
+            <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      <Box flexGrow={1} p={4} bgcolor="#f5faff" sx={{ overflow: "visible" }}>
+        <Typography variant="h4" color="#003366" textAlign="center" fontWeight="bold" mb={6}>Choose a Game</Typography>
+
+        <Box sx={{ overflow: "visible" }}>
+          <Slider {...settings}>
+            {games.map((game, index) => {
+              const isCompleted = storedStatus[game.key as keyof typeof storedStatus];
+              return (
+                <Box key={index} position="relative" display="flex" flexDirection="column" alignItems="center" bgcolor="#ffffff" borderRadius="20px" p={3} mx={2} boxShadow={4} sx={{ height: "600px", width: "700px", overflow: "hidden", filter: activeSlide === index ? "none" : "blur(3px)", transition: "filter 0.4s, transform 0.4s, box-shadow 0.4s", textDecoration: "none", color: "inherit", "&:hover": { boxShadow: 8, transform: "scale(1.05)", ".playButton": { opacity: 1, transform: "translate(-50%, -10%)" } } }}>
+                  <Box component="img" src={game.image} alt={game.name} sx={{ height: 400, width: "100%", objectFit: "cover", borderRadius: "12px", mb: 2 }} />
+                  <Typography variant="h6" fontWeight="bold" textAlign="center" mb={1} sx={{ color: "#003366" }}>{game.name}</Typography>
+                  <Typography variant="body2" textAlign="center" sx={{ color: "#003366", mb: 2 }}>{game.description}</Typography>
+
+                  <Button
+                    className="playButton"
+                    variant="contained"
+                    color="primary"
+                    disabled={isCompleted}
+                    component={isCompleted ? "button" : Link}
+                    to={isCompleted ? undefined : `${game.route}?sessionID=${SessionID}`}
+                    sx={{
+                      position: "absolute",
+                      bottom: 20,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      opacity: 0,
+                      transition: "opacity 0.4s, transform 0.4s",
+                      ...(isCompleted && {
+                        bgcolor: "rgba(0, 0, 0, 0.1)",
+                        color: "rgba(0, 0, 0, 0.5)",
+                        cursor: "not-allowed",
+                      })
+                    }}
+                  >
+                    <span style={{ position: 'relative', zIndex: 1 }}>Play Game</span>
+                    {isCompleted && (
+                      <Lock
+                        sx={{
+                          position: "absolute",
+                          top: "50%",
+                          right: 10,
+                          transform: "translateY(-50%)",
+                          fontSize: 18,
+                          opacity: 0.7,
+                          zIndex: 2
+                        }}
+                      />
+                    )}
+                  </Button>
+                </Box>
+              );
+            })}
+          </Slider>
+        </Box>
+
+        {allGamesCompleted && (    
+        <Box display="flex" justifyContent="center" gap={2} mt={6}>
+          <Button variant="contained" color="primary" onClick={() => navigate("/audio-analysis")}>Proceed to Speech Analysis</Button>
+          <Button variant="outlined" color="primary" onClick={() => navigate("/dashboard")}>Return to Dashboard</Button>
+        </Box>
+        )}
+
       </Box>
     </Box>
   );

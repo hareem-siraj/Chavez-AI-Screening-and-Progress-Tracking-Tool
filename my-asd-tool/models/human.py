@@ -9,8 +9,12 @@ import os
 import requests
 import json
 
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
 # API endpoint
 API_URL = "http://localhost:5001/api/save-human-data" 
+API_URL1 = "http://localhost:5001/api/update-hvo-output"
 
 if len(sys.argv) > 1:
     session_id = sys.argv[1]  # Get sessionID from command-line argument
@@ -20,9 +24,8 @@ else:
 
 # Load Dlib's face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("C:\Users\Siraj\Documents\GitHub\Chavez-AI-Screening-and-Progress-Tracking-Tool\Chavez-AI-Screening-and-Progress-Tracking-Tool\my-asd-tool\models\shape_predictor_68_face_landmarks.dat")
-# /Users/simalanjum/Desktop/Chavez-AI-Screening-and-Progress-Tracking-Tool/my-asd-tool/models/shape_predictor_68_face_landmarks.dat
-# C:\Users\Siraj\Documents\GitHub\Chavez-AI-Screening-and-Progress-Tracking-Tool\Chavez-AI-Screening-and-Progress-Tracking-Tool\my-asd-tool\models\shape_predictor_68_face_landmarks.dat
+# predictor = dlib.shape_predictor("C:\Users\Siraj\Documents\GitHub\Chavez-AI-Screening-and-Progress-Tracking-Tool\Chavez-AI-Screening-and-Progress-Tracking-Tool\my-asd-tool\models\shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("/Users/simalanjum/Desktop/Chavez-AI-Screening-and-Progress-Tracking-Tool/my-asd-tool/models/shape_predictor_68_face_landmarks.dat")
 
 # Function to get eye landmarks
 def get_eye_landmarks(landmarks, eye_indices):
@@ -195,6 +198,64 @@ if scanpath:
 
     # plt.show()
     plt.close() 
+
+    try:
+        # model = load_model("models/ftf_model.h5")
+        model =  load_model('models/hvo_model.h5', compile=False)
+        print("Model loaded successfully.")
+        # Load the image in grayscale and resize to 200x200
+        img = load_img(output_image, color_mode='grayscale', target_size=(200, 200))
+        img_array = img_to_array(img)
+
+        
+        # Normalize and reshape to (1, 200, 200, 1)
+        img_array = img_array / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+        print("Image preprocessed. Shape:", img_array.shape)
+
+        print("Image shape before prediction:", img_array.shape)  # Should be (1, 200, 200, 1)
+        
+        prediction = model.predict(img_array)[0][0]  # Get scalar float output
+
+        # Interpret prediction
+        label = "Autistic" if prediction >= 0.5 else "Neurotypical"
+        confidence = prediction if prediction >= 0.5 else 1 - prediction
+
+        # Print diagnosis
+        print(f"\nPrediction: {label}")
+        print(f"Confidence: {confidence * 100:.2f}%")
+        print(f"Raw probability: {prediction:.4f}")
+
+    except Exception as e:
+        # print("Model prediction failed:", e)
+        import traceback
+        print("Model prediction failed:")
+        traceback.print_exc()
+        prediction = None
+
+    try:
+        payload = {
+            "sessionID": session_id,
+            "hvo_output": label if prediction is not None else "Unknown",
+        }
+
+        # Debugging statements
+        print("\n✅ Payload to be sent to backend:")
+        print(json.dumps(payload, indent=2))
+
+        response = requests.post(API_URL1, json=payload, headers={"Content-Type": "application/json"})
+
+        print("📡 Response status code:", response.status_code)
+        print("📡 Response text:", response.text)
+
+        if response.status_code == 200:
+            print("✅ hvo output saved successfully.")
+        else:
+            print("❌ Error from server:", response.status_code, response.text)
+    except Exception as e:
+        print("❌ Failed to connect to API:")
+        import traceback
+        traceback.print_exc()
 
 else:
     print("No eye-tracking data collected. Please ensure face detection works.")

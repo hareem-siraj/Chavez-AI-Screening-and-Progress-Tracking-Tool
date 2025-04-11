@@ -170,6 +170,7 @@ const GamifiedAssesments: React.FC = () => {
               <div>
                 <iframe
                   ref={iframeRef}
+                  title="Fish Game"
                   // src="FISH_BUILD/index.html"
                   src={`/FISH_BUILD/index.html?SessionID=${sessionID}`}
                   width="100%"

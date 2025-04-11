@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { setSessionIds } from "./redux/store";
 import {
   List,
   ListItem,
@@ -18,6 +19,17 @@ import {
   Typography,
 } from "@mui/material";
 import { Home, Person, QuestionAnswer, Assessment, Logout } from "@mui/icons-material";
+import { 
+  Button, AppBar, Toolbar, IconButton
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import logoImage from "../assets/logo.png"; 
+
+// // Define types
+// interface SessionData {
+//   SessionID: string;
+// }
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -86,6 +98,9 @@ const Section: React.FC<{ heading: string; text: string | { summary: string; det
 
 
 const Report: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const selectedChildId = useSelector((state: any) => state.selectedChildId);
   const [sessionList, setSessionList] = useState<SessionData[]>([]);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
@@ -290,80 +305,55 @@ const Report: React.FC = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+    const handleLogout = () => {
+      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+      localStorage.clear(); // Clear stored data
+      sessionStorage.clear();
+      window.location.href = "/sign-in"; // Redirect to login page
+    };
   
+    const handleProfileSelection = () => {
+      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+      localStorage.removeItem("sessionData"); // Clear stored session
+      localStorage.removeItem("selectedChildId"); // Clear child profile data
+      localStorage.clear(); // Clear all stored data
+      sessionStorage.clear();
+      navigate("/profile-selection"); // Fallback in case userId is missing
+    };
 
   return (
-    <Box display="flex" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
-        {/* Sidebar Code Here */}
-        <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
-        <Box>
-          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
-            Chavez
-          </Typography>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon>
-                  <Home sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile">
-                <ListItemIcon>
-                  <Person sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon>
-                  <QuestionAnswer sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon>
-                  <Assessment sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon>
-                  <Assessment sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/reports">
-                <ListItemIcon>
-                  <Assessment sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Reports" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/logout">
-                <ListItemIcon>
-                  <Logout sx={{ color: "#003366" }} />
-                </ListItemIcon>
-                <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
-      </Box>
+    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+
+            {/* Top Navigation Bar */}
+      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Box component="img" 
+            src={logoImage} 
+            alt="Chavez Logo"
+            sx={{ 
+              height: 60, // Adjust height as needed
+              maxHeight: "100%",
+              py: 1 // Adds some padding on top and bottom
+            }}
+          />
+
+          <Box display="flex" alignItems="center">
+            {/* Nav Links */}
+
+            <IconButton color="inherit" component={Link} to="/dashboard">
+              <Home />
+            </IconButton>            
+            {/* Profile and Logout */}
+            <IconButton color="inherit" onClick={handleProfileSelection}>
+              <Person />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Logout />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
       <Box p={4} flex={1}>
         <Typography variant="h4" gutterBottom sx={{ color: "#002244", fontWeight: "bold" }}>

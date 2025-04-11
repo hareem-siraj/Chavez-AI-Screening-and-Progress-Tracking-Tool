@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
-// import { useLocation } from "react-router-dom";
-// import styles from "../theme/Questions.module.css";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { Home, Assessment } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -13,6 +11,11 @@ import axios from "axios";
 // import { response } from "express";
 import { setSessionIds } from "./redux/store";
 import { useDispatch } from "react-redux";
+import { 
+  Button, AppBar, Toolbar, IconButton
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import logoImage from "../assets/logo.png"; 
 
 const Audio: React.FC = () => {
   // const location = useLocation();
@@ -20,8 +23,17 @@ const Audio: React.FC = () => {
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
 
-  const dispatch = useDispatch();
+  const [storedStatus, setStoredStatus] = useState({
+    FishStatus: true,
+    HumanObjStatus: true,
+    EmotionStatus: true,
+    SpeechStatus: false,
+    BalloonStatus: true,
+    QuesStatus: true,
+  });
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
@@ -30,7 +42,41 @@ const Audio: React.FC = () => {
     window.location.href = "/sign-in"; // Redirect to login page
   };
 
+  const handleProfileSelection = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.removeItem("sessionData"); // Clear stored session
+    localStorage.removeItem("selectedChildId"); // Clear child profile data
+    localStorage.clear(); // Clear all stored data
+    sessionStorage.clear();
+    navigate("/profile-selection"); // Fallback in case userId is missing
+  };
   const [videoLoaded, setVideoLoaded] = React.useState(false);
+
+  const fetchAndStoreSessionStatus = async (sessionId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+      const statusData = response.data;
+
+      const updatedStatus = {
+        FishStatus: statusData.FishStatus === "true",
+        HumanObjStatus: statusData.HumanObjStatus === "true",
+        EmotionStatus: statusData.EmotionStatus === "true",
+        SpeechStatus: statusData.SpeechStatus === "true",
+        BalloonStatus: statusData.BalloonStatus === "true",
+        QuesStatus: statusData.QuesStatus === "true",
+      };
+
+      setStoredStatus(updatedStatus);
+    } catch (error) {
+      console.error("Error fetching session status:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (sessionID) {
+      fetchAndStoreSessionStatus(sessionID);
+    }
+  }, [sessionID]);
 
   useEffect(() => {
     if (videoLoaded) {
@@ -45,68 +91,47 @@ const Audio: React.FC = () => {
     }
   }, [videoLoaded]);
 
+  const markNavigate = async () => {
+    console.log("Video has ended. Waiting 5 seconds before navigating...");
+    setTimeout(() => {
+      navigate("/dashboard"); // Replace with your actual route
+    }, 5000);
+  };
+
   return (
-    <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
-     <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
-        <Box>
-          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
-            Chavez
-          </Typography>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile-selection">
-                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/reports">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-          </List>
 
-          <Divider />
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
-                  <ListItemIcon>
-                    <Logout sx={{ color: "#003366" }} />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-                </ListItemButton>
-              </ListItem>
-            </List>
-        </Box>
-      </Box>
+    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
 
-      {/* Video Display */}
+            {/* Top Navigation Bar */}
+      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Box component="img" 
+            src={logoImage} 
+            alt="Chavez Logo"
+            sx={{ 
+              height: 60, // Adjust height as needed
+              maxHeight: "100%",
+              py: 1 // Adds some padding on top and bottom
+            }}
+          />
+
+          <Box display="flex" alignItems="center">
+            {/* Nav Links */}
+
+            <IconButton color="inherit" component={Link} to="/dashboard">
+              <Home />
+            </IconButton>            
+            {/* Profile and Logout */}
+            <IconButton color="inherit" onClick={handleProfileSelection}>
+              <Person />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Logout />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      
       <Box flex="1" display="flex" justifyContent="center" alignItems="center">
         <video
           id="video"
@@ -115,6 +140,13 @@ const Audio: React.FC = () => {
           controls
           autoPlay
           onLoadedData={() => setVideoLoaded(true)}
+          onEnded={() => {
+            console.log("Video has ended.");
+
+            // navigate("/dashboard");
+            markNavigate();
+
+          }}
         >
           <source src="/audiovideo.mp4" type="video/mp4" />
           Your browser does not support the video tag.

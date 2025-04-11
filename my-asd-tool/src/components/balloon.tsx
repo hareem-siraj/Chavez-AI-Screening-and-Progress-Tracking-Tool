@@ -53,7 +53,7 @@ const Balloon: React.FC = () => {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [navigate]);
+  }, [navigate, sessionID]);
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
@@ -64,6 +64,7 @@ const Balloon: React.FC = () => {
               <div>
                 <iframe
                   ref={iframeRef}
+                  title="Balloon Game"
                   src={`/POP_Build/index.html?SessionID=${sessionID}`}
                   width="100%"
                   height="100%"

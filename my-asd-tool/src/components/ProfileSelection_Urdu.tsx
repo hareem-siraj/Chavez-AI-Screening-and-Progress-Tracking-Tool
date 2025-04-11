@@ -26,7 +26,7 @@ const ProfileSelectionUrdu: React.FC = () => {
   const handleSelectChild = (ChildID: number) => {
     dispatch(selectChild(ChildID));
     dispatch(setUserId(userIdFromStore));  
-    navigate("/dashboar-urdu");
+    navigate("/dashboard-urdu");
   };
 
   const handleAddProfile = () => {

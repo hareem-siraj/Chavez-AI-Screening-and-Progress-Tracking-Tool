@@ -89,7 +89,6 @@ const Puzzle: React.FC = () => {
       window.removeEventListener("message", handleMessage);
     };
   }, [navigate, sessionID]);
-  
 
   return (
     <Box display="flex" minHeight="100vh" bgcolor="#f5f5f5">
@@ -100,6 +99,7 @@ const Puzzle: React.FC = () => {
               <div>
                 <iframe
                   ref={iframeRef}
+                  title="Puzzle Game"
                   src={`/PUZZLE_BUILD/index.html?SessionID=${sessionID}`}
                   width="100%"
                   height="100%"

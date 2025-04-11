@@ -288,6 +288,7 @@ const Human: React.FC = () => {
               <div>
                 <iframe
                   ref={iframeRef}
+                  title="HumanVsObj Game"
                   src="HUMAN_BUILD/index.html?SessionID=${sessionID}"
                   width="100%"
                   height="100%"

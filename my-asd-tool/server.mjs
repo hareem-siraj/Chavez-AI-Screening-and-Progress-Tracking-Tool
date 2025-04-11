@@ -1351,7 +1351,29 @@ app.post("/api/update-ftf-output", async (req, res) => {
   }
 });
 
+app.post("/api/update-hvo-output", async (req, res) => {
+  const { sessionID, hvo_output } = req.body;
 
+  if (!sessionID || !hvo_output) {
+    return res.status(400).send("Missing sessionID or hvo_output");
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE "Session" SET "hvo_output" = $1 WHERE "SessionID" = $2',
+      [hvo_output, sessionID]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("Session not found");
+    }
+
+    res.status(200).send("HVO output updated successfully");
+  } catch (err) {
+    console.error("❌ Error updating hvo_output:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 // Start the server

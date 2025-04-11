@@ -8,20 +8,23 @@ import {
   Divider, 
   ListItemButton, 
   ListItemIcon, 
-  ListItemText
+  ListItemText,
+  AppBar, 
+  Toolbar, 
+  IconButton
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Home from '@mui/icons-material/Home';
-import Person from '@mui/icons-material/Person';
-import QuestionAnswer from '@mui/icons-material/QuestionAnswer';
-import Assessment from '@mui/icons-material/Assessment';
-import Logout from '@mui/icons-material/Logout';
+import { Home, Person, CheckCircle, Cancel, Logout, Lock, CenterFocusStrong} from "@mui/icons-material";
+// import QuestionAnswer from '@mui/icons-material/QuestionAnswer';
+// import Assessment from '@mui/icons-material/Assessment';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styles from "../theme/QuestionnairePage.module.css";
 import { setFinalScore } from "./redux/store"; // Import the action
 import { setSessionIds } from "./redux/store";
+import logoImage from "../assets/logo.png"; 
+// import { keyframes } from '@mui/system';
 
 // Import QuestionLogic
 const QuestionLogic = require("../components/questionnaireLogic");
@@ -59,9 +62,20 @@ const Questions: React.FC = () => {
 
   const handleLogout = () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.clear(); // Clear stored data
+    localStorage.removeItem("sessionData"); // Clear stored session
+    localStorage.removeItem("selectedChildId"); // Clear child profile data
+    localStorage.clear(); // Remove all stored data
     sessionStorage.clear();
     window.location.href = "/sign-in"; // Redirect to login page
+  };
+
+  const handleProfileSelection = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.removeItem("sessionData"); // Clear stored session
+    localStorage.removeItem("selectedChildId"); // Clear child profile data
+    localStorage.clear(); // Clear all stored data
+    sessionStorage.clear();
+    navigate("/profile-selection"); // Fallback in case userId is missing
   };
 
   useEffect(() => {
@@ -737,7 +751,8 @@ const evaluateCurrentQuestion = () => {
         console.error("Error saving final score:", error);
       }
     
-      navigate("/Score");
+      // navigate("/Score");
+      navigate("/dashboard");
     };
 
   const handleBack = () => {
@@ -747,177 +762,290 @@ const evaluateCurrentQuestion = () => {
   };
 
   return (
-    <Box display="flex" minHeight="100vh" bgcolor="#F5F9FF">
-      {/* Sidebar Navigation */}
-      <Box width="250px" bgcolor="#ffffff" borderRight="1px solid #ddd" display="flex" flexDirection="column">
-        <Box>
-          <Typography variant="h6" align="center" p={2} sx={{ color: "#003366" }}>
-            Chavez
-          </Typography>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/dashboard">
-                <ListItemIcon><Home sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Dashboard" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/profile">
-                <ListItemIcon><Person sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Profile" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/questionnaire">
-                <ListItemIcon><QuestionAnswer sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/game-selection">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Gamified Assessments" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/audio-analysis">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Audio Analysis" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/reports">
-                <ListItemIcon><Assessment sx={{ color: "#003366" }} /></ListItemIcon>
-                <ListItemText primary="Reports" sx={{ color: "#003366" }}/>
-              </ListItemButton>
-            </ListItem>
-          </List>
-
-          <Divider />
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleLogout}> {/* Call handleLogout on click */}
-                  <ListItemIcon>
-                    <Logout sx={{ color: "#003366" }} />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" primaryTypographyProps={{ sx: { color: "#003366" } }} />
-                </ListItemButton>
-              </ListItem>
-            </List>
-            
-        </Box>
-      </Box>
-
-      {/* Main Content Area */}
-      <Box flexGrow={1} p={4}>
-        {/* Existing Questionnaire Component Content */}
-        {/* Question Box */}
-        <Box className={styles.questionBox}>
-          <Typography variant="h5" className={styles.questionText}>
-            {currentQuestion?.text}
-          </Typography>
-          <Box className={styles.options}>
-            <Button
-              className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
-              onClick={() => handleOptionChange("yes")}
-            >
-              Yes
-            </Button>
-            <Button
-              className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
-              onClick={() => handleOptionChange("no")}
-            >
-              No
-            </Button>
+    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+      {/* Top Navigation Bar */}
+      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Box component="img" 
+            src={logoImage} 
+            alt="Chavez Logo"
+            sx={{ 
+              height: 60,
+              maxHeight: "100%",
+              py: 1
+            }}
+          />
+  
+          <Box display="flex" alignItems="center">
+            <IconButton color="inherit" component={Link} to="/dashboard">
+              <Home />
+            </IconButton>            
+            <IconButton color="inherit" onClick={handleProfileSelection}>
+              <Person />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Logout />
+            </IconButton>
           </Box>
-        </Box>
-
-        {/* Follow-Up Questions */}
-        {selectedOption && dynamicFollowUps.length > 0 && (
-          <Box className={styles.followUpBox}>
-            <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-              Follow-Up Questions
+        </Toolbar>
+      </AppBar>
+  
+      {/* Content Area - Using Row Flex Direction for Side-by-Side Layout */}
+      <Box display="flex" flexDirection="row" flexGrow={1} >
+        {/* Main Content Area */}
+        <Box flexGrow={1} p={4}>
+          {/* Question Box */}
+          <Box className={styles.questionBox}>
+            <Typography variant="h5" className={styles.questionText}>
+              {currentQuestion?.text}
             </Typography>
-            {dynamicFollowUps.map((followUp, index) => (
-              <Box key={index} className={styles.followUpQuestion}>
-                <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
-                  {followUp}
-                </Typography>
-                <Box display="flex" gap={2} mt={1}>
-                  <Button
-                    className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
-                    onClick={() => handleFollowUpChange(followUp, "yes")}
-                  >
-                    Yes
-                  </Button>
-                  <Button
-                    className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
-                    onClick={() => handleFollowUpChange(followUp, "no")}
-                  >
-                    No
-                  </Button>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        )}
-
-        {/* Navigation Buttons */}
-        <Box display="flex" justifyContent="space-between" mt={3}>
-          <Button
-            className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
-            onClick={handleBack}
-            disabled={currentQuestionIndex === 0}
-          >
-            Back
-          </Button>
-          
-          {currentQuestionIndex === questions.length - 1 ? (
-            <Button
-              className={`${styles.navButton} ${styles.selectedButton}`}
-              onClick={handleNext}
-            >
-              Submit
-            </Button>
-          ) : (
-            <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
-              Next
-            </Button>
-          )}
-        </Box>
-      </Box>
-
-      {/* Progress Sidebar */}
-      <Box className="progress-sidebar" sx={{ width: "250px", flexShrink: 0 }}>
-        <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-          Progress
-        </Typography>
-        <List>
-          {progress.map((q, i) => (
-            <ListItem key={i} disablePadding>
+            <Box className={styles.options}>
               <Button
-                variant="contained"
-                disableElevation
-                disabled
-                className={`progress-button ${q.answered ? "answered" : ""}`}
-                sx={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "space-between", 
-                  width: "100%",
-                  minWidth: "180px" 
-                }}
+                className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
+                onClick={() => handleOptionChange("yes")}
               >
-                Question {i + 1}
-                {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
+                Yes
               </Button>
-            </ListItem>
-          ))}
-        </List>
+              <Button
+                className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
+                onClick={() => handleOptionChange("no")}
+              >
+                No
+              </Button>
+            </Box>
+          </Box>
+  
+          {/* Follow-Up Questions */}
+          {selectedOption && dynamicFollowUps.length > 0 && (
+            <Box className={styles.followUpBox}>
+              <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+                Follow-Up Questions
+              </Typography>
+              {dynamicFollowUps.map((followUp, index) => (
+                <Box key={index} className={styles.followUpQuestion}>
+                  <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
+                    {followUp}
+                  </Typography>
+                  <Box display="flex" gap={2} mt={1}>
+                    <Button
+                      className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
+                      onClick={() => handleFollowUpChange(followUp, "yes")}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
+                      onClick={() => handleFollowUpChange(followUp, "no")}
+                    >
+                      No
+                    </Button>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+  
+          {/* Navigation Buttons */}
+          <Box display="flex" justifyContent="space-between" mt={3}>
+            <Button
+              className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
+              onClick={handleBack}
+              disabled={currentQuestionIndex === 0}
+            >
+              Back
+            </Button>
+            
+            {currentQuestionIndex === questions.length - 1 ? (
+              <Button
+                className={`${styles.navButton} ${styles.selectedButton}`}
+                onClick={handleNext}
+              >
+                Submit
+              </Button>
+            ) : (
+              <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
+                Next
+              </Button>
+            )}
+          </Box>
+        </Box>
+  
+        {/* Progress Sidebar - Now on the right with fixed width */}
+        <Box sx={{ 
+          width: "250px", 
+          flexShrink: 0, 
+          flexGrow: 0, 
+          p: 2, 
+          // borderLeft: "1px solid #ddd",
+        }}>
+          <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2}} align= "center">
+            Progress
+          </Typography>
+          <List>
+            {progress.map((q, i) => (
+              <ListItem key={i} disablePadding sx={{ mb: 1 }}>
+                <Button
+                  variant="contained"
+                  disableElevation
+                  disabled
+                  className={`progress-button ${q.answered ? "answered" : ""}`}
+                  sx={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "space-between", 
+                    width: "100%",
+                    bgcolor: q.answered ? "#e0f2f1" : "#f5f5f5",
+                    color: "#003366"
+                  }}
+                >
+                  Question {i + 1}
+                  {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </Box>
     </Box>
   );
+
+  // return (
+  //   <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+  //     <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+  //       <Toolbar sx={{ justifyContent: "space-between" }}>
+  //         <Box component="img" 
+  //           src={logoImage} 
+  //           alt="Chavez Logo"
+  //           sx={{ 
+  //             height: 60,
+  //             maxHeight: "100%",
+  //             py: 1
+  //           }}
+  //         />
+  
+  //         <Box display="flex" alignItems="center">
+  //           <IconButton color="inherit" component={Link} to="/dashboard">
+  //             <Home />
+  //           </IconButton>            
+  //           <IconButton color="inherit" onClick={handleProfileSelection}>
+  //             <Person />
+  //           </IconButton>
+  //           <IconButton color="inherit" onClick={handleLogout}>
+  //             <Logout />
+  //           </IconButton>
+  //         </Box>
+  //       </Toolbar>
+  //     </AppBar>
+
+  //     <Box display="flex" flexDirection="row" flexGrow={1}>
+  //       <Box sx={{ width: "250px", p: 2, borderRight: "1px solid #ddd"}}>
+  //         <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2}}>
+  //           Progress
+  //         </Typography>
+  //         <List>
+  //           {progress.map((q, i) => (
+  //             <ListItem key={i} disablePadding>
+  //               <Button
+  //                 variant="contained"
+  //                 disableElevation
+  //                 disabled
+  //                 className={`progress-button ${q.answered ? "answered" : ""}`}
+  //                 sx={{ 
+  //                   display: "flex", 
+  //                   alignItems: "center", 
+  //                   justifyContent: "space-between", 
+  //                   width: "100%",
+  //                   minWidth: "180px", 
+  //                   bgcolor: q.answered ? "#e0f2f1" : "#f5f5f5",
+  //                   color: "#003366"
+  //                 }}
+  //               >
+  //                 Question {i + 1}
+  //                 {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
+  //               </Button>
+  //             </ListItem>
+  //           ))}
+  //         </List>
+  //       </Box>
+
+  //     <Box flexGrow={1} p={4}>
+  //       <Box className={styles.questionBox}>
+  //         <Typography variant="h5" className={styles.questionText}>
+  //           {currentQuestion?.text}
+  //         </Typography>
+  //         <Box className={styles.options}>
+  //           <Button
+  //             className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
+  //             onClick={() => handleOptionChange("yes")}
+  //           >
+  //             Yes
+  //           </Button>
+  //           <Button
+  //             className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
+  //             onClick={() => handleOptionChange("no")}
+  //           >
+  //             No
+  //           </Button>
+  //         </Box>
+  //       </Box>
+
+  //       {/* Follow-Up Questions */}
+  //       {selectedOption && dynamicFollowUps.length > 0 && (
+  //         <Box className={styles.followUpBox}>
+  //           <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+  //             Follow-Up Questions
+  //           </Typography>
+  //           {dynamicFollowUps.map((followUp, index) => (
+  //             <Box key={index} className={styles.followUpQuestion}>
+  //               <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
+  //                 {followUp}
+  //               </Typography>
+  //               <Box display="flex" gap={2} mt={1}>
+  //                 <Button
+  //                   className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
+  //                   onClick={() => handleFollowUpChange(followUp, "yes")}
+  //                 >
+  //                   Yes
+  //                 </Button>
+  //                 <Button
+  //                   className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
+  //                   onClick={() => handleFollowUpChange(followUp, "no")}
+  //                 >
+  //                   No
+  //                 </Button>
+  //               </Box>
+  //             </Box>
+  //           ))}
+  //         </Box>
+  //       )}
+
+  //       {/* Navigation Buttons */}
+  //       <Box display="flex" justifyContent="space-between" mt={3}>
+  //         <Button
+  //           className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
+  //           onClick={handleBack}
+  //           disabled={currentQuestionIndex === 0}
+  //         >
+  //           Back
+  //         </Button>
+          
+  //         {currentQuestionIndex === questions.length - 1 ? (
+  //           <Button
+  //             className={`${styles.navButton} ${styles.selectedButton}`}
+  //             onClick={handleNext}
+  //           >
+  //             Submit
+  //           </Button>
+  //         ) : (
+  //           <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
+  //             Next
+  //           </Button>
+  //         )}
+  //       </Box>
+  //     </Box>
+  //     </Box>
+  //   </Box>
+  // );
 };
 
 export default Questions;
