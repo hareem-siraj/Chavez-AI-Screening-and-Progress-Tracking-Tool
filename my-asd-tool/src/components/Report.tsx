@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { setSessionIds } from "./redux/store";
 import {
   List,
@@ -25,11 +27,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import logoImage from "../assets/logo.png"; 
-
-// // Define types
-// interface SessionData {
-//   SessionID: string;
-// }
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -57,21 +54,25 @@ interface HumanVsObjectData {
   incorrectresponses: number;
 }
 
-interface EmotionPuzzleData {
-  correct_emotion: string;
-  selected_emotion: string;
-  reaction_time: number;
-  attempt_number?: number; // Added property
-  is_correct?: boolean; // Added property
-  Age: number; // Added property
-  Gender?: string; // Added property
-  cumulative_time?: number; // Added property
-  level:number
+interface EmotionPuzzleSummary {
+  SessionID: number;
+  Age: number;
+  Gender: string;
+  reaction_mean: number;
+  reaction_median: number;
+  reaction_min: number;
+  reaction_max: number;
+  correct_total: number;
+  attempts_total: number;
 }
 
 
 interface SpeechAnalysisData {
-  PredictionLabel: string;
+  mfcc_mean: number[];  // ✅ array
+  response_latency: number;
+  speech_confidence: number;
+  speech_onset_delay: number;
+  echolalia_score: number;
 }
 
 
@@ -108,20 +109,29 @@ const Report: React.FC = () => {
   const [balloonGame, setBalloonGame] = useState<BalloonGameData[]>([]);
   const [followFish, setFollowFish] = useState<FollowFishData[]>([]);
   const [humanVsObject, setHumanVsObject] = useState<HumanVsObjectData[]>([]);
-  const [emotionPuzzle, setEmotionPuzzle] = useState<EmotionPuzzleData[]>([]);
+  const [emotionPuzzle, setEmotionPuzzle] = useState<EmotionPuzzleSummary | null>(null);
   const [speechAnalysis, setSpeechAnalysis] = useState<SpeechAnalysisData[]>([]);
-  // const [report, setReport] = useState<string>("");
+  const [moduleClassifications, setModuleClassifications] = useState({
+    ftf_output: "",
+    hvo_output: "",
+    balloonemotion_output: "",
+    audio_output: ""
+  });
+
+
   interface ReportData {
     title: string;
     note: string;
     mchat_section: string;
     balloon_section: string;
+    ftf_section: string;
+    hvo_section: string;
     emotion_section: string;
     audio_section: string;
     summary: string;
     recommendations: string;
     important_consideration: string;
-  }
+  } 
   
   const [report, setReport] = useState<ReportData | null>(null);
 
@@ -163,84 +173,6 @@ const Report: React.FC = () => {
     }
   };
 
-  // const fetchData = async (sessionId: string) => {
-  //   try {
-  //     const responses = await Promise.allSettled([
-  //       axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
-  //       axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
-  //       axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
-  //       // axios.get("http://localhost:5001/api/balloon-game", { params: { sessionId } }),
-  //       // axios.get("http://localhost:5001/api/follow-data", { params: { sessionId } }),
-  //       // axios.get("http://localhost:5001/api/human-vs-object", { params: { sessionId } }),
-  //       // axios.get("http://localhost:5001/api/emotion-puzzle", { params: { sessionId } }),
-  //       axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
-  //     ]);
-
-  //     const newData = {
-  //       questionnaire: responses[0].status === "fulfilled" ? responses[0].value.data || [] : [],
-  //       balloonGame: responses[1].status === "fulfilled" ? responses[1].value.data || [] : [],
-  //       followFish: responses[2].status === "fulfilled" ? responses[2].value.data || [] : [],
-  //       humanVsObject: responses[3].status === "fulfilled" ? responses[3].value.data || [] : [],
-  //       // emotionPuzzle: responses[4].status === "fulfilled" ? responses[4].value.data || [] : [],
-  //       // speechAnalysis: responses[5].status === "fulfilled" ? responses[5].value.data || [] : [],
-  //     };
-
-  //     setQuestionnaire(newData.questionnaire);
-  //     setBalloonGame(newData.balloonGame);
-  //     setFollowFish(newData.followFish);
-  //     setHumanVsObject(newData.humanVsObject);
-  //     // setEmotionPuzzle(newData.emotionPuzzle);
-  //     // setSpeechAnalysis(newData.speechAnalysis);
-
-  //     const transformedData = {
-  //       questionnaire: {
-  //         mchat_score: questionnaire[0]?.Final_Score || 0,
-  //       },
-  //       pop_the_balloon: {
-  //         session_duration: balloonGame[0]?.sessionduration || 0,
-  //         correct_taps: balloonGame[0]?.correcttaps || 0,
-  //         missed_balloons: balloonGame[0]?.missedballoons || 0,
-  //         incorrect_clicks: balloonGame[0]?.incorrectclicks || 0,
-  //         total_taps: balloonGame[0]?.totaltaps || 0,
-  //         level: balloonGame[0]?.level || 1,
-  //         age: balloonGame[0]?.Age || 4,
-  //         gender: balloonGame[0]?.Gender || "Unknown"
-  //       },
-  //       emotion_puzzle: {
-  //         attempt_number: emotionPuzzle[0]?.attempt_number || 0,
-  //         correct_emotion: emotionPuzzle[0]?.correct_emotion || "",
-  //         selected_emotion: emotionPuzzle[0]?.selected_emotion || "",
-  //         reaction_time: emotionPuzzle[0]?.reaction_time || 0,
-  //         is_correct: emotionPuzzle[0]?.is_correct || false,
-  //         cumulative_time: emotionPuzzle[0]?.cumulative_time || 0,
-  //         age: emotionPuzzle[0]?.Age || 4,
-  //         gender: emotionPuzzle[0]?.Gender || "Unknown",
-  //         level: emotionPuzzle[0]?.level || 1
-  //       },
-  //       audio_analysis: {
-  //         mfcc_mean: 0.0,
-  //         response_latency: 0.0,
-  //         echolalia_score: 0.0,
-  //         speech_confidence: 0.0
-  //       }
-  //     };
-      
-
-  //     const jsonData = JSON.stringify(transformedData);
-  //     console.log("🔍 jsonData sent to Gemini:", jsonData);
-  //     const geminiResponse = await axios.post("http://localhost:8000/api/generate-report", {
-  //       data: jsonData
-  //     });
-      
-  //     console.log("🔍 Gemini response:", geminiResponse.data);
-
-  //     // setReport(geminiResponse.data.report);
-  //     setReport(geminiResponse.data); // Since you're returning the JSON directly from backend
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
-
   const fetchData = async (sessionId: string) => {
     try {
       const responses = await Promise.allSettled([
@@ -248,50 +180,66 @@ const Report: React.FC = () => {
         axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
         axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
         axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
+        axios.get(`http://localhost:5001/api/session-output/${sessionId}`),
       ]);
   
       const questionnaireData = responses[0].status === "fulfilled" ? responses[0].value.data || [] : [];
       const balloonData = responses[1].status === "fulfilled" ? responses[1].value.data || [] : [];
-      const emotionData = responses[2].status === "fulfilled" ? responses[2].value.data || [] : [];
+      const emotionData = responses[2].status === "fulfilled" ? responses[2].value.data || null : null;
       const speechData = responses[3].status === "fulfilled" ? responses[3].value.data || [] : [];
+      const level1 = balloonData.find((b: BalloonGameData) => b.level === 1);
+      const level2 = balloonData.find((b: BalloonGameData) => b.level === 2);
+      const classificationData = responses[4].status === "fulfilled" ? responses[4].value.data || {} : {};
+
   
       // Optional: keep states updated
       setQuestionnaire(questionnaireData);
       setBalloonGame(balloonData);
       setEmotionPuzzle(emotionData);
       setSpeechAnalysis(speechData);
+      setModuleClassifications(classificationData);
   
       const transformedData = {
         questionnaire: {
           mchat_score: questionnaireData[0]?.Final_Score || 0,
         },
         pop_the_balloon: {
-          session_duration: balloonData[0]?.sessionduration || 0,
-          correct_taps: balloonData[0]?.correcttaps || 0,
-          missed_balloons: balloonData[0]?.missedballoons || 0,
-          incorrect_clicks: balloonData[0]?.incorrectclicks || 0,
-          total_taps: balloonData[0]?.totaltaps || 0,
-          level: balloonData[0]?.level || 1,
+          level_1: {
+            session_duration: level1?.sessionduration || 0,
+            correct_taps: level1?.correcttaps || 0,
+            missed_balloons: level1?.missedballoons || 0,
+            incorrect_clicks: level1?.incorrectclicks || 0,
+            total_taps: level1?.totaltaps || 0
+          },
+          level_2: {
+            session_duration: level2?.sessionduration || 0,
+            correct_taps: level2?.correcttaps || 0,
+            missed_balloons: level2?.missedballoons || 0,
+            incorrect_clicks: level2?.incorrectclicks || 0,
+            total_taps: level2?.totaltaps || 0
+          },
           age: balloonData[0]?.Age || 4,
           gender: balloonData[0]?.Gender || "Unknown"
         },
         emotion_puzzle: {
-          attempt_number: emotionData[0]?.attempt_number || 0,
-          correct_emotion: emotionData[0]?.correct_emotion || "",
-          selected_emotion: emotionData[0]?.selected_emotion || "",
-          reaction_time: emotionData[0]?.reaction_time || 0,
-          is_correct: emotionData[0]?.is_correct || false,
-          cumulative_time: emotionData[0]?.cumulative_time || 0,
-          age: emotionData[0]?.Age || 4,
-          gender: emotionData[0]?.Gender || "Unknown",
-          level: emotionData[0]?.level || 1
+          SessionID: emotionData?.SessionID || 0,
+          Age: emotionData?.Age || 4,
+          Gender: emotionData?.Gender || "Unknown",
+          reaction_mean: emotionData?.reaction_mean || 0,
+          reaction_median: emotionData?.reaction_median || 0,
+          reaction_min: emotionData?.reaction_min || 0,
+          reaction_max: emotionData?.reaction_max || 0,
+          correct_total: emotionData?.correct_total || 0,
+          attempts_total: emotionData?.attempts_total || 0
         },
         audio_analysis: {
-          mfcc_mean: speechData[0]?.mfcc_mean || 0.0,
+          mfcc_mean: speechData[0]?.mfcc_mean || [],
           response_latency: speechData[0]?.response_latency || 0.0,
           echolalia_score: speechData[0]?.echolalia_score || 0.0,
-          speech_confidence: speechData[0]?.speech_confidence || 0.0
-        }
+          speech_confidence: speechData[0]?.speech_confidence || 0.0,
+          speech_onset_delay: speechData[0]?.speech_onset_delay || 0.0
+        },
+        classification_output: classificationData
       };
   
       const jsonData = JSON.stringify(transformedData);
@@ -304,6 +252,23 @@ const Report: React.FC = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  };
+
+
+  const downloadPDF = () => {
+    const reportElement = document.getElementById("report-content");
+    if (!reportElement) return;
+
+    html2canvas(reportElement, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`ASD_Report_${selectedSession}.pdf`);
+    });
   };
 
     const handleLogout = () => {
@@ -391,7 +356,9 @@ const Report: React.FC = () => {
 
         {/* Display Generated Report */}
         {report && (
-  <Box mt={4} p={3} bgcolor="#ffffff" borderRadius="12px" border="1px solid #ccc">
+          <>
+          <Button variant="contained" color="primary" sx={{ mt: 2, mb: 3 }} onClick={downloadPDF}>Download PDF</Button>
+          <Box id="report-content" mt={2} p={3} bgcolor="#ffffff" borderRadius="12px" border="1px solid #ccc">
     <Typography variant="h5" sx={{ color: "#003366", mb: 3 }}>
       {report.title}
     </Typography>
@@ -400,14 +367,14 @@ const Report: React.FC = () => {
     <Section heading="M-CHAT Results" text={report.mchat_section} />
     <Section heading="Pop the Balloon (Attention & Motor Control)" text={report.balloon_section} />
     <Section heading="Emotion Puzzle (Emotion Recognition)" text={report.emotion_section} />
+    <Section heading="Follow the Fish (Social Attention)" text={report.ftf_section} />
+    <Section heading="Human vs Object (Social Attention)" text={report.hvo_section} />
     <Section heading="Audio Analysis (Speech & Echolalia)" text={report.audio_section} />
     <Section heading="Developmental Summary" text={report.summary} />
     <Section heading="Recommendations" text={report.recommendations} />
-    <Section heading="Important Considerations" text="Remember that every child is unique, and the presentation of ASD can
-vary widely. Focus not only on areas of challenge but also on your child's strengths and talents. Continue to monitor your child's development and seek professional
-guidance as needed. Maintain a positive and supportive attitude, as this can have a profound
-impact on your child's well-being and development" />
+    <Section heading="Important Considerations" text="Remember that every child is unique, and the presentation of ASD can vary widely. Focus not only on areas of challenge but also on your child's strengths and talents. Continue to monitor your child's development and seek professional guidance as needed. Maintain a positive and supportive attitude, as this can have a profound impact on your child's well-being and development" />
   </Box>
+  </>
 )}
 
       </Box>

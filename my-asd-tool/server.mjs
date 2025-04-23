@@ -279,31 +279,6 @@ app.get("/api/recent-session/:ChildID", async (req, res) => {
 });
 
 
-// Endpoint to save a question response
-// app.post("/api/save-question-response", async (req, res) => {
-//   const { questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
-
-//   try {
-//     const insertOrUpdateQuery = `
-//       INSERT INTO "Question" ("QuestionID", "QuestionnaireID", "Question_Text", "FollowUpQs_Ans", "Result", "MainQs_Ans")
-//       VALUES ($1, $2, $3, $4, $5, $6)
-//       ON CONFLICT ("QuestionID", "QuestionnaireID")
-//       DO UPDATE SET 
-//         "Question_Text" = EXCLUDED."Question_Text",
-//         "FollowUpQs_Ans" = EXCLUDED."FollowUpQs_Ans",
-//         "Result" = EXCLUDED."Result",
-//         "MainQs_Ans" = EXCLUDED."MainQs_Ans";
-//     `;
-//     const values = [questionID, questionnaireID, question_text, followup_Qs_ans, result, main_qs_ans]; // All values are valid, including booleans
-//     await pool.query(insertOrUpdateQuery, values);
-
-//     res.status(200).json({ message: "Question response saved successfully." });
-//   } catch (error) {
-//     console.error("Error saving question response:", error);
-//     res.status(500).json({ message: "Error saving question response." });
-//   }
-// });
-
 app.post("/api/save-question-response", async (req, res) => {
   const { questionID, sessionID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
 
@@ -758,30 +733,16 @@ app.get("/api/speech-analysis", async (req, res) => {
   const { sessionId } = req.query;
   try {
     const result = await pool.query(
-      'SELECT * FROM "SpeechAnalysis" WHERE "SessionID" = $1',
+      'SELECT * FROM "SpeechData" WHERE "SessionID" = $1',
       [sessionId]
     );
     res.json(result.rows);
+    console.log(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
   }
 });
-
-// // Get Balloon Game Data
-// app.get("/api/balloon-game", async (req, res) => {
-//   const { sessionId } = req.query;
-//   try {
-//     const result = await pool.query(
-//       'SELECT * FROM balloongame WHERE "SessionID" = $1',
-//       [sessionId]
-//     );
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Server error");
-//   }
-// });
 
 app.post("/api/balloon-game", async (req, res) => {
   const { sessionID } = req.body;
@@ -791,94 +752,60 @@ app.post("/api/balloon-game", async (req, res) => {
       [sessionID]
     );
     res.json(result.rows);
+    console.log(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
   }
 });
 
-// // Get Emotion Puzzle Data
-// app.post("/api/emotion-puzzle", async (req, res) => {
-//   const { sessionId } = req.query;
-//   try {
-//     const result = await pool.query(
-//       'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
-//       [sessionId]
-//     );
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Server error");
-//   }
-// });
 
 app.post("/api/emotion-puzzle", async (req, res) => {
-  const { sessionID } = req.body; // ✅ Correct for POST
+  const sessionID = parseInt(req.body.sessionID);
+
+  if (!sessionID || isNaN(sessionID)) {
+    return res.status(400).send("Invalid session ID");
+  }
+
   try {
     const result = await pool.query(
       'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
       [sessionID]
     );
-    res.json(result.rows);
+
+    const data = result.rows;
+
+    if (data.length === 0) return res.status(404).send("No puzzle data found");
+
+    const reactionTimes = data.map(r => r.reaction_time);
+    const correctTotal = data.filter(r => r.is_correct === true || r.is_correct === "TRUE").length;
+
+    const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const median = arr => {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+    };
+
+    const summary = {
+      SessionID: sessionID,
+      Age: parseInt(data[0].Age),
+      Gender: data[0].Gender,
+      reaction_mean: parseFloat(average(reactionTimes).toFixed(2)),
+      reaction_median: parseFloat(median(reactionTimes).toFixed(2)),
+      reaction_min: Math.min(...reactionTimes),
+      reaction_max: Math.max(...reactionTimes),
+      correct_total: correctTotal,
+      attempts_total: data.length
+    };
+
+    res.json(summary);
+    console.log("Puzzle summary:", summary);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Puzzle summary error:", err);
     res.status(500).send("Server error");
-  }
-});
-
-
-app.post("/api/save-follow-data", async (req, res) => {
-  try {
-    const { SessionID, ScanPath, Timestamp } = req.body;
-
-    // Validate input
-    if (!SessionID || !ScanPath || !Array.isArray(ScanPath)) {
-      return res.status(400).json({ error: "Missing required fields or invalid ScanPath format" });
-    }
-
-    console.log("Received SessionID:", SessionID);
-
-    // Get ChildID from Session table
-    const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
-    const childResult = await pool.query(childQuery, [SessionID]);
-
-    console.log("Session Query Result:", childResult.rows);
-
-    if (childResult.rows.length === 0) {
-      return res.status(404).json({ error: "SessionID not found" });
-    }
-
-    const ChildID = childResult.rows[0]["ChildID"];
-
-    console.log("Retrieved ChildID:", ChildID);
-
-    // Get Age and Gender from Child table
-    console.log("Querying Child table for ChildID:", ChildID);
-    const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
-    const childDetailsResult = await pool.query(childDetailsQuery, [ChildID]);
-
-    console.log("Child Query Result:", childDetailsResult.rows);
-
-    if (childDetailsResult.rows.length === 0) {
-      return res.status(404).json({ error: "ChildID not found" });
-    }
-
-    const { Age, Gender } = childDetailsResult.rows[0];
-
-    // Insert follow data into FollowData table
-    const query = `
-      INSERT INTO "FollowData" ("SessionID", "ScanPath", "Gender", "Age", "Timestamp")
-      VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
-      RETURNING "ID"
-    `;
-
-    const result = await pool.query(query, [SessionID, JSON.stringify(ScanPath), Gender, Age, Timestamp || null]);
-
-    res.status(200).json({ message: "Follow data saved successfully", id: result.rows[0].id });
-
-  } catch (error) {
-    console.error("Error saving follow data:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -936,6 +863,79 @@ app.post("/api/save-human-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
+
+// app.post("/api/emotion-puzzle", async (req, res) => {
+//   const { sessionID } = req.body; // ✅ Correct for POST
+//   try {
+//     const result = await pool.query(
+//       'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
+//       [sessionID]
+//     );
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+app.post("/api/save-follow-data", async (req, res) => {
+  try {
+    const { SessionID, ScanPath, Timestamp } = req.body;
+
+    // Validate input
+    if (!SessionID || !ScanPath || !Array.isArray(ScanPath)) {
+      return res.status(400).json({ error: "Missing required fields or invalid ScanPath format" });
+    }
+
+    console.log("Received SessionID:", SessionID);
+
+    // Get ChildID from Session table
+    const childQuery = `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`;
+    const childResult = await pool.query(childQuery, [SessionID]);
+
+    console.log("Session Query Result:", childResult.rows);
+
+    if (childResult.rows.length === 0) {
+      return res.status(404).json({ error: "SessionID not found" });
+    }
+
+    const ChildID = childResult.rows[0]["ChildID"];
+
+    console.log("Retrieved ChildID:", ChildID);
+
+    // Get Age and Gender from Child table
+    console.log("Querying Child table for ChildID:", ChildID);
+    const childDetailsQuery = `SELECT "Age", "Gender" FROM "Child" WHERE "ChildID" = $1`;
+    const childDetailsResult = await pool.query(childDetailsQuery, [ChildID]);
+
+    console.log("Child Query Result:", childDetailsResult.rows);
+
+    if (childDetailsResult.rows.length === 0) {
+      return res.status(404).json({ error: "ChildID not found" });
+    }
+
+    const { Age, Gender } = childDetailsResult.rows[0];
+
+    // Insert follow data into FollowData table
+    const query = `
+      INSERT INTO "FollowData" ("SessionID", "ScanPath", "Gender", "Age", "Timestamp")
+      VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
+      RETURNING "ID"
+    `;
+
+    const result = await pool.query(query, [SessionID, JSON.stringify(ScanPath), Gender, Age, Timestamp || null]);
+
+    res.status(200).json({ message: "Follow data saved successfully", id: result.rows[0].id });
+
+  } catch (error) {
+    console.error("Error saving follow data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 // sameen end points
@@ -1374,6 +1374,27 @@ app.post("/api/update-hvo-output", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+app.get("/api/session-output/:sessionId", async (req, res) => {
+  const sessionId = req.params.sessionId;
+
+  try {
+    const result = await pool.query(
+      `SELECT ftf_output, hvo_output, balloonemotion_output, audio_output FROM "Session" WHERE "SessionID" = $1`,
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error fetching session outputs:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 // Start the server

@@ -176,7 +176,7 @@ async def start_eye_tracking(data: dict):
         
         # Launch the subprocess with proper permissions
         process = subprocess.Popen(
-            ["python3", script_path, str(session_id)], 
+            ["python", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -226,7 +226,7 @@ async def start_eye_tracking2(data: dict):
         
         # Launch the subprocess with proper permissions
         process = subprocess.Popen(
-            ["python3", script_path, str(session_id)], 
+            ["python", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -280,16 +280,48 @@ async def process_balloon_emotion(session_data: dict):
 ########################################################### AUTISM REPORT #######################################################
 
     
+# class ReportRequest(BaseModel):
+#     data: str  # JSON string
+
+# file_path = os.path.join(os.path.dirname(__file__), "report_gemini.py")
+
+# # Load module
+# spec = importlib.util.spec_from_file_location("report_gemini", file_path)
+# report_gemini = importlib.util.module_from_spec(spec)
+# spec.loader.exec_module(report_gemini)
+
+# @app.post("/api/generate-report")
+# async def generate_report(req: ReportRequest):
+#     try:
+#         report_data = json.loads(req.data)
+#         report_text = report_gemini.generate_autism_report(report_data)
+#         return report_text
+#     except Exception as e:
+#         return {"error": str(e)}
+
+# @app.get("/api/download-report")
+# async def download_report():
+#     from fastapi.responses import FileResponse
+#     return FileResponse("autism_report.pdf", media_type="application/pdf", filename="autism_report.pdf")
+
+
+
 class ReportRequest(BaseModel):
     data: str  # JSON string
 
-file_path = os.path.join(os.path.dirname(__file__), "report_gemini.py")
+# -------------------- Load English Report Module --------------------
+english_path = os.path.join(os.path.dirname(__file__), "report_gemini.py")
+spec_en = importlib.util.spec_from_file_location("report_gemini", english_path)
+report_gemini = importlib.util.module_from_spec(spec_en)
+spec_en.loader.exec_module(report_gemini)
 
-# Load module
-spec = importlib.util.spec_from_file_location("report_gemini", file_path)
-report_gemini = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(report_gemini)
+# -------------------- Load Urdu Report Module --------------------
+urdu_path = os.path.join(os.path.dirname(__file__), "report_gemini_urdu.py")
+spec_urdu = importlib.util.spec_from_file_location("report_gemini_urdu", urdu_path)
+report_gemini_urdu = importlib.util.module_from_spec(spec_urdu)
+spec_urdu.loader.exec_module(report_gemini_urdu)
 
+# -------------------- English Report API --------------------
 @app.post("/api/generate-report")
 async def generate_report(req: ReportRequest):
     try:
@@ -299,7 +331,12 @@ async def generate_report(req: ReportRequest):
     except Exception as e:
         return {"error": str(e)}
 
-@app.get("/api/download-report")
-async def download_report():
-    from fastapi.responses import FileResponse
-    return FileResponse("autism_report.pdf", media_type="application/pdf", filename="autism_report.pdf")
+# -------------------- Urdu Report API --------------------
+@app.post("/api/generate-report-urdu")
+async def generate_report_urdu(req: ReportRequest):
+    try:
+        report_data = json.loads(req.data)
+        report_text = report_gemini_urdu.generate_autism_report_urdu(report_data)
+        return report_text
+    except Exception as e:
+        return {"error": str(e)}
