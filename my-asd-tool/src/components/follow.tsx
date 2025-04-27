@@ -17,31 +17,6 @@ const GamifiedAssesments: React.FC = () => {
   console.log("SessionID:", sessionID);
   const [eyeTrackingStatus, setEyeTrackingStatus] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   
-  // const stopEyeTracking = async () => {
-  //   if (!sessionID) {
-  //     console.error("Cannot stop eye tracking: SessionID is missing");
-  //     return;
-  //   }
-  
-  //   console.log("Stopping eye tracking for SessionID:", sessionID);
-  
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/stop-eyetracking/", {
-  //       sessionID: sessionID,
-  //     });
-  
-  //     console.log("Eye tracking stop response:", response.data);
-  //     if (response.data.message) {
-  //       console.log("Eye tracking stopped successfully");
-  //       setEyeTrackingStatus("idle");
-  //     } else {
-  //       console.error("Eye tracking failed to stop:", response.data.error);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error stopping eye tracking:", error);
-  //   }
-  // };
-
   const stopEyeTracking = async () => {
     if (!sessionID) {
         console.error("Cannot stop eye tracking: SessionID is missing");
@@ -59,6 +34,7 @@ const GamifiedAssesments: React.FC = () => {
             await fetch(`http://localhost:5001/api/mark-fish-status-true/${sessionID}`, {
               method: "POST",
             });
+            // stopEyeTracking();
             console.log("Fish status marked as true");
           } catch (error) {
             console.error("Error marking balloon status:", error);
@@ -93,8 +69,6 @@ const GamifiedAssesments: React.FC = () => {
       if (event.data === "gameEnded") {
         console.log("Game ended message received");
         stopEyeTracking();
-        // Navigate using React Router instead of window.location
-        // navigate("/game-selection");
       }
     };
 
