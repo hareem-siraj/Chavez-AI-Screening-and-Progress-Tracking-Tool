@@ -259,6 +259,3 @@ if scanpath:
 
 else:
     print("No eye-tracking data collected. Please ensure face detection works.")
-
-
-

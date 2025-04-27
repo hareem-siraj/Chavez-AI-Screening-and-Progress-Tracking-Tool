@@ -163,7 +163,7 @@ def process_and_store_recordings(combined_audio_path, session_id):
 @app.post("/start-eyetracking/")
 async def start_eye_tracking(data: dict):
     session_id = data.get("sessionID", 0)
-    print(f"Starting eye tracking for SessionID: {session_id}")
+    print(f"Starting eye tracking for SessionID python file printing: {session_id}")
 
     try:
         # Get absolute path to the script
@@ -176,7 +176,7 @@ async def start_eye_tracking(data: dict):
         
         # Launch the subprocess with proper permissions
         process = subprocess.Popen(
-            ["python", script_path, str(session_id)], 
+            ["python3", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -213,7 +213,7 @@ async def stop_eye_tracking(data: dict):
 @app.post("/start-eyetracking2/")
 async def start_eye_tracking2(data: dict):
     session_id = data.get("sessionID", 0)
-    print(f"Starting eye tracking for SessionID: {session_id}")
+    print(f"Starting eye tracking for SessionID python file printing: {session_id}")
 
     try:
         # Get absolute path to the script
@@ -226,7 +226,7 @@ async def start_eye_tracking2(data: dict):
         
         # Launch the subprocess with proper permissions
         process = subprocess.Popen(
-            ["python", script_path, str(session_id)], 
+            ["python3", script_path, str(session_id)], 
             # Redirect output to prevent blocking
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -276,35 +276,7 @@ async def process_balloon_emotion(session_data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 ########################################################### AUTISM REPORT #######################################################
-
-    
-# class ReportRequest(BaseModel):
-#     data: str  # JSON string
-
-# file_path = os.path.join(os.path.dirname(__file__), "report_gemini.py")
-
-# # Load module
-# spec = importlib.util.spec_from_file_location("report_gemini", file_path)
-# report_gemini = importlib.util.module_from_spec(spec)
-# spec.loader.exec_module(report_gemini)
-
-# @app.post("/api/generate-report")
-# async def generate_report(req: ReportRequest):
-#     try:
-#         report_data = json.loads(req.data)
-#         report_text = report_gemini.generate_autism_report(report_data)
-#         return report_text
-#     except Exception as e:
-#         return {"error": str(e)}
-
-# @app.get("/api/download-report")
-# async def download_report():
-#     from fastapi.responses import FileResponse
-#     return FileResponse("autism_report.pdf", media_type="application/pdf", filename="autism_report.pdf")
-
-
 
 class ReportRequest(BaseModel):
     data: str  # JSON string
