@@ -66,7 +66,7 @@ const Questions: React.FC = () => {
     localStorage.removeItem("selectedChildId"); // Clear child profile data
     localStorage.clear(); // Remove all stored data
     sessionStorage.clear();
-    window.location.href = "/sign-in"; // Redirect to login page
+    window.location.href = "/sign-in-urdu"; // Redirect to login page
   };
 
   const handleProfileSelection = () => {
@@ -75,7 +75,7 @@ const Questions: React.FC = () => {
     localStorage.removeItem("selectedChildId"); // Clear child profile data
     localStorage.clear(); // Clear all stored data
     sessionStorage.clear();
-    navigate("/profile-selection"); // Fallback in case userId is missing
+    navigate("/profile-selection-urdu"); // Fallback in case userId is missing
   };
 
   useEffect(() => {
@@ -773,7 +773,7 @@ const evaluateCurrentQuestion = () => {
           />
   
           <Box display="flex" alignItems="center">
-            <IconButton color="inherit" component={Link} to="/dashboard">
+            <IconButton color="inherit" component={Link} to="/dashboard-urdu">
               <Home />
             </IconButton>            
             <IconButton color="inherit" onClick={handleProfileSelection}>
