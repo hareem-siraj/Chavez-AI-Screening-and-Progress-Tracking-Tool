@@ -93,6 +93,15 @@ const Audio: React.FC = () => {
 
   const markNavigate = async () => {
     console.log("Video has ended. Waiting 5 seconds before navigating...");
+    try {
+      await fetch(`http://localhost:5001/api/mark-speech-status-true/${sessionID}`, {
+        method: "POST",
+      });
+      // stopEyeTracking();
+      console.log("speech status marked as true");
+    } catch (error) {
+      console.error("Error marking speech status:", error);
+    }
     setTimeout(() => {
       navigate("/dashboard"); // Replace with your actual route
     }, 5000);

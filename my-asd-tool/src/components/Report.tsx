@@ -7,12 +7,6 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { setSessionIds } from "./redux/store";
 import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
   Select,
   MenuItem,
   FormControl,
