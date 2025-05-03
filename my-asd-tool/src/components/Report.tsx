@@ -144,6 +144,13 @@ const Report: React.FC = () => {
   useEffect(() => {
     if (selectedSession) {
       fetchData(selectedSession);
+      axios.post("http://localhost:5001/api/mark-complete", { sessionId: selectedSession })
+      .then(() => {
+        console.log("Session marked as complete.");
+      })
+      .catch((err) => {
+        console.error("Failed to mark session complete:", err);
+      });
     }
   }, [selectedSession]);
 

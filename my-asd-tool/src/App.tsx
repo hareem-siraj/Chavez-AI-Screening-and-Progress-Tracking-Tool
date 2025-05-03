@@ -41,6 +41,8 @@ import Puzzle from 'components/puzzle';
 
 import Audio from 'components/Audio';
 
+import ResetPassword from 'components/ResetPassword';
+
 import store from './components/redux/store';  
 // import ProgressOverview from './components/ProgressOverview';
 
@@ -88,6 +90,8 @@ const App: React.FC = () => {
             {/* <Route path="/audio-analysis-urdu" element={<Audio/>} /> */}
             
             {/* <Route path="/progress-overview" element={<ProgressOverview/>}  */}
+
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </Router>
       </ThemeProvider>

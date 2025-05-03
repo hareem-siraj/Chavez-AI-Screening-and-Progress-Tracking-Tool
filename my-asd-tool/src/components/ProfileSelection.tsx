@@ -8,6 +8,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserId, selectChild } from "../components/redux/store";
 import { useNavigate } from 'react-router-dom';
+import { setSessionIds } from "./redux/store";
 
 // Avatar images mapping
 import avatar1 from "../assets/avatars/1.png";
@@ -38,11 +39,99 @@ const ProfileSelection: React.FC = () => {
     }
   }, [userIdFromStore]);
 
-  const handleSelectChild = (ChildID: number) => {
-    dispatch(selectChild(ChildID));
-    dispatch(setUserId(userIdFromStore));  
-    navigate("/dashboard");
-  };
+  // const handleSelectChild = (ChildID: number) => {
+  //   dispatch(selectChild(ChildID));
+  //   dispatch(setUserId(userIdFromStore));  
+  //   navigate("/dashboard");
+  // };
+
+// Replace handleSelectChild in ProfileSelection.tsx with this fixed version:
+const handleSelectChild = async (ChildID: number) => {
+  dispatch(selectChild(ChildID));
+  dispatch(setUserId(userIdFromStore));
+  localStorage.setItem("selectedChildId", String(ChildID));
+
+  try {
+    const res = await axios.get(`http://localhost:5001/api/allSessionsDate/${ChildID}`);
+    const sessions = res.data.sessions;
+
+    if (sessions.length === 0) {
+      const newSession = await axios.post("http://localhost:5001/api/start-session", { ChildID });
+      const sessionPayload = {
+        SessionID: newSession.data.SessionID,
+        QuestionnaireID: null,
+        GameSessionID: null,
+        ReportID: null,
+      };
+      dispatch(setSessionIds(sessionPayload));
+      localStorage.setItem("sessionData", JSON.stringify(sessionPayload));
+      return navigate("/dashboard");
+    }
+
+    // Sort by CompleteDate descending, undefined last
+    sessions.sort((a: any, b: any) => {
+      const dateA = a.CompleteDate ? new Date(a.CompleteDate) : null;
+      const dateB = b.CompleteDate ? new Date(b.CompleteDate) : null;
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    const firstIncomplete = sessions.find((s: any) => !s.CompleteDate);
+    const mostRecentComplete = sessions.find((s: any) => s.CompleteDate);
+
+    if (firstIncomplete) {
+      const sessionPayload = {
+        SessionID: firstIncomplete.SessionID,
+        QuestionnaireID: null,
+        GameSessionID: null,
+        ReportID: null,
+      };
+      dispatch(setSessionIds(sessionPayload));
+      localStorage.setItem("sessionData", JSON.stringify(sessionPayload));
+      return navigate("/dashboard");
+    }
+
+    if (mostRecentComplete) {
+      const completeDate = new Date(mostRecentComplete.CompleteDate);
+      const now = new Date();
+      const diffDays = Math.floor((now.getTime() - completeDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      const sessionPayload = {
+        SessionID: mostRecentComplete.SessionID,
+        QuestionnaireID: null,
+        GameSessionID: null,
+        ReportID: null,
+      };
+
+      if (diffDays >= 90) {
+        const proceed = window.confirm("It's been over 90 days since the last session. Start a new session?");
+
+        if (proceed) {
+          const newSession = await axios.post("http://localhost:5001/api/start-session", { ChildID });
+          const newPayload = {
+            SessionID: newSession.data.SessionID,
+            QuestionnaireID: null,
+            GameSessionID: null,
+            ReportID: null,
+          };
+          dispatch(setSessionIds(newPayload));
+          localStorage.setItem("sessionData", JSON.stringify(newPayload));
+          return navigate("/dashboard");
+        }
+      }
+
+      // If user does not want new session or under 180 days, continue with recent complete
+      dispatch(setSessionIds(sessionPayload));
+      localStorage.setItem("sessionData", JSON.stringify(sessionPayload));
+      return navigate("/dashboard");
+    }
+  } catch (err) {
+    console.error("Error during child session check:", err);
+  }
+};
+
 
   const handleAddProfile = () => {
     dispatch(setUserId(userIdFromStore));

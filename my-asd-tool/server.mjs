@@ -4,7 +4,9 @@ import dotenv from "dotenv";
 import cors from "cors"; // Import cors
 import nodemailer from 'nodemailer';
 // import fetch from 'node-fetch';
-import nodemailerMailjetTransport from "nodemailer-mailjet-transport";
+import crypto from 'crypto';
+
+import sgMail from '@sendgrid/mail';
 
 dotenv.config();
 
@@ -30,7 +32,7 @@ const pool = new Pool({
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
 });
-
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post("/api/create-account", async (req, res) => {
   const { name, email, userId, password } = req.body;
@@ -108,52 +110,90 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Endpoint for forgot password
-app.post("/api/forgot-password", async (req, res) => {
-  const { Email } = req.body;
+
+// Route to request password reset
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
 
   try {
-    if (!Email) {
-      return res.status(400).json({ message: "Email is required" });
+    const userResult = await pool.query(`SELECT * FROM "User" WHERE "Email" = $1`, [email]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ message: "Email not found" });
     }
 
-    const query = `SELECT * FROM "User" WHERE "Email" = $1`;
-    const result = await pool.query(query, [Email]);
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetURL = `http://localhost:3000/reset-password?token=${resetToken}`;
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    // const expires = new Date(Date.now() + 3600000); // 1 hour
+    const expires = new Date(Date.now() + 3600000).toISOString();
 
-    const user = result.rows[0];
+    // Store token in DB
+    await pool.query(`
+      UPDATE "User" SET "ResetToken" = $1, "ResetTokenExpiry" = $2 WHERE "Email" = $3
+    `, [resetToken, expires, email]);
 
-    // Generate a reset token (for simplicity, we're using a random string here, but ideally use a secure token)
-    const resetToken = Math.random().toString(36).substring(2);
-
-    // You should ideally store this token in your database with an expiration time, but for now, we just log it
-    console.log("Reset token generated:", resetToken);
-
-    // Send reset email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: Email,
-      subject: "Password Reset Request",
-      text: `To reset your password, please use the following link: \n\nhttp://localhost:3000/reset-password/${resetToken}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending reset email:", error);
-        return res.status(500).json({ message: "Error sending reset email" });
-      }
-      console.log("Password reset email sent:", info.response);
-      res.status(200).json({ message: "Password reset email sent successfully" });
-    });
-
-  } catch (error) {
-    console.error("Error during forgot password request:", error);
-    res.status(500).json({ message: "Error during forgot password request" });
+    await sendResetEmail(email, resetURL);
+    res.json({ message: "Reset link sent" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
+async function sendResetEmail(toEmail, resetLink) {
+  const msg = {
+    to: toEmail,
+    from: process.env.FROM_EMAIL, // must be a verified sender
+    subject: 'Chavez Password Reset Link',
+    text: `Click the link to reset your password: ${resetLink}`,
+    html: `<p>You requested a password reset for your account on Chavez.</p><p><a href="${resetLink}">Click here to reset your password</a></p>`,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('Reset email sent');
+  } catch (error) {
+    console.error('SendGrid error:', error);
+    if (error.response) {
+      console.error(error.response.body);
+    }
+    throw error;
+  }
+}
+
+
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Get user with matching valid token
+    const userResult = await pool.query(`
+      SELECT * FROM "User" 
+      WHERE "ResetToken" = $1 AND "ResetTokenExpiry" > NOW()
+    `, [token]);
+
+    if (userResult.rowCount === 0) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = newPassword;
+    const email = userResult.rows[0].email;
+
+    // Update password and clear the token
+    await pool.query(`
+      UPDATE "User"  
+      SET "Password" = $1, "ResetToken" = NULL, "ResetTokenExpiry" = NULL 
+      WHERE "Email" = $2
+    `, [hashedPassword, email]);
+
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (err) {
+    console.error('Reset error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // Endpoint for fetch children
 app.get("/api/children/:UserID", async (req, res) => {
@@ -1393,6 +1433,54 @@ app.get("/api/session-output/:sessionId", async (req, res) => {
   }
 });
 
+
+app.post('/api/mark-complete', async (req, res) => {
+  const { sessionId } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT "CompleteDate" FROM "Session" WHERE "SessionID" = $1`,
+      [sessionId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    if (result.rows[0].CompleteDate) {
+      return res.status(200).json({ message: 'Session already marked complete' });
+    }
+
+    await pool.query(
+      `UPDATE "Session" SET "CompleteDate" = NOW() WHERE "SessionID" = $1`,
+      [sessionId]
+    );
+
+    res.status(200).json({ message: 'Session marked complete' });
+  } catch (err) {
+    console.error('Error marking session complete:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get("/api/allSessionsDate/:ChildID", async (req, res) => {
+  const { ChildID } = req.params;
+
+  try {
+    const query = `
+      SELECT "SessionID", "CompleteDate"
+      FROM "Session" 
+      WHERE "ChildID" = $1 
+      ORDER BY "CompleteDate" DESC NULLS LAST;
+    `;
+    const result = await pool.query(query, [ChildID]);
+
+    res.status(200).json({ sessions: result.rows });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).json({ message: "Error fetching sessions" });
+  }
+});
 
 
 // Start the server

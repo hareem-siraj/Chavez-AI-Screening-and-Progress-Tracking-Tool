@@ -446,40 +446,6 @@ const Questions: React.FC = () => {
 
     // Modify handleOptionChange to set dynamic follow-ups
     const handleOptionChange = (option: "yes" | "no") => {
-      // const updatedProgress = [...progress];
-      // updatedProgress[currentQuestionIndex] = {
-      //   ...updatedProgress[currentQuestionIndex],
-      //   answered: true,
-      //   selected: option,
-      // };
-      // setProgress(updatedProgress);
-    
-      // // For Question 8, use dynamic follow-ups
-      // if (currentQuestion.id === 8) {
-      //   const followUps = QuestionLogic.getFollowUpQuestions(
-      //     currentQuestion.id,
-      //     option === "yes" ? "Yes" : "No"
-      //   );
-        
-      //   if (followUps && Array.isArray(followUps)) {
-      //     setDynamicFollowUps(followUps);
-      //     const initialFollowUps: { [key: string]: boolean } = {};
-      //     followUps.forEach((question: string) => {
-      //       initialFollowUps[question] = false;
-      //     });
-      //     setFollowUpResponses(initialFollowUps);
-      //   }
-      // } else {
-      //   // For other questions, use static follow-ups from the questions array
-      //   const followUps = currentQuestion.followUps[option] || [];
-      //   setDynamicFollowUps(followUps);
-        
-      //   const initialFollowUps: { [key: string]: boolean } = {};
-      //   followUps.forEach((question: string) => {
-      //     initialFollowUps[question] = false;
-      //   });
-      //   setFollowUpResponses(initialFollowUps);
-      // }
       const updatedProgress = [...progress];
     updatedProgress[currentQuestionIndex] = {
       ...updatedProgress[currentQuestionIndex],
@@ -724,7 +690,7 @@ const evaluateCurrentQuestion = () => {
       // Debug: Log the calculated score
       console.log("Calculated total score:", totalScore);
 
-      const finalScore = Math.floor(totalScore);
+      const finalScore = 20 - Math.floor(totalScore);
 
       console.log("Calculated total score (integer):", finalScore);
     
@@ -909,143 +875,7 @@ const evaluateCurrentQuestion = () => {
     </Box>
   );
 
-  // return (
-  //   <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
-  //     <AppBar position="static" sx={{ bgcolor: "#003366" }}>
-  //       <Toolbar sx={{ justifyContent: "space-between" }}>
-  //         <Box component="img" 
-  //           src={logoImage} 
-  //           alt="Chavez Logo"
-  //           sx={{ 
-  //             height: 60,
-  //             maxHeight: "100%",
-  //             py: 1
-  //           }}
-  //         />
-  
-  //         <Box display="flex" alignItems="center">
-  //           <IconButton color="inherit" component={Link} to="/dashboard">
-  //             <Home />
-  //           </IconButton>            
-  //           <IconButton color="inherit" onClick={handleProfileSelection}>
-  //             <Person />
-  //           </IconButton>
-  //           <IconButton color="inherit" onClick={handleLogout}>
-  //             <Logout />
-  //           </IconButton>
-  //         </Box>
-  //       </Toolbar>
-  //     </AppBar>
 
-  //     <Box display="flex" flexDirection="row" flexGrow={1}>
-  //       <Box sx={{ width: "250px", p: 2, borderRight: "1px solid #ddd"}}>
-  //         <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2}}>
-  //           Progress
-  //         </Typography>
-  //         <List>
-  //           {progress.map((q, i) => (
-  //             <ListItem key={i} disablePadding>
-  //               <Button
-  //                 variant="contained"
-  //                 disableElevation
-  //                 disabled
-  //                 className={`progress-button ${q.answered ? "answered" : ""}`}
-  //                 sx={{ 
-  //                   display: "flex", 
-  //                   alignItems: "center", 
-  //                   justifyContent: "space-between", 
-  //                   width: "100%",
-  //                   minWidth: "180px", 
-  //                   bgcolor: q.answered ? "#e0f2f1" : "#f5f5f5",
-  //                   color: "#003366"
-  //                 }}
-  //               >
-  //                 Question {i + 1}
-  //                 {q.answered && <CheckCircleIcon sx={{ ml: 1, color: "green" }} />}
-  //               </Button>
-  //             </ListItem>
-  //           ))}
-  //         </List>
-  //       </Box>
-
-  //     <Box flexGrow={1} p={4}>
-  //       <Box className={styles.questionBox}>
-  //         <Typography variant="h5" className={styles.questionText}>
-  //           {currentQuestion?.text}
-  //         </Typography>
-  //         <Box className={styles.options}>
-  //           <Button
-  //             className={`${styles.optionButton} ${selectedOption === "yes" && styles.selected}`}
-  //             onClick={() => handleOptionChange("yes")}
-  //           >
-  //             Yes
-  //           </Button>
-  //           <Button
-  //             className={`${styles.optionButton} ${selectedOption === "no" && styles.selected}`}
-  //             onClick={() => handleOptionChange("no")}
-  //           >
-  //             No
-  //           </Button>
-  //         </Box>
-  //       </Box>
-
-  //       {/* Follow-Up Questions */}
-  //       {selectedOption && dynamicFollowUps.length > 0 && (
-  //         <Box className={styles.followUpBox}>
-  //           <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-  //             Follow-Up Questions
-  //           </Typography>
-  //           {dynamicFollowUps.map((followUp, index) => (
-  //             <Box key={index} className={styles.followUpQuestion}>
-  //               <Typography sx={{ color: "#003366", fontSize: "16px", fontWeight: "bold" }}>
-  //                 {followUp}
-  //               </Typography>
-  //               <Box display="flex" gap={2} mt={1}>
-  //                 <Button
-  //                   className={`${styles.navButton} ${followUpResponses[followUp] === true ? styles.selectedButton : ""}`}
-  //                   onClick={() => handleFollowUpChange(followUp, "yes")}
-  //                 >
-  //                   Yes
-  //                 </Button>
-  //                 <Button
-  //                   className={`${styles.navButton} ${followUpResponses[followUp] === false ? styles.selectedButton : ""}`}
-  //                   onClick={() => handleFollowUpChange(followUp, "no")}
-  //                 >
-  //                   No
-  //                 </Button>
-  //               </Box>
-  //             </Box>
-  //           ))}
-  //         </Box>
-  //       )}
-
-  //       {/* Navigation Buttons */}
-  //       <Box display="flex" justifyContent="space-between" mt={3}>
-  //         <Button
-  //           className={`${styles.navButton} ${currentQuestionIndex === 0 ? styles.disabledButton : ""}`}
-  //           onClick={handleBack}
-  //           disabled={currentQuestionIndex === 0}
-  //         >
-  //           Back
-  //         </Button>
-          
-  //         {currentQuestionIndex === questions.length - 1 ? (
-  //           <Button
-  //             className={`${styles.navButton} ${styles.selectedButton}`}
-  //             onClick={handleNext}
-  //           >
-  //             Submit
-  //           </Button>
-  //         ) : (
-  //           <Button className={`${styles.navButton} ${styles.selectedButton}`} onClick={handleNext}>
-  //             Next
-  //           </Button>
-  //         )}
-  //       </Box>
-  //     </Box>
-  //     </Box>
-  //   </Box>
-  // );
 };
 
 export default Questions;
