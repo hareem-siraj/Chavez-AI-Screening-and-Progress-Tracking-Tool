@@ -694,9 +694,9 @@ const evaluateCurrentQuestion = () => {
 
       console.log("Calculated total score (integer):", finalScore);
     
-      setScore(totalScore);
+      setScore(20-totalScore);
     
-      dispatch(setFinalScore(totalScore));
+      dispatch(setFinalScore(20-totalScore));
     
       try {
         await fetch("http://localhost:5001/api/save-final-score", {
@@ -705,7 +705,7 @@ const evaluateCurrentQuestion = () => {
           body: JSON.stringify({
             // questionnaireID: sessionData.QuestionnaireID,
             sessionID: sessionData.SessionID,
-            finalScore: totalScore,
+            finalScore: 20-totalScore,
           }),
         });
 
