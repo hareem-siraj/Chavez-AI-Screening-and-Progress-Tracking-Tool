@@ -7,20 +7,31 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { setSessionIds } from "./redux/store";
 import {
+  Box,
+  Typography,
+  Button,
+  AppBar,
+  Toolbar,
+  IconButton,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
-  Box,
-  Typography,
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, Logout } from "@mui/icons-material";
-import { 
-  Button, AppBar, Toolbar, IconButton
-} from "@mui/material";
+import { Home, Person, Assessment, Logout } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import logoImage from "../assets/logo.png"; 
+import { Description, CheckCircle, SportsEsports, Psychology, Visibility, RecordVoiceOver, TipsAndUpdates, Gavel, Info } from "@mui/icons-material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from "@mui/material";
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -75,20 +86,67 @@ interface SessionData {
   SessionID: string;
 }
 
-const Section: React.FC<{ heading: string; text: string | { summary: string; details?: string } }> = ({ heading, text }) => {
-  const content = typeof text === "string"
-    ? text
-    : `${text.summary ?? ""}\n\n${text.details ?? ""}`;
+interface ReportData {
+  title: string;
+  note: string;
+  screening_summary: string;
+  motor_cognitive: string;
+  emotional_understanding: string;
+  visual_social: string;
+  speech_language: string;
+  summary: string;
+  recommendations: string;
+  important_consideration: string;
+}
 
-  return (
-    <Box mb={4}>
-      <Typography variant="h6" sx={{ color: "#002244", fontWeight: "bold", mb: 1 }}>{heading}</Typography>
-      <Typography sx={{ color: "#000000", whiteSpace: "pre-line", lineHeight: 1.8 }}>
-        {content}
+
+const ReportCard: React.FC<{
+  heading: string;
+  text?: string;
+  icon?: React.ReactElement;
+  accentColor?: string;
+  children?: React.ReactNode;  // ✅ add this line
+}> = ({ heading, text, icon = "", accentColor = "#1976d2", children }) => (
+  <Box
+    sx={{
+      backgroundColor: "#ffffff",
+      borderRadius: "12px",
+      boxShadow: 2,
+      padding: 3,
+      marginBottom: 3,
+      borderLeft: `6px solid ${accentColor}`,
+      animation: "fadeIn 0.5s ease-in-out",
+      "@keyframes fadeIn": {
+        "0%": { opacity: 0, transform: "translateY(10px)" },
+        "100%": { opacity: 1, transform: "translateY(0)" },
+      },
+    }}
+  >
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        color: "#003366", 
+        fontWeight: "bold", 
+        mb: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"  // 🧩 center-align heading
+      }}
+    >
+      {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
+      {heading}
+    </Typography>
+
+    {/* Conditionally render text or children */}
+    {text && (
+      <Typography sx={{ color: "#333333", lineHeight: 1.8, whiteSpace: "pre-line" }}>
+        {text}
       </Typography>
-    </Box>
-  );
-};
+    )}
+    
+    {children}
+  </Box>
+);
 
 
 
@@ -96,7 +154,9 @@ const Report: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const selectedChildId = useSelector((state: any) => state.selectedChildId);
+  // const selectedChildId = useSelector((state: any) => state.selectedChildId);
+  const selectedChildId = useSelector((state: any) => state.selectedChildId) as string | null;
+
   const [sessionList, setSessionList] = useState<SessionData[]>([]);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireData[]>([]);
@@ -112,22 +172,17 @@ const Report: React.FC = () => {
     audio_output: ""
   });
 
-
-  interface ReportData {
-    title: string;
-    note: string;
-    mchat_section: string;
-    balloon_section: string;
-    ftf_section: string;
-    hvo_section: string;
-    emotion_section: string;
-    audio_section: string;
-    summary: string;
-    recommendations: string;
-    important_consideration: string;
-  } 
   
   const [report, setReport] = useState<ReportData | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+// ---------------------------------------------------------------------
+  useEffect(() => {
+    const storedChildId = localStorage.getItem("selectedChildId");
+    if (!selectedChildId && storedChildId) {
+      dispatch({ type: "SELECT_CHILD", payload: storedChildId }); // varchar-safe
+    }
+  }, [selectedChildId, dispatch]);
+// ---------------------------------------------------------------------
 
   useEffect(() => {
     const storedSessions = localStorage.getItem("SessionList");
@@ -144,13 +199,6 @@ const Report: React.FC = () => {
   useEffect(() => {
     if (selectedSession) {
       fetchData(selectedSession);
-      axios.post("http://localhost:5001/api/mark-complete", { sessionId: selectedSession })
-      .then(() => {
-        console.log("Session marked as complete.");
-      })
-      .catch((err) => {
-        console.error("Failed to mark session complete:", err);
-      });
     }
   }, [selectedSession]);
 
@@ -174,12 +222,25 @@ const Report: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (selectedSession) {
+      fetchData(selectedSession);
+      axios.post("http://localhost:5001/api/mark-complete", { sessionId: selectedSession })
+      .then(() => {
+        console.log("Session marked as complete.");
+      })
+      .catch((err) => {
+        console.error("Failed to mark session complete:", err);
+      });
+    }
+  }, [selectedSession]);
+  
   const fetchData = async (sessionId: string) => {
     try {
       const responses = await Promise.allSettled([
         axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
         axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
-        axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
+        axios.post("http://localhost:5001/api/emotion-puzzle1", { sessionID: sessionId }),
         axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
         axios.get(`http://localhost:5001/api/session-output/${sessionId}`),
       ]);
@@ -234,11 +295,11 @@ const Report: React.FC = () => {
           attempts_total: emotionData?.attempts_total || 0
         },
         audio_analysis: {
-          mfcc_mean: speechData[0]?.mfcc_mean || [],
-          response_latency: speechData[0]?.response_latency || 0.0,
-          echolalia_score: speechData[0]?.echolalia_score || 0.0,
-          speech_confidence: speechData[0]?.speech_confidence || 0.0,
-          speech_onset_delay: speechData[0]?.speech_onset_delay || 0.0
+          mfcc_mean: speechData[0]?.MFCC_Mean || [],
+          response_latency: speechData[0]?.ResponseLatency || 0.0,
+          echolalia_score: speechData[0]?.EcholaliaScore || 0.0,
+          speech_confidence: speechData[0]?.SpeechConfidence || 0.0,
+          speech_onset_delay: speechData[0]?.SpeechOnsetDelay || 0.0
         },
         classification_output: classificationData
       };
@@ -256,21 +317,49 @@ const Report: React.FC = () => {
   };
 
 
-  const downloadPDF = () => {
-    const reportElement = document.getElementById("report-content");
-    if (!reportElement) return;
-
-    html2canvas(reportElement, { scale: 2 }).then((canvas) => {
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+  
+    try {
+      const reportElement = document.getElementById("report-content");
+      if (!reportElement) throw new Error("Report content not found");
+  
+      await new Promise(resolve => setTimeout(resolve, 500)); // wait for layout/rendering
+  
+      const canvas = await html2canvas(reportElement, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
+  
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+  
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+      let heightLeft = imgHeight;
+      let position = 0;
+  
+      // Add first page
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+  
+      // Add more pages if needed
+      while (heightLeft > 0) {
+        position -= pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+  
       pdf.save(`ASD_Report_${selectedSession}.pdf`);
-    });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
+
+
 
     const handleLogout = () => {
       dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
@@ -288,99 +377,138 @@ const Report: React.FC = () => {
       navigate("/profile-selection"); // Fallback in case userId is missing
     };
 
-  return (
-    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
+    return (
+      <Box display="flex" flexDirection="column" minHeight="100vh" sx={{ background: "linear-gradient(to bottom right, #edf2f7, #cce3dc)" }}>
+        <AppBar position="static" sx={{ bgcolor: "#003366" }}>
+          <Toolbar sx={{ justifyContent: "space-between" }}>
+            <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
+            <Box display="flex" alignItems="center">
+              <IconButton color="inherit" component={Link} to="/dashboard"><Home /></IconButton>
+              <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
+              <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+  
+        <Box p={4} flex={1} maxWidth="1200px" mx="auto">
+          <Typography variant="h4" gutterBottom sx={{ color: "#002244", fontWeight: "bold" }}>
+            Reports
+          </Typography>
+  
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "stretch", sm: "flex-end" }, mb: 4, gap: 2 }}>
 
-            {/* Top Navigation Bar */}
-      <AppBar position="static" sx={{ bgcolor: "#003366" }}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Box component="img" 
-            src={logoImage} 
-            alt="Chavez Logo"
-            sx={{ 
-              height: 60, // Adjust height as needed
-              maxHeight: "100%",
-              py: 1 // Adds some padding on top and bottom
-            }}
-          />
+<FormControl
+  sx={{
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    minWidth: "250px", // 👈 Fixed width for session selector
+  }}
+>
+  <InputLabel sx={{ color: "#000000" }}>Select Session</InputLabel>
+  <Select
+    value={selectedSession || ""}
+    onChange={(e) => {
+      const newSessionId = e.target.value;
+      setSelectedSession(newSessionId);
+      localStorage.setItem("SelectedSession", newSessionId);
+      setTimeout(() => fetchData(newSessionId), 0);
+    }}
+    sx={{
+      color: "#000000",
+      "& .MuiSelect-select": { color: "#000000" },
+      "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
+      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#999" },
+    }}
+  >
+    {sessionList.map((session) => (
+      <MenuItem key={session.SessionID} value={session.SessionID}>
+        {session.SessionID}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
 
-          <Box display="flex" alignItems="center">
-            {/* Nav Links */}
+<Button
+  variant="contained"
+  startIcon={<Assessment />}
+  disabled={isDownloading || !report}
+  sx={{
+    backgroundColor: "#003366",
+    "&:hover": { backgroundColor: "#002244" },
+    minWidth: "180px",
+  }}
+  onClick={downloadPDF}
+>
+  {isDownloading ? "Downloading..." : "Download PDF"}
+</Button>
+</Box>
 
-            <IconButton color="inherit" component={Link} to="/dashboard">
-              <Home />
-            </IconButton>            
-            {/* Profile and Logout */}
-            <IconButton color="inherit" onClick={handleProfileSelection}>
-              <Person />
-            </IconButton>
-            <IconButton color="inherit" onClick={handleLogout}>
-              <Logout />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+          {!report && (
+                <Box mt={4} display="flex" justifyContent="center" alignItems="center">
+                  <Typography variant="h6" sx={{ color: "#555" }}>
+                    Please select a session to view the report.
+                  </Typography>
+                </Box>
+              )}
+                
+          {report && (
+                  <Box id="report-content" mt={2}>
+                    <ReportCard heading="Child ASD Screening Report" text={report.note} icon={<Description />} accentColor="#3498db" />
+                    <ReportCard heading="Screening Summary (M-CHAT)" text={report.screening_summary} icon={<CheckCircle />} accentColor="#2ecc71" />
+                    <ReportCard heading="Motor & Cognitive Skills" text={report.motor_cognitive} icon={<SportsEsports />} accentColor="#9b59b6" />
+                    <ReportCard heading="Emotional Understanding" text={report.emotional_understanding} icon={<Psychology />} accentColor="#e67e22" />
+                    <ReportCard heading="Visual Attention & Social Focus" text={report.visual_social} icon={<Visibility />} accentColor="#1abc9c" />
+                    <ReportCard heading="Speech & Language" text={report.speech_language} icon={<RecordVoiceOver />} accentColor="#3498db" />
+                    <ReportCard 
+  heading="Developmental Summary"
+  text={""}
+  icon={<TipsAndUpdates />} 
+  accentColor="#2ecc71"
+>
+  <TableContainer component={Paper} elevation={3} sx={{ mt: 2 }}>
+    <Table>
+      <TableHead>
+        <TableRow sx={{ backgroundColor: '#003366' }}>
+          <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Games</TableCell>
+          <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Classification</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <TableRow>
+          <TableCell sx={{ color: '#000000' }}>Pop the Balloon and Emotion Puzzle</TableCell>
+          <TableCell sx={{ color: '#000000' }}>{moduleClassifications.balloonemotion_output || 'N/A'}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell sx={{ color: '#000000' }}>Follow the Fish</TableCell>
+          <TableCell sx={{ color: '#000000' }}>{moduleClassifications.ftf_output || 'N/A'}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell sx={{ color: '#000000' }}>Human vs Object</TableCell>
+          <TableCell sx={{ color: '#000000' }}>{moduleClassifications.hvo_output || 'N/A'}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell sx={{ color: '#000000' }}>Speech & Language</TableCell>
+          <TableCell sx={{ color: '#000000' }}>{moduleClassifications.audio_output || 'N/A'}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  </TableContainer>
+</ReportCard>
 
-      <Box p={4} flex={1}>
-        <Typography variant="h4" gutterBottom sx={{ color: "#002244", fontWeight: "bold" }}>
-          Reports
-        </Typography>
 
-        <FormControl fullWidth sx={{ backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #ccc", marginBottom: 2 }}>
-          <InputLabel sx={{ color: "#000000" }}>Select Session</InputLabel>
-          <Select
-            value={selectedSession || ""}
-            onChange={(e) => {
-              const newSessionId = e.target.value as string;
-              setSelectedSession(newSessionId);
-              localStorage.setItem("SelectedSession", newSessionId);
-              setTimeout(() => fetchData(newSessionId), 0);
-            }}
-            sx={{
-              color: "#000000",
-              "& .MuiSelect-select": { color: "#000000" },
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
-              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#999" },
-            }}
-          >
-            {sessionList.map((session) => (
-              <MenuItem
-                key={session.SessionID}
-                value={session.SessionID}
-                sx={{ color: "#000000", backgroundColor: "#ffffff", "&:hover": { backgroundColor: "#f5f5f5" } }}
-              >
-                {session.SessionID}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
-        {/* Display Generated Report */}
-        {report && (
-          <>
-          <Button variant="contained" color="primary" sx={{ mt: 2, mb: 3 }} onClick={downloadPDF}>Download PDF</Button>
-          <Box id="report-content" mt={2} p={3} bgcolor="#ffffff" borderRadius="12px" border="1px solid #ccc">
-    <Typography variant="h5" sx={{ color: "#003366", mb: 3 }}>
-      {report.title}
-    </Typography>
 
-    <Section heading="Note" text = "Thank you for participating in our gamified autism screening. The results from the assessments are summarized below. These games are designed to provide insights into various aspects of your child's development, including attention, motor skills, language, and social interaction. Please note that this report is based solely on the provided assessment data and should not be considered a definitive diagnosis. A qualified professional, such as a developmental pediatrician, psychologist, or psychiatrist, must conduct a comprehensive evaluation to determine an accurate diagnosis. This report aims to help you understand the results and guide you in seeking further professional help."/>
-    <Section heading="M-CHAT Results" text={report.mchat_section} />
-    <Section heading="Pop the Balloon (Attention & Motor Control)" text={report.balloon_section} />
-    <Section heading="Emotion Puzzle (Emotion Recognition)" text={report.emotion_section} />
-    <Section heading="Follow the Fish (Social Attention)" text={report.ftf_section} />
-    <Section heading="Human vs Object (Social Attention)" text={report.hvo_section} />
-    <Section heading="Audio Analysis (Speech & Echolalia)" text={report.audio_section} />
-    <Section heading="Developmental Summary" text={report.summary} />
-    <Section heading="Recommendations" text={report.recommendations} />
-    <Section heading="Important Considerations" text="Remember that every child is unique, and the presentation of ASD can vary widely. Focus not only on areas of challenge but also on your child's strengths and talents. Continue to monitor your child's development and seek professional guidance as needed. Maintain a positive and supportive attitude, as this can have a profound impact on your child's well-being and development" />
-  </Box>
-  </>
-)}
+                    <ReportCard heading="Recommendations" text={report.recommendations} icon={<Gavel />} accentColor="#e74c3c" />
+                    <ReportCard heading="Important Considerations" text={report.important_consideration} icon={<Info />} accentColor="#f39c12" />
+                  </Box>
+                )}
 
+
+        </Box>
       </Box>
-    </Box>
-  );
-};
-
-export default Report;
+    
+    );
+  };
+  
+  export default Report;

@@ -7,26 +7,31 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { setSessionIds } from "./redux/store";
 import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
+  Box,
+  Typography,
+  Button,
+  AppBar,
+  Toolbar,
+  IconButton,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
-  Box,
-  Typography,
 } from "@mui/material";
-import { Home, Person, QuestionAnswer, Assessment, Logout } from "@mui/icons-material";
-import { 
-  Button, AppBar, Toolbar, IconButton
-} from "@mui/material";
+import { Home, Person, Assessment, Logout } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import logoImage from "../assets/logo.png"; 
+import { Description, CheckCircle, SportsEsports, Psychology, Visibility, RecordVoiceOver, TipsAndUpdates, Gavel, Info } from "@mui/icons-material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from "@mui/material";
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -81,20 +86,67 @@ interface SessionData {
   SessionID: string;
 }
 
-const Section: React.FC<{ heading: string; text: string | { summary: string; details?: string } }> = ({ heading, text }) => {
-  const content = typeof text === "string"
-    ? text
-    : `${text.summary ?? ""}\n\n${text.details ?? ""}`;
+interface ReportData {
+  title: string;
+  note: string;
+  screening_summary: string;
+  motor_cognitive: string;
+  emotional_understanding: string;
+  visual_social: string;
+  speech_language: string;
+  summary: string;
+  recommendations: string;
+  important_consideration: string;
+}
 
-  return (
-    <Box mb={4}>
-      <Typography variant="h6" sx={{ color: "#002244", fontWeight: "bold", mb: 1 }}>{heading}</Typography>
-      <Typography sx={{ color: "#000000", whiteSpace: "pre-line", lineHeight: 1.8 }}>
-        {content}
+
+const ReportCard: React.FC<{
+  heading: string;
+  text?: string;
+  icon?: React.ReactElement;
+  accentColor?: string;
+  children?: React.ReactNode;  // ✅ add this line
+}> = ({ heading, text, icon = "", accentColor = "#1976d2", children }) => (
+  <Box
+    sx={{
+      backgroundColor: "#ffffff",
+      borderRadius: "12px",
+      boxShadow: 2,
+      padding: 3,
+      marginBottom: 3,
+      borderLeft: `6px solid ${accentColor}`,
+      animation: "fadeIn 0.5s ease-in-out",
+      "@keyframes fadeIn": {
+        "0%": { opacity: 0, transform: "translateY(10px)" },
+        "100%": { opacity: 1, transform: "translateY(0)" },
+      },
+    }}
+  >
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        color: "#003366", 
+        fontWeight: "bold", 
+        mb: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"  // 🧩 center-align heading
+      }}
+    >
+      {icon && <span style={{ marginRight: "8px" }}>{icon}</span>}
+      {heading}
+    </Typography>
+
+    {/* Conditionally render text or children */}
+    {text && (
+      <Typography sx={{ color: "#333333", lineHeight: 1.8, whiteSpace: "pre-line" }}>
+        {text}
       </Typography>
-    </Box>
-  );
-};
+    )}
+    
+    {children}
+  </Box>
+);
 
 
 
@@ -118,22 +170,9 @@ const Report: React.FC = () => {
     audio_output: ""
   });
 
-
-  interface ReportData {
-    title: string;
-    note: string;
-    mchat_section: string;
-    balloon_section: string;
-    ftf_section: string;
-    hvo_section: string;
-    emotion_section: string;
-    audio_section: string;
-    summary: string;
-    recommendations: string;
-    important_consideration: string;
-  } 
   
   const [report, setReport] = useState<ReportData | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const storedSessions = localStorage.getItem("SessionList");
@@ -178,7 +217,7 @@ const Report: React.FC = () => {
       const responses = await Promise.allSettled([
         axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
         axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
-        axios.post("http://localhost:5001/api/emotion-puzzle", { sessionID: sessionId }),
+        axios.post("http://localhost:5001/api/emotion-puzzle1", { sessionID: sessionId }),
         axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
         axios.get(`http://localhost:5001/api/session-output/${sessionId}`),
       ]);
@@ -233,11 +272,11 @@ const Report: React.FC = () => {
           attempts_total: emotionData?.attempts_total || 0
         },
         audio_analysis: {
-          mfcc_mean: speechData[0]?.mfcc_mean || [],
-          response_latency: speechData[0]?.response_latency || 0.0,
-          echolalia_score: speechData[0]?.echolalia_score || 0.0,
-          speech_confidence: speechData[0]?.speech_confidence || 0.0,
-          speech_onset_delay: speechData[0]?.speech_onset_delay || 0.0
+          mfcc_mean: speechData[0]?.MFCC_Mean || [],
+          response_latency: speechData[0]?.ResponseLatency || 0.0,
+          echolalia_score: speechData[0]?.EcholaliaScore || 0.0,
+          speech_confidence: speechData[0]?.SpeechConfidence || 0.0,
+          speech_onset_delay: speechData[0]?.SpeechOnsetDelay || 0.0
         },
         classification_output: classificationData
       };
@@ -255,129 +294,149 @@ const Report: React.FC = () => {
   };
 
 
-  const downloadPDF = () => {
-    const reportElement = document.getElementById("report-content");
-    if (!reportElement) return;
-
-    html2canvas(reportElement, { scale: 2 }).then((canvas) => {
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+  
+    try {
+      const reportElement = document.getElementById("report-content");
+      if (!reportElement) throw new Error("Report content not found");
+  
+      await new Promise(resolve => setTimeout(resolve, 500)); // wait for layout/rendering
+  
+      const canvas = await html2canvas(reportElement, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
+  
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+  
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+      let heightLeft = imgHeight;
+      let position = 0;
+  
+      // Add first page
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+  
+      // Add more pages if needed
+      while (heightLeft > 0) {
+        position -= pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+  
       pdf.save(`ASD_Report_${selectedSession}.pdf`);
-    });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
-    const handleLogout = () => {
-      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-      localStorage.clear(); // Clear stored data
-      sessionStorage.clear();
-      window.location.href = "/sign-in"; // Redirect to login page
-    };
-  
-    const handleProfileSelection = () => {
-      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-      localStorage.removeItem("sessionData"); // Clear stored session
-      localStorage.removeItem("selectedChildId"); // Clear child profile data
-      localStorage.clear(); // Clear all stored data
-      sessionStorage.clear();
-      navigate("/profile-selection"); // Fallback in case userId is missing
-    };
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); sessionStorage.clear();
+    window.location.href = "/sign-in-urdu";
+  };
+
+  const handleProfileSelection = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear(); sessionStorage.clear();
+    navigate("/profile-selection-urdu");
+  };
 
   return (
-    <Box display="flex" flexDirection="column" minHeight="100vh" bgcolor="linear-gradient(135deg, #e6f4ff 30%, #ffffff 100%)">
-
-            {/* Top Navigation Bar */}
+    <Box display="flex" flexDirection="column" minHeight="100vh" sx={{ background: "linear-gradient(to bottom right, #edf2f7, #cce3dc)" }}>
       <AppBar position="static" sx={{ bgcolor: "#003366" }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Box component="img" 
-            src={logoImage} 
-            alt="Chavez Logo"
-            sx={{ 
-              height: 60, // Adjust height as needed
-              maxHeight: "100%",
-              py: 1 // Adds some padding on top and bottom
-            }}
-          />
-
+          <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
           <Box display="flex" alignItems="center">
-            {/* Nav Links */}
-
-            <IconButton color="inherit" component={Link} to="/dashboard">
-              <Home />
-            </IconButton>            
-            {/* Profile and Logout */}
-            <IconButton color="inherit" onClick={handleProfileSelection}>
-              <Person />
-            </IconButton>
-            <IconButton color="inherit" onClick={handleLogout}>
-              <Logout />
-            </IconButton>
+            <IconButton color="inherit" component={Link} to="/dashboard"><Home /></IconButton>
+            <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
+            <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
           </Box>
         </Toolbar>
       </AppBar>
-
-      <Box p={4} flex={1}>
-        <Typography variant="h4" gutterBottom sx={{ color: "#002244", fontWeight: "bold" }}>
-          Reports
-        </Typography>
-
-        <FormControl fullWidth sx={{ backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #ccc", marginBottom: 2 }}>
-          <InputLabel sx={{ color: "#000000" }}>Select Session</InputLabel>
-          <Select
-            value={selectedSession || ""}
-            onChange={(e) => {
-              const newSessionId = e.target.value as string;
-              setSelectedSession(newSessionId);
-              localStorage.setItem("SelectedSession", newSessionId);
-              setTimeout(() => fetchData(newSessionId), 0);
-            }}
-            sx={{
-              color: "#000000",
-              "& .MuiSelect-select": { color: "#000000" },
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
-              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#999" },
-            }}
+      <Box p={4} flex={1} maxWidth="1200px" mx="auto">
+        <Typography variant="h4" gutterBottom sx={{ color: "#002244", fontWeight: "bold" }}>رپورٹس</Typography>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "stretch", sm: "flex-end" }, mb: 4, gap: 2 }}>
+          <FormControl sx={{ backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #ccc", minWidth: "250px" }}>
+            <InputLabel sx={{ color: "#000000" }}>سیشن منتخب کریں</InputLabel>
+            <Select
+              value={selectedSession || ""}
+              onChange={(e) => {
+                const newSessionId = e.target.value;
+                setSelectedSession(newSessionId);
+                localStorage.setItem("SelectedSession", newSessionId);
+                setTimeout(() => fetchData(newSessionId), 0);
+              }}
+              sx={{ color: "#000000" }}
+            >
+              {sessionList.map((session) => (
+                <MenuItem key={session.SessionID} value={session.SessionID}>{session.SessionID}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="contained"
+            startIcon={<Assessment />}
+            disabled={isDownloading || !report}
+            sx={{ backgroundColor: "#003366", ":hover": { backgroundColor: "#002244" }, minWidth: "180px" }}
+            onClick={downloadPDF}
           >
-            {sessionList.map((session) => (
-              <MenuItem
-                key={session.SessionID}
-                value={session.SessionID}
-                sx={{ color: "#000000", backgroundColor: "#ffffff", "&:hover": { backgroundColor: "#f5f5f5" } }}
-              >
-                {session.SessionID}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Display Generated Report */}
+            {isDownloading ? "ڈاؤن لوڈ ہو رہا ہے..." : "PDF ڈاؤن لوڈ کریں"}
+          </Button>
+        </Box>
+        {!report && (
+          <Box mt={4} display="flex" justifyContent="center" alignItems="center">
+            <Typography variant="h6" sx={{ color: "#555" }}>براہ کرم رپورٹ دیکھنے کے لیے ایک سیشن منتخب کریں۔</Typography>
+          </Box>
+        )}
         {report && (
-          <>
-          <Button variant="contained" color="primary" sx={{ mt: 2, mb: 3 }} onClick={downloadPDF}>Download PDF</Button>
-          <Box id="report-content" mt={2} p={3} bgcolor="#ffffff" borderRadius="12px" border="1px solid #ccc">
-    <Typography variant="h5" sx={{ color: "#003366", mb: 3 }}>
-      {report.title}
-    </Typography>
-
-    <Section heading="نوٹ" text = "ہماری گیمیفائیڈ آٹزم اسکریننگ میں حصہ لینے کا شکریہ۔ تشخیص کے نتائج ذیل میں خلاصہ کیے گئے ہیں۔ یہ گیمز آپ کے بچے کی نشوونما کے مختلف پہلوؤں، جیسے توجہ، موٹر اسکلز، زبان، اور سماجی تعامل کو سمجھنے کے لیے ڈیزائن کی گئی ہیں۔ براہ کرم نوٹ کریں کہ یہ رپورٹ صرف دی گئی تشخیصی معلومات پر مبنی ہے اور اسے حتمی تشخیص نہیں سمجھا جانا چاہیے۔ درست تشخیص کے لیے ایک ماہر پیشہ ور، جیسے کہ بچوں کا ماہرِ نفسیات، ماہرِ نفسیات، یا ماہرِ اطفال سے مکمل جائزہ لینا ضروری ہے۔ یہ رپورٹ آپ کو نتائج کو سمجھنے میں مدد دینے اور پیشہ ورانہ مدد حاصل کرنے کی رہنمائی فراہم کرنے کے لیے بنائی گئی ہے۔" />
-    <Section heading="ایم-چیٹ کے نتائج" text={report.mchat_section} />
-    <Section heading="پاپ دی بیلون (توجہ اور موٹر کنٹرول)" text={report.balloon_section} />
-    <Section heading="ایموشن پزل (جذبات کی پہچان)" text={report.emotion_section} />
-    <Section heading="فالو دی فِش (سماجی توجہ)" text={report.ftf_section} />
-    <Section heading="ہیومن بمقابلہ آبجیکٹ (سماجی توجہ)" text={report.hvo_section} />
-    <Section heading="آڈیو تجزیہ (تقریر اور ایکولالیا)" text={report.audio_section} />
-    <Section heading="ترقیاتی خلاصہ" text={report.summary} />
-    <Section heading="تجاویز" text={report.recommendations} />
-    <Section heading="اہم نکات" text="یاد رکھیں کہ ہر بچہ منفرد ہوتا ہے، اور آٹزم کی علامات مختلف طریقوں سے ظاہر ہو سکتی ہیں۔ صرف چیلنجز پر نہیں بلکہ اپنے بچے کی خوبیوں اور صلاحیتوں پر بھی توجہ دیں۔ اپنے بچے کی نشوونما پر نظر رکھیں اور ضرورت پڑنے پر ماہرین سے رہنمائی حاصل کریں۔ مثبت اور معاون رویہ اپنانا آپ کے بچے کی ذہنی اور جسمانی نشوونما پر بہت اچھا اثر ڈال سکتا ہے۔" />
-
-  </Box>
-  </>
-)}
-
+          <Box id="report-content" mt={2}>
+            <ReportCard heading="بچے کی آٹزم اسکریننگ رپورٹ" text={report.note} icon={<Description />} accentColor="#3498db" />
+            <ReportCard heading="اسکریننگ خلاصہ (ایم-چیٹ)" text={report.screening_summary} icon={<CheckCircle />} accentColor="#2ecc71" />
+            <ReportCard heading="موٹر اور علمی صلاحیتیں" text={report.motor_cognitive} icon={<SportsEsports />} accentColor="#9b59b6" />
+            <ReportCard heading="جذباتی فہم" text={report.emotional_understanding} icon={<Psychology />} accentColor="#e67e22" />
+            <ReportCard heading="بصری توجہ اور سماجی مرکزیت" text={report.visual_social} icon={<Visibility />} accentColor="#1abc9c" />
+            <ReportCard heading="تقریر اور زبان" text={report.speech_language} icon={<RecordVoiceOver />} accentColor="#3498db" />
+            <ReportCard heading="ترقیاتی خلاصہ" icon={<TipsAndUpdates />} accentColor="#2ecc71">
+              <TableContainer component={Paper} elevation={3} sx={{ mt: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#003366' }}>
+                      <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>گیمز</TableCell>
+                      <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>تشخیص</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>پاپ دی بیلون اور ایموشن پزل</TableCell>
+                      <TableCell>{moduleClassifications.balloonemotion_output || 'N/A'}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>فالو دی فش</TableCell>
+                      <TableCell>{moduleClassifications.ftf_output || 'N/A'}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>ہیومن بمقابلہ آبجیکٹ</TableCell>
+                      <TableCell>{moduleClassifications.hvo_output || 'N/A'}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>تقریر اور زبان</TableCell>
+                      <TableCell>{moduleClassifications.audio_output || 'N/A'}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </ReportCard>
+            <ReportCard heading="تجاویز" text={report.recommendations} icon={<Gavel />} accentColor="#e74c3c" />
+            <ReportCard heading="اہم نکات" text={report.important_consideration} icon={<Info />} accentColor="#f39c12" />
+          </Box>
+        )}
       </Box>
     </Box>
   );

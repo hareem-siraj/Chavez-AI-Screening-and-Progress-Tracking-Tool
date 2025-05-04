@@ -319,6 +319,7 @@ app.get("/api/recent-session/:ChildID", async (req, res) => {
 });
 
 
+
 app.post("/api/save-question-response", async (req, res) => {
   const { questionID, sessionID, question_text, followup_Qs_ans, result, main_qs_ans } = req.body;
 
@@ -635,7 +636,6 @@ app.post("/api/savePuzzleMetrics", async (req, res) => {
   }
 });
 
-
 app.post("/api/savePuzzleMetrics2", async (req, res) => {
   try {
     const metricsData = req.body.data; // Expecting an array
@@ -848,6 +848,55 @@ app.post("/api/balloon-game", async (req, res) => {
 //     res.status(500).send("Server error");
 //   }
 // });
+
+app.post("/api/emotion-puzzle1", async (req, res) => {
+  const sessionID = parseInt(req.body.sessionID);
+
+  if (!sessionID || isNaN(sessionID)) {
+    return res.status(400).send("Invalid session ID");
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM "Puzzle" WHERE "SessionID" = $1',
+      [sessionID]
+    );
+
+    const data = result.rows;
+
+    if (data.length === 0) return res.status(404).send("No puzzle data found");
+
+    const reactionTimes = data.map(r => r.reaction_time);
+    const correctTotal = data.filter(r => r.is_correct === true || r.is_correct === "TRUE").length;
+
+    const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const median = arr => {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+    };
+
+    const summary = {
+      SessionID: sessionID,
+      Age: parseInt(data[0].Age),
+      Gender: data[0].Gender,
+      reaction_mean: parseFloat(average(reactionTimes).toFixed(2)),
+      reaction_median: parseFloat(median(reactionTimes).toFixed(2)),
+      reaction_min: Math.min(...reactionTimes),
+      reaction_max: Math.max(...reactionTimes),
+      correct_total: correctTotal,
+      attempts_total: data.length
+    };
+
+    res.json(summary);
+    console.log("Puzzle summary:", summary);
+  } catch (err) {
+    console.error("❌ Puzzle summary error:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 app.post("/api/emotion-puzzle", async (req, res) => {
   const { sessionID } = req.body; // ✅ Correct for POST
@@ -1479,6 +1528,26 @@ app.get("/api/allSessionsDate/:ChildID", async (req, res) => {
   } catch (error) {
     console.error("Error fetching sessions:", error);
     res.status(500).json({ message: "Error fetching sessions" });
+  }
+});
+
+app.get("/api/get-child-id-by-session/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT "ChildID" FROM "Session" WHERE "SessionID" = $1`,
+      [sessionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+
+    res.json({ ChildID: result.rows[0].ChildID });
+  } catch (error) {
+    console.error("Error fetching ChildID by SessionID:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

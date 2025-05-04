@@ -13,8 +13,16 @@ def generate_autism_report(report_data: Dict[str, Any]) -> Dict[str, str]:
     prompt_text = f"""
 You are an AI generating structured psychological screening reports for children in Urdu.
 
-Below is the child's performance across different gamified autism screening modules. Please analyze each section carefully and provide a **detailed overview in urdu**, especially for tasks with multiple levels. Highlight key behavioral insights, developmental patterns, and any potential concerns in plain language suitable for parents. Also, make sure not to use 'Chavez' as the child's name, but rather use 'the child' or 'your child'.
+Below is the child's performance across different gamified autism screening modules. Analyze each domain carefully and provide a plain-language explanation suitable for parents in Urdu. Instead of structuring the report game-wise, categorize the insights under developmental domains. Each section should include a summary (2 paragraphs detailed) and interpret the child's performance based on the metrics provided in Urdu.
 
+Domains to cover:
+- screening_summary: Based on M-CHAT score
+- motor_cognitive: Attention & motor coordination (Pop the Balloon)
+- emotional_understanding: Emotional recognition (Emotion Puzzle)
+- visual_social: Social attention and gaze behavior (Follow the Fish + Human vs Object)
+- speech_language: Speech clarity, delays, and engagement (Audio Analysis)
+
+**Avoid medical jargon** like “echolalia” or “MFCC”. Use nurturing and simple Urdu. This report should not sound like a diagnosis, just observations from a screening session. Explain how the classification (ASD/Neurotypical) was reached using the metrics in Urdu.
 Questionnaire (M-CHAT):
 - M-CHAT Score: {report_data['questionnaire']['mchat_score']}
 
@@ -60,30 +68,17 @@ Classification Output (AI Model Predictions):
 
 🔁 Based on these outputs, include a short diagnostic summary within **each respective section** and mention the corresponding classified output.
 
-For each section:
-- Append a sentence like: “Based on our analysis, this game was classified as ASD/NT.”
-- Then explain **why** (e.g., “due to high incorrect taps and difficulty adapting to selective instructions”).
-- Justify the classification using the **game metrics already provided above**.
-- keep it detailed explain the metrics and the patterns but dont add terms like "mffc" or "echolalia" in the report. Try to use simple english to explain the metrics and their results. 
-- Keep it simple and nurturing — this should **not sound like a diagnosis**, but a screening-based interpretation.
+
 - For MCHAT Scores, explain the score and its implications in a parent-friendly manner. LOW RISK (Adjusted Score 0–2): MODERATE RISK (Adjusted Score 3–7): HIGH RISK (Adjusted Score 8–20):
-
-
-Also include:
-- ftf_section: Explain the classified output i.e `ftf_output` and recommend accordingly.
-- hvo_section: Explain the classified output i.e `hvo_output` and recommend accordingly.
-
-Each field (like `balloon_section`, `audio_section`, `ftf_section`, etc.) should be a single **plain text paragraph in urdu** (no JSON objects, no headings like `overview` or `classification`). Just write one or two paragraph combining the explanation and the classification insight in simple parent-friendly language in urdu.
 
 Return a valid JSON object with the following string fields:
 - title
 - note
-- mchat_section
-- balloon_section
-- emotion_section
-- audio_section
-- ftf_section
-- hvo_section
+- screening_summary
+- motor_cognitive
+- emotional_understanding
+- visual_social
+- speech_language
 - summary
 - recommendations
 - important_consideration

@@ -33,6 +33,10 @@ const Dashboard: React.FC = () => {
   const [childProfile, setChildProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,6 +67,20 @@ const Dashboard: React.FC = () => {
   }, []);
 
 
+  // const fetchChildProfile = async (childId: string) => {
+  //   try {
+  //     const response = await axios.get(`http://localhost:5001/api/get-child-profile`, {
+  //       params: { ChildID: childId }
+  //     });
+  //     if (response.data) {
+  //       setChildProfile(response.data);
+  //       localStorage.setItem("selectedChildId", childId); // Store child ID persistently
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching child profile:", error);
+  //   }
+  // };
+
   const fetchChildProfile = async (childId: string) => {
     try {
       const response = await axios.get(`http://localhost:5001/api/get-child-profile`, {
@@ -70,25 +88,15 @@ const Dashboard: React.FC = () => {
       });
       if (response.data) {
         setChildProfile(response.data);
-        localStorage.setItem("selectedChildId", childId); // Store child ID persistently
+        localStorage.setItem("selectedChildId", childId);
+        setProfileLoaded(true); // ✅ Mark profile as loaded
       }
     } catch (error) {
       console.error("Error fetching child profile:", error);
+      setProfileLoaded(true); // ✅ Avoid hanging loading on failure
     }
   };
   
-
-  const handleLogout = () => {
-    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.removeItem("sessionData"); // Clear stored session
-    localStorage.removeItem("selectedChildId"); // Clear child profile data
-    localStorage.clear(); // Remove all stored data
-    sessionStorage.clear();
-    window.location.href = "/sign-in"; // Redirect to login page
-  };
-  
-  
-
   const fetchSessionData = async (childId: string) => {
     try {
       const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
@@ -103,14 +111,51 @@ const Dashboard: React.FC = () => {
           ReportID: null,
         };
         dispatch(setSessionIds(sessionPayload));
-        localStorage.setItem("sessionData", JSON.stringify(sessionPayload)); // <-- ADD THIS LINE
-        fetchAndStoreSessionStatus(sessionData.SessionID);
+        localStorage.setItem("sessionData", JSON.stringify(sessionPayload));
+        fetchAndStoreSessionStatus(SessionID); // ✅ Pass SessionID from payload
         setSessionStarted(true);
       }
     } catch (error) {
       console.error("Error fetching session data:", error);
+    } finally {
+      setSessionLoaded(true); // ✅ Mark session as loaded (success or fail)
     }
   };
+
+  const handleLogout = () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.removeItem("sessionData"); // Clear stored session
+    localStorage.removeItem("selectedChildId"); // Clear child profile data
+    localStorage.clear(); // Remove all stored data
+    sessionStorage.clear();
+    window.location.href = "/sign-in"; // Redirect to login page
+  };
+  
+  
+
+  // const fetchSessionData = async (childId: string) => {
+  //   try {
+  //     const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
+  
+  //     if (response.data) {
+  //       const { SessionID } = response.data;
+  
+  //       const sessionPayload = {
+  //         SessionID,
+  //         QuestionnaireID: null,
+  //         GameSessionID: null,
+  //         ReportID: null,
+  //       };
+  //       dispatch(setSessionIds(sessionPayload));
+  //       localStorage.setItem("sessionData", JSON.stringify(sessionPayload)); // <-- ADD THIS LINE
+  //       fetchAndStoreSessionStatus(sessionData.SessionID);
+  //       setSessionStarted(true);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching session data:", error);
+  //   }
+  // };
+
 
   const startSession = async () => {
     if (!selectedChildId) {
@@ -210,22 +255,47 @@ const Dashboard: React.FC = () => {
       QuesStatus: localStorage.getItem("QuesStatus") === "true",
     };
   };
-  
+ 
+  const fetchChildIdFromSession = async (sessionId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/get-child-id-by-session/${sessionId}`);
+      const { ChildID } = response.data;
+      if (ChildID) {
+        dispatch({ type: "SELECT_CHILD", payload: Number(ChildID) });
+        await fetchChildProfile(ChildID); // Fetch child profile after retrieving child ID
+      }
+    } catch (error) {
+      console.error("Failed to fetch child ID from session:", error);
+    }
+  };
+
+  // Existing useEffect to load session from localStorage
+  useEffect(() => {
+    const storedSession = localStorage.getItem("sessionData");
+    if (storedSession) {
+      const parsedSession = JSON.parse(storedSession);
+      dispatch(setSessionIds(parsedSession));
+      setSessionStarted(true);
+      if (parsedSession.SessionID) {
+        fetchChildIdFromSession(parsedSession.SessionID);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const loadSessionStatus = async () => {
       if (sessionData?.SessionID) {
         await fetchAndStoreSessionStatus(sessionData.SessionID); // Wait until status is saved
         getStoredSessionStatus(); // Then load stored status
-        setLoading(false); // Now everything is ready
+        setLoading(false);
+        
       } 
-      // else {
-      //   // 🚨 No session ID? Immediately stop loading
-      //   setLoading(false);
-      // }
+
     };
   
     loadSessionStatus();
-  }, [sessionData?.SessionID]);
+  }, [sessionData?.SessionID, sessionLoaded, profileLoaded]);
+  
   
   const storedStatus = getStoredSessionStatus();
 
