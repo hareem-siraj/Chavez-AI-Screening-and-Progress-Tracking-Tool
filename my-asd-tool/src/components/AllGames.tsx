@@ -209,6 +209,7 @@ import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { persistor } from './redux/store'; 
 
 const GameScreen: React.FC = () => {
   const SessionID = useSelector((state: any) => state.sessionData?.SessionID) || sessionStorage.getItem("sessionID");
@@ -305,10 +306,11 @@ const GameScreen: React.FC = () => {
     storedStatus.BalloonStatus;
 
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
     localStorage.clear();
     sessionStorage.clear();
+    await persistor.purge(); // ✅ Clear persisted Redux state
     window.location.href = "/sign-in";
   };
 

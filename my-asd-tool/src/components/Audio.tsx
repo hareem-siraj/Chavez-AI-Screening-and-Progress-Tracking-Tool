@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../assets/logo.png"; 
+import { persistor } from './redux/store'; 
 
 const Audio: React.FC = () => {
   // const location = useLocation();
@@ -35,11 +36,12 @@ const Audio: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.clear(); // Clear stored data
+    localStorage.clear();
     sessionStorage.clear();
-    window.location.href = "/sign-in"; // Redirect to login page
+    await persistor.purge(); // ✅ Clear persisted Redux state
+    window.location.href = "/sign-in";
   };
 
   const handleProfileSelection = () => {

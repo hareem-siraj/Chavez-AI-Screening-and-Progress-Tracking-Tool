@@ -32,6 +32,7 @@ import {
   TableRow,
   Paper
 } from "@mui/material";
+import { persistor } from './redux/store'; 
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -361,12 +362,13 @@ const Report: React.FC = () => {
 
 
 
-    const handleLogout = () => {
-      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-      localStorage.clear(); // Clear stored data
-      sessionStorage.clear();
-      window.location.href = "/sign-in"; // Redirect to login page
-    };
+  const handleLogout = async () => {
+    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+    localStorage.clear();
+    sessionStorage.clear();
+    await persistor.purge(); // ✅ Clear persisted Redux state
+    window.location.href = "/sign-in";
+  };
   
     const handleProfileSelection = () => {
       dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));

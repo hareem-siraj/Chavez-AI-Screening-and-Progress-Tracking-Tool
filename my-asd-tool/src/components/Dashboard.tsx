@@ -5,7 +5,7 @@ import {
 import { Home, Person, CheckCircle, Cancel, Logout, Lock} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setSessionIds } from "./redux/store";
+import { setSessionIds, } from "./redux/store";
 import axios from "axios";
 import avatar1 from "../assets/avatars/1.png";
 import avatar2 from "../assets/avatars/2.png";
@@ -15,6 +15,7 @@ import avatar5 from "../assets/avatars/5.png";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../assets/logo.png"; 
 import { keyframes } from '@mui/system';
+import { persistor } from './redux/store'; 
 
 const avatars = [
   { id: 1, src: avatar1 },
@@ -122,16 +123,27 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  // const handleLogout = () => {
+  //   dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+  //   localStorage.removeItem("sessionData"); // Clear stored session
+  //   localStorage.removeItem("selectedChildId"); // Clear child profile data
+  //   localStorage.clear(); // Remove all stored data
+  //   sessionStorage.clear();
+  //   window.location.href = "/sign-in"; // Redirect to login page
+  // };
+  
+  const handleLogout = async () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.removeItem("sessionData"); // Clear stored session
-    localStorage.removeItem("selectedChildId"); // Clear child profile data
-    localStorage.clear(); // Remove all stored data
+  
+    localStorage.removeItem("sessionData");
+    localStorage.removeItem("selectedChildId");
+    localStorage.clear();
     sessionStorage.clear();
-    window.location.href = "/sign-in"; // Redirect to login page
+  
+    await persistor.purge(); // ✅ Clear persisted Redux state
+  
+    window.location.href = "/sign-in";
   };
-  
-  
 
   // const fetchSessionData = async (childId: string) => {
   //   try {
