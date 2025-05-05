@@ -32,6 +32,7 @@ import {
   TableRow,
   Paper
 } from "@mui/material";
+import { persistor } from './redux/store'; 
 
 interface QuestionnaireData {
   Session_ID: string;
@@ -150,11 +151,14 @@ const ReportCard: React.FC<{
 
 
 
-const Report: React.FC = () => {
+
+const ReportUrdu: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const selectedChildId = useSelector((state: any) => state.selectedChildId);
+  // const selectedChildId = useSelector((state: any) => state.selectedChildId);
+  const selectedChildId = useSelector((state: any) => state.selectedChildId) as string | null;
+
   const [sessionList, setSessionList] = useState<SessionData[]>([]);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireData[]>([]);
@@ -173,18 +177,27 @@ const Report: React.FC = () => {
   
   const [report, setReport] = useState<ReportData | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-
+// ---------------------------------------------------------------------
   useEffect(() => {
-    const storedSessions = localStorage.getItem("SessionList");
-    const storedSelectedSession = localStorage.getItem("SelectedSession");
-
-    if (storedSessions) {
-      setSessionList(JSON.parse(storedSessions));
-      setSelectedSession(storedSelectedSession || JSON.parse(storedSessions)[0]?.SessionID);
-    } else if (selectedChildId) {
-      fetchSessions(selectedChildId);
+    const storedChildId = localStorage.getItem("selectedChildId");
+    if (!selectedChildId && storedChildId) {
+      dispatch({ type: "SELECT_CHILD", payload: storedChildId }); // varchar-safe
     }
-  }, [selectedChildId]);
+  }, [selectedChildId, dispatch]);
+// ---------------------------------------------------------------------
+
+
+useEffect(() => {
+  const storedSessions = localStorage.getItem("SessionList");
+  const storedSelectedSession = localStorage.getItem("SelectedSession");
+
+  if (storedSessions) {
+    setSessionList(JSON.parse(storedSessions));
+    setSelectedSession(storedSelectedSession || JSON.parse(storedSessions)[0]?.SessionID);
+  } else if (selectedChildId) {
+    fetchSessions(selectedChildId);
+  }
+}, [selectedChildId]);
 
   useEffect(() => {
     if (selectedSession) {
@@ -211,6 +224,19 @@ const Report: React.FC = () => {
       console.error("Error fetching session list:", error);
     }
   };
+
+  useEffect(() => {
+    if (selectedSession) {
+      fetchData(selectedSession);
+      axios.post("http://localhost:5001/api/mark-complete", { sessionId: selectedSession })
+      .then(() => {
+        console.log("Session marked as complete.");
+      })
+      .catch((err) => {
+        console.error("Failed to mark session complete:", err);
+      });
+    }
+  }, [selectedSession]);
 
   const fetchData = async (sessionId: string) => {
     try {
@@ -336,17 +362,22 @@ const Report: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.clear(); sessionStorage.clear();
+    localStorage.clear();
+    sessionStorage.clear();
+    await persistor.purge(); // ✅ Clear persisted Redux state
     window.location.href = "/sign-in-urdu";
   };
-
-  const handleProfileSelection = () => {
-    dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
-    localStorage.clear(); sessionStorage.clear();
-    navigate("/profile-selection-urdu");
-  };
+  
+    const handleProfileSelection = () => {
+      dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
+      localStorage.removeItem("sessionData"); // Clear stored session
+      localStorage.removeItem("selectedChildId"); // Clear child profile data
+      localStorage.clear(); // Clear all stored data
+      sessionStorage.clear();
+      navigate("/profile-selection-urdu"); // Fallback in case userId is missing
+    };
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh" sx={{ background: "linear-gradient(to bottom right, #edf2f7, #cce3dc)" }}>
@@ -354,7 +385,7 @@ const Report: React.FC = () => {
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box component="img" src={logoImage} alt="Chavez Logo" sx={{ height: 60, py: 1 }} />
           <Box display="flex" alignItems="center">
-            <IconButton color="inherit" component={Link} to="/dashboard"><Home /></IconButton>
+            <IconButton color="inherit" component={Link} to="/dashboard-urdu"><Home /></IconButton>
             <IconButton color="inherit" onClick={handleProfileSelection}><Person /></IconButton>
             <IconButton color="inherit" onClick={handleLogout}><Logout /></IconButton>
           </Box>
@@ -414,15 +445,15 @@ const Report: React.FC = () => {
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell>پاپ دی بیلون اور ایموشن پزل</TableCell>
+                      <TableCell> Pop the Balloon and Emotion Puzzle </TableCell>
                       <TableCell>{moduleClassifications.balloonemotion_output || 'N/A'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>فالو دی فش</TableCell>
+                      <TableCell>Follow the Fish</TableCell>
                       <TableCell>{moduleClassifications.ftf_output || 'N/A'}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>ہیومن بمقابلہ آبجیکٹ</TableCell>
+                      <TableCell> Human vs Object</TableCell>
                       <TableCell>{moduleClassifications.hvo_output || 'N/A'}</TableCell>
                     </TableRow>
                     <TableRow>
@@ -442,4 +473,4 @@ const Report: React.FC = () => {
   );
 };
 
-export default Report;
+export default ReportUrdu;

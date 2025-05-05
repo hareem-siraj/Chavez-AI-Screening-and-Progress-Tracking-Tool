@@ -73,7 +73,7 @@ const LandingPage: React.FC = () => {
         </Box>
 
         <Typography variant="h4" sx={{ fontWeight: "bold", mt: 4 }}>
-          The <span style={{ color: "#ffe66d" }}>Key</span> to Early Autism Diagnosis and Progress Tracking
+          The <span style={{ color: "#ffe66d" }}>Key</span> to Early Autism Screening and Progress Tracking
         </Typography>
         <Typography variant="subtitle1" sx={{ mt: 2, maxWidth: "600px", mx: "auto" }}>
           Innovative, AI-driven assessments and interactive tools to support every step of your child’s developmental progress
@@ -231,11 +231,11 @@ const LandingPage: React.FC = () => {
           mt: 6,
         }}
       >
-        <Typography variant="body2">Company</Typography>
+        {/* <Typography variant="body2">Company</Typography>
         <Typography variant="body2">About Us</Typography>
         <Typography variant="body2">Team</Typography>
         <Typography variant="body2">Solutions</Typography>
-        <Typography variant="body2">Security</Typography>
+        <Typography variant="body2">Security</Typography> */}
       </Box>
     </Box>
   );

@@ -68,15 +68,15 @@ const LandingPageUrdu: React.FC = () => {
               },
             }}
           >
-            ابھی سائن ان کریں
+           سائن ان کریں
           </Button>
         </Box>
 
         <Typography variant="h4" sx={{ fontWeight: "bold", mt: 4 }}>
-          <span style={{ color: "#ffe66d" }}>کلید</span> ابتدائی آٹزم کی تشخیص اور ترقی کی نگرانی کے لیے
+          آٹزم کی <span style={{ color: "#ffe66d" }}>جلد</span> تشخیص اور نگرانی کا مؤثر ذریعہ
         </Typography>
         <Typography variant="subtitle1" sx={{ mt: 2, maxWidth: "600px", mx: "auto" }}>
-          جدید، اے آئی سے چلنے والے تشخیصات اور انٹرایکٹو ٹولز جو آپ کے بچے کی ترقی کے ہر مرحلے میں مدد کرتے ہیں۔
+          جدید، اے آئی سے چلنے والے ٹیسٹ جو آپ کے بچے کی ترقی کے ہر مرحلے میں مدد کرتے ہیں۔
         </Typography>
 
         {/* Hero Image */}
@@ -105,18 +105,14 @@ const LandingPageUrdu: React.FC = () => {
             color: "#000000",
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            آٹزم کی تشخیص کا طریقہ بدل رہے ہیں
-          </Typography>
+
           <Typography variant="body1" sx={{ mt: 2 }}>
-            جب آپ کے بچے کو آٹزم اسپیکٹرم پر ہونے کا سامنا ہوتا ہے، تو چیلنجز اور مایوسیاں بہت زیادہ ہو سکتی ہیں۔
-            آپ اپنے بچے کو اپنی پوری صلاحیت تک پہنچنے میں مدد دینے کے لیے ہر ممکن کوشش کرنا چاہتے ہیں۔ لیکن روایتی
-            تشخیصات اور وسائل کو نیویگیٹ کرنے میں مہینے، یہاں تک کہ سال لگ سکتے ہیں — یہ وقت جو بہتر ترقی کے لیے استعمال کیا جا سکتا ہے۔
+          جب آپ کا بچہ آٹزم اسپیکٹرم پر ہو، تو مشکلات اور پریشانیاں بے حد بڑھ سکتی ہیں.آپ چاہتے ہیں کہ آپ کا بچہ اپنی مکمل صلاحیتوں تک پہنچے، لیکن روایتی تشخیص اور سہولیات تک رسائی میں مہینے، بلکہ سال لگ سکتے ہیں. وہ وقت جو آپ بہتر طریقے سے اپنے بچے کی ترقی میں لگا سکتے ہیں۔چاویز یہی وہ مقام ہے جہاں مدد کرتا ہے۔
           </Typography>
-          <Typography variant="body1" sx={{ mt: 2 }}>
+          {/* <Typography variant="body1" sx={{ mt: 2 }}>
             یہی وہ جگہ ہے جہاں Chavez آتا ہے۔ ہمارے AI سے چلنے والے، گیمیفائیڈ ٹولز دیکھ بھال کرنے والوں کو ریئل ٹائم بصیرت فراہم کرتے ہیں،
             سمجھ کو عمل میں تبدیل کرتے ہیں اور آج ہر خاندان کو اپنے بچے کی ترقی کی حمایت کرنے میں مدد کرتے ہیں۔
-          </Typography>
+          </Typography> */}
         </Box>
       </Container>
 
@@ -139,7 +135,7 @@ const LandingPageUrdu: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
-                فوری پری ڈائیگنوسس اسکریننگ
+                فوری بنیادی اسکریننگ
               </Typography>
               <Typography
                 variant="body1"
@@ -149,8 +145,7 @@ const LandingPageUrdu: React.FC = () => {
                   fontSize: "1.1rem", // Font size
                 }}
               >
-                ہمارے تیز اور قابل اعتماد ASD سوالناموں کے ذریعے اپنے بچے کی ترقیاتی پروفائل میں جلد بصیرت حاصل کریں۔
-                یہ ماہرین کے ذریعہ ڈیزائن کردہ سوالنامے ASD سے وابستہ کلیدی طرز عمل کا جامع جائزہ فراہم کرتے ہیں۔
+                سوال نامہ کے ذریعے اپنے بچے کا ابتدائی جائزہ حاصل کریں ۔ یہ ماہرین کے تیار کردہ سوال آٹزم سے وابستہ سلوک کی شناخت میں مدد کرتے ہیں 
               </Typography>
             </Box>
           </Grid>
@@ -171,7 +166,7 @@ const LandingPageUrdu: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
-                گیمیفائیڈ تشخیصات
+              گیمز
               </Typography>
               <Typography
                 variant="body1"
@@ -181,8 +176,8 @@ const LandingPageUrdu: React.FC = () => {
                   fontSize: "1.1rem", // Font size
                 }}
               >
-                ہمارے گیمیفائیڈ تشخیصات کے ذریعے آپ کے بچے کو بامعنی ترقیاتی سرگرمیوں میں شامل کریں۔
-                یہ تشخیصات کھیل کو جانچ میں بدل دیتے ہیں، آپ کے بچے کی صلاحیتوں پر قیمتی ڈیٹا حاصل کرتے ہیں۔
+                ہمارے گیمیفائیڈ ٹیسٹ کے ذریعے آپ کا بچہ تعمیری سرگرمیوں میں دلچسپی سے شامل ہوگا۔
+                یہ انداز ٹیسٹنگ کو کھیل میں بدل دیتا ہے، اور آپ کے بچے کی صلاحیتوں کا قیمتی ڈیٹا فراہم کرتا ہے۔            
               </Typography>
             </Box>
           </Grid>
@@ -203,7 +198,7 @@ const LandingPageUrdu: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1.25rem" }}>
-                ترقی کی نگرانی اور حسب ضرورت رپورٹس
+              ترقی کی نگرانی اور مخصوص رپورٹس
               </Typography>
               <Typography
                 variant="body1"
@@ -213,8 +208,8 @@ const LandingPageUrdu: React.FC = () => {
                   fontSize: "1.1rem", // Font size
                 }}
               >
-                ہمارے ترقی کی نگرانی اور رپورٹنگ ٹول کے ذریعے اپنے بچے کی ترقی کو ٹریک کریں۔
-                کسی بھی وقت تفصیلی رپورٹس تیار کریں تاکہ ترقی کی نگرانی کریں اور قیمتی ڈیٹا کو معالجین یا اساتذہ کے ساتھ شیئر کریں۔
+                ہمارے پروگریس ٹریکنگ اور رپورٹ ٹول کے ذریعے اپنے بچے کی ترقی پر مسلسل نظر رکھیں۔
+                تفصیلی رپورٹس کسی بھی وقت تیار کریں اور انہیں معالجین یا اساتذہ کے ساتھ شیئر کریں تاکہ بہترین رہنمائی حاصل ہو سکے۔
               </Typography>
             </Box>
           </Grid>
@@ -253,11 +248,11 @@ const LandingPageUrdu: React.FC = () => {
           mt: 6,
         }}
       >
-        <Typography variant="body2">کمپنی</Typography>
+        {/* <Typography variant="body2">کمپنی</Typography>
         <Typography variant="body2">ہمارے بارے میں</Typography>
         <Typography variant="body2">ٹیم</Typography>
         <Typography variant="body2">حل</Typography>
-        <Typography variant="body2">سیکیورٹی</Typography>
+        <Typography variant="body2">سیکیورٹی</Typography> */}
       </Box>
     </Box>
   );

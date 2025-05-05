@@ -249,11 +249,11 @@ const CreateAccountUr: React.FC = () => {
           bottom: 0,
         }}
       >
-        <Typography variant="body2">Company</Typography>
+        {/* <Typography variant="body2">Company</Typography>
         <Typography variant="body2">About Us</Typography>
         <Typography variant="body2">Team</Typography>
         <Typography variant="body2">Solutions</Typography>
-        <Typography variant="body2">Security</Typography>
+        <Typography variant="body2">Security</Typography> */}
       </Box>
     </Box>
   );

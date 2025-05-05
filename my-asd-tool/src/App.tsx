@@ -133,7 +133,7 @@ import QC1 from './components/Questionnaire';
 import QuestionComponent from 'components/Questionnaire_Urdu';
 
 import Report from './components/Report';
-
+import ReportUrdu from 'components/Report_Urdu';
 
 import GameScreen from './components/AllGames';
 import GameScreenUrdu from 'components/AllGamesUrdu';
@@ -183,6 +183,8 @@ const App: React.FC = () => {
             <Route path="/dashboard-urdu" element={<DashboardUrdu />} />
 
             <Route path="/reports" element={<Report />} />
+
+            <Route path="/reports-urdu" element={<ReportUrdu />} />
 
             <Route path="/game-selection" element={<GameScreen />} />
             <Route path="/game-selection-urdu" element={<GameScreenUrdu />} />
