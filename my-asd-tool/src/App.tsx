@@ -143,6 +143,11 @@ import Gamefollow from 'components/follow';
 import Human from 'components/human';
 import Puzzle from 'components/puzzle';
 
+import BalloonUrdu from 'components/balloon_Urdu';
+import PuzzleUrdu from 'components/puzzle_Urdu';
+import GamefollowUrdu from 'components/follow_Urdu';
+import HumanUrdu from 'components/puzzle_Urdu';
+
 import Audio from 'components/Audio';
 import AudioUrdu from 'components/AudioUrdu';
 
@@ -152,6 +157,7 @@ import ResetPassword from 'components/ResetPassword';
 import { store } from './components/redux/store';
 
 import ProgressOverview from './components/ProgressOverview';
+import ProgressOverviewUrdu from 'components/ProgressOverviewUrdu';
 
 const App: React.FC = () => {
   return (
@@ -195,10 +201,16 @@ const App: React.FC = () => {
             <Route path="/human" element={<Human/>} />
             <Route path="/puzzle" element={<Puzzle/>} /> 
 
+            <Route path="/follow-urdu" element={<GamefollowUrdu/>} />
+            <Route path="/balloon-urdu" element={<BalloonUrdu/>} />
+            <Route path="/human-urdu" element={<HumanUrdu/>} />
+            <Route path="/puzzle-urdu" element={<PuzzleUrdu/>} /> 
+
             <Route path="/audio-analysis" element={<Audio/>} />
             <Route path="/audio-analysis-urdu" element={<AudioUrdu/>} />
             
             <Route path="/progress-reports" element={<ProgressOverview/>} />
+            <Route path="/progress-reports-urdu" element={<ProgressOverviewUrdu/>} />
 
             <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>

@@ -350,10 +350,10 @@ const GameScreenUrdu: React.FC = () => {
 
 
   const games = [
-    { name: "POP THE BALLOON", route: "/balloon", image: balloon, key: "BalloonStatus", description: "Tracks reaction time and motor skills." },
-    { name: "FOLLOW THE FISH", route: "/follow", image: fish, key: "FishStatus", description: "Tracks visual tracking and attention." },
-    { name: "HUMAN VS OBJECT", route: "/human", image: hvo, key: "HumanObjStatus", description: "Tracks preference between humans and objects." },
-    { name: "EMOTION PUZZLE", route: "/puzzle", image: emotion, key: "EmotionStatus", description: "Tracks emotional recognition and motor skills." },
+    { name: "POP THE BALLOON", route: "/balloon-urdu", image: balloon, key: "BalloonStatus", description: "Tracks reaction time and motor skills." },
+    { name: "FOLLOW THE FISH", route: "/follow-urdu", image: fish, key: "FishStatus", description: "Tracks visual tracking and attention." },
+    { name: "HUMAN VS OBJECT", route: "/human-urdu", image: hvo, key: "HumanObjStatus", description: "Tracks preference between humans and objects." },
+    { name: "EMOTION PUZZLE", route: "/puzzle-urdu", image: emotion, key: "EmotionStatus", description: "Tracks emotional recognition and motor skills." },
   ];
 
   const storedStatus = getStoredSessionStatus();

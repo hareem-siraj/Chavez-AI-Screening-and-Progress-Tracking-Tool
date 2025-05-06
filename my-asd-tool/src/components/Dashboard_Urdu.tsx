@@ -1037,7 +1037,7 @@ const shineAnimation = keyframes`
                     variant="outlined"
                     sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
                     component={Link}
-                    to="/progress-reports"
+                    to="/progress-reports-urdu"
                   >
                     View Progress Reports
                   </Button>
