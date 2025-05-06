@@ -26,7 +26,7 @@ const Puzzle: React.FC = () => {
 
   //       const markBalloonStatusAndNavigate = async () => {
   //         try {
-  //           await fetch(`http://localhost:5001/api/mark-emotion-status-true/${sessionID}`, {
+  //           await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-emotion-status-true/${sessionID}`, {
   //             method: "POST",
   //           });
   //           console.log("Emotion status marked as true");
@@ -60,7 +60,7 @@ const Puzzle: React.FC = () => {
   
         const markBalloonStatusAndNavigate = async () => {
           try {
-            await fetch(`http://localhost:5001/api/mark-emotion-status-true/${sessionID}`, {
+            await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-emotion-status-true/${sessionID}`, {
               method: "POST",
             });
             console.log("✅ Emotion status marked as true");

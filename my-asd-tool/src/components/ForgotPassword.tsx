@@ -27,7 +27,7 @@ const ForgotPassword: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/forgot-password", // Backend API endpoint
+        "https://chavez-ai-screening-and-progress.onrender.com/api/forgot-password", // Backend API endpoint
         { email }
       );
       setMessage("Password reset link sent to your email!");

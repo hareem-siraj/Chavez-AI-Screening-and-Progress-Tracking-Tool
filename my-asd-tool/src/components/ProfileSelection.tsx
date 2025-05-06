@@ -35,7 +35,7 @@ const ProfileSelection: React.FC = () => {
 
   useEffect(() => {
     if (userIdFromStore) {
-      axios.get(`http://localhost:5001/api/children/${userIdFromStore}`)
+      axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/children/${userIdFromStore}`)
         .then((response) => setChildren(response.data))
         .catch((error) => console.error("Error fetching child profiles:", error));
     }
@@ -54,11 +54,11 @@ const handleSelectChild = async (ChildID: number) => {
   localStorage.setItem("selectedChildId", String(ChildID));
 
   try {
-    const res = await axios.get(`http://localhost:5001/api/allSessionsDate/${ChildID}`);
+    const res = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/allSessionsDate/${ChildID}`);
     const sessions = res.data.sessions;
 
     if (sessions.length === 0) {
-      const newSession = await axios.post("http://localhost:5001/api/start-session", { ChildID });
+      const newSession = await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/start-session", { ChildID });
       const sessionPayload = {
         SessionID: newSession.data.SessionID,
         QuestionnaireID: null,
@@ -112,7 +112,7 @@ const handleSelectChild = async (ChildID: number) => {
         const proceed = window.confirm("It's been over 90 days since the last session. Start a new session?");
 
         if (proceed) {
-          const newSession = await axios.post("http://localhost:5001/api/start-session", { ChildID });
+          const newSession = await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/start-session", { ChildID });
           const newPayload = {
             SessionID: newSession.data.SessionID,
             QuestionnaireID: null,
@@ -148,7 +148,7 @@ const handleSelectChild = async (ChildID: number) => {
     if (!confirmDelete) return;
   
     try {
-      await axios.delete(`http://localhost:5001/api/delete-user/${userIdFromStore}`);
+      await axios.delete(`https://chavez-ai-screening-and-progress.onrender.com/api/delete-user/${userIdFromStore}`);
       alert("User deleted successfully.");
       navigate("/");  // redirect to login/home page after deletion
     } catch (error) {
@@ -162,7 +162,7 @@ const handleSelectChild = async (ChildID: number) => {
     if (!confirmDelete) return;
   
     try {
-      await axios.delete(`http://localhost:5001/api/delete-child/${ChildID}`);
+      await axios.delete(`https://chavez-ai-screening-and-progress.onrender.com/api/delete-child/${ChildID}`);
       alert("Child profile deleted.");
       setChildren(prev => prev.filter(child => child.ChildID !== ChildID)); // update UI
     } catch (error) {

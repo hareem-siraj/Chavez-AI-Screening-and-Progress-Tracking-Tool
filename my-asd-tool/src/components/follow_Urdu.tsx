@@ -31,7 +31,7 @@ const GamefollowUrdu: React.FC = () => {
         
         const markBalloonStatusAndNavigate = async () => {
           try {
-            await fetch(`http://localhost:5001/api/mark-fish-status-true/${sessionID}`, {
+            await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-fish-status-true/${sessionID}`, {
               method: "POST",
             });
             // stopEyeTracking();

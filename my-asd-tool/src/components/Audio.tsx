@@ -56,7 +56,7 @@
 
 //   const fetchAndStoreSessionStatus = async (sessionId: string) => {
 //     try {
-//       const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+//       const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session-status-by-id/${sessionId}`);
 //       const statusData = response.data;
 
 //       const updatedStatus = {
@@ -96,7 +96,7 @@
 //   const markNavigate = async () => {
 //     console.log("Video has ended. Waiting 5 seconds before navigating...");
 //     try {
-//       await fetch(`http://localhost:5001/api/mark-speech-status-true/${sessionID}`, {
+//       await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/${sessionID}`, {
 //         method: "POST",
 //       });
 //       // stopEyeTracking();
@@ -231,7 +231,7 @@ const Audio: React.FC = () => {
 
   const fetchAndStoreSessionStatus = async (sessionId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session-status-by-id/${sessionId}`);
       const statusData = response.data;
 
       const updatedStatus = {
@@ -284,7 +284,7 @@ const Audio: React.FC = () => {
         }
 
         try {
-          await fetch(`http://localhost:5001/api/mark-speech-status-true/${sessionID}`, {
+          await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/${sessionID}`, {
             method: "POST",
           });
           console.log("✅ Speech status marked as true");

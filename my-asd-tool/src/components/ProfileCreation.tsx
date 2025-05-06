@@ -71,8 +71,8 @@ const ProfileCreation: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:5001/api/save-child-profile", profileData);
-      const response = await axios.post("http://localhost:5001/api/start-session", {
+      await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/save-child-profile", profileData);
+      const response = await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/start-session", {
         ChildID: childID,
       });
   

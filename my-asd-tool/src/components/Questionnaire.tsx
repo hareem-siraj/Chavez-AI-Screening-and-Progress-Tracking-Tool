@@ -654,7 +654,7 @@ const evaluateCurrentQuestion = () => {
         };
     
         try {
-          const response = await fetch("http://localhost:5001/api/save-question-response", {
+          const response = await fetch("https://chavez-ai-screening-and-progress.onrender.com/api/save-question-response", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(questionData),
@@ -699,7 +699,7 @@ const evaluateCurrentQuestion = () => {
       dispatch(setFinalScore(20-totalScore));
     
       try {
-        await fetch("http://localhost:5001/api/save-final-score", {
+        await fetch("https://chavez-ai-screening-and-progress.onrender.com/api/save-final-score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -709,7 +709,7 @@ const evaluateCurrentQuestion = () => {
           }),
         });
 
-        await fetch(`http://localhost:5001/api/mark-ques-status-true/${sessionData.SessionID}`, {
+        await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-ques-status-true/${sessionData.SessionID}`, {
           method: "POST",
         });
         

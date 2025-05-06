@@ -43,7 +43,7 @@ const CreateAccountUr: React.FC = () => {
 
     try {
       // Send POST request to backend
-      const response = await fetch("http://localhost:5001/api/create-account", {
+      const response = await fetch("https://chavez-ai-screening-and-progress.onrender.com/api/create-account", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -30,7 +30,7 @@ const ResetPassword: React.FC = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5001/api/reset-password", {
+      const response = await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/reset-password", {
         token,
         newPassword,
       });

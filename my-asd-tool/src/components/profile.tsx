@@ -13,7 +13,7 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:5001/api/get-child-profile?ChildID=${childIdFromStore}`);
+        const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-child-profile?ChildID=${childIdFromStore}`);
         setChildProfile(response.data);
       } catch (error) {
         console.error("Error fetching profile:", error);

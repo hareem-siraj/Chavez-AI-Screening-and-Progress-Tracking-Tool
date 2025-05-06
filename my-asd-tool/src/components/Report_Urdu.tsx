@@ -207,7 +207,7 @@ useEffect(() => {
 
   const fetchSessions = async (childId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/allSessions/${childId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/allSessions/${childId}`);
 
       if (response.data.sessions.length > 0) {
         const firstSessionID = response.data.sessions[0].SessionID;
@@ -228,7 +228,7 @@ useEffect(() => {
   useEffect(() => {
     if (selectedSession) {
       fetchData(selectedSession);
-      axios.post("http://localhost:5001/api/mark-complete", { sessionId: selectedSession })
+      axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/mark-complete", { sessionId: selectedSession })
       .then(() => {
         console.log("Session marked as complete.");
       })
@@ -241,11 +241,11 @@ useEffect(() => {
   const fetchData = async (sessionId: string) => {
     try {
       const responses = await Promise.allSettled([
-        axios.get("http://localhost:5001/api/questionnaire", { params: { sessionId } }),
-        axios.post("http://localhost:5001/api/balloon-game", { sessionID: sessionId }),
-        axios.post("http://localhost:5001/api/emotion-puzzle1", { sessionID: sessionId }),
-        axios.get("http://localhost:5001/api/speech-analysis", { params: { sessionId } }),
-        axios.get(`http://localhost:5001/api/session-output/${sessionId}`),
+        axios.get("https://chavez-ai-screening-and-progress.onrender.com/api/questionnaire", { params: { sessionId } }),
+        axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/balloon-game", { sessionID: sessionId }),
+        axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/emotion-puzzle1", { sessionID: sessionId }),
+        axios.get("https://chavez-ai-screening-and-progress.onrender.com/api/speech-analysis", { params: { sessionId } }),
+        axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/session-output/${sessionId}`),
       ]);
   
       const questionnaireData = responses[0].status === "fulfilled" ? responses[0].value.data || [] : [];

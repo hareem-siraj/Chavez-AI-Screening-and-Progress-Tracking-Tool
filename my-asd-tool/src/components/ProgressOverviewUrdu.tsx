@@ -223,7 +223,7 @@ const fetchChildProfile = async (childId: string) => {
 
     const fetchSessionsAndData = async (childId: string) => {
         try {
-          const response = await axios.get(`http://localhost:5001/api/allSessions/${childId}`);
+          const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/allSessions/${childId}`);
           
           if (response.data && Array.isArray(response.data.sessions)) {
             const sessionsData: SessionInfo[] = response.data.sessions.map((s: any) => ({

@@ -30,7 +30,7 @@ const GameScreen: React.FC = () => {
   // });
   const fetchAndStoreSessionStatus = async (sessionId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session-status-by-id/${sessionId}`);
   
       const statusData = response.data;
   

@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
 
   // const fetchChildProfile = async (childId: string) => {
   //   try {
-  //     const response = await axios.get(`http://localhost:5001/api/get-child-profile`, {
+  //     const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-child-profile`, {
   //       params: { ChildID: childId }
   //     });
   //     if (response.data) {
@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
 
   const fetchChildProfile = async (childId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-child-profile`, {
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-child-profile`, {
         params: { ChildID: childId }
       });
       if (response.data) {
@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
   
   const fetchCompletedSessionsCount = async (childId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/completedSessionsCount/${childId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/completedSessionsCount/${childId}`);
       setCompletedSessionsCount(response.data.count);
       console.log(response.data.count);
     } catch (error) {
@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
 
   const fetchSessionData = async (childId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session/${childId}`);
   
       if (response.data) {
         const { SessionID } = response.data;
@@ -161,7 +161,7 @@ const Dashboard: React.FC = () => {
 
   // const fetchSessionData = async (childId: string) => {
   //   try {
-  //     const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
+  //     const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session/${childId}`);
   
   //     if (response.data) {
   //       const { SessionID } = response.data;
@@ -196,7 +196,7 @@ const Dashboard: React.FC = () => {
     }
   
     try {
-      const response = await axios.post("http://localhost:5001/api/start-session", {
+      const response = await axios.post("https://chavez-ai-screening-and-progress.onrender.com/api/start-session", {
         ChildID: selectedChildId,
       });
   
@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
 
   const fetchAndStoreSessionStatus = async (sessionId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-session-status-by-id/${sessionId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-session-status-by-id/${sessionId}`);
   
       const statusData = response.data;
   
@@ -284,7 +284,7 @@ const Dashboard: React.FC = () => {
  
   const fetchChildIdFromSession = async (sessionId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/get-child-id-by-session/${sessionId}`);
+      const response = await axios.get(`https://chavez-ai-screening-and-progress.onrender.com/api/get-child-id-by-session/${sessionId}`);
       const { ChildID } = response.data;
       if (ChildID) {
         dispatch({ type: "SELECT_CHILD", payload: Number(ChildID) });

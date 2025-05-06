@@ -8,9 +8,9 @@ BALLOON_MODEL_PATH = "models/model_updated22.pkl"
 rf_balloon_model = joblib.load(BALLOON_MODEL_PATH)
 
 # Node.js API Endpoints
-BALLOON_ENDPOINT = "http://localhost:5001/api/balloon-game"
-EMOTION_ENDPOINT = "http://localhost:5001/api/emotion-puzzle"
-UPDATE_OUTPUT_ENDPOINT = "http://localhost:5001/api/update-balloon-emotion-output"
+BALLOON_ENDPOINT = "https://chavez-ai-screening-and-progress.onrender.com/api/balloon-game"
+EMOTION_ENDPOINT = "https://chavez-ai-screening-and-progress.onrender.com/api/emotion-puzzle"
+UPDATE_OUTPUT_ENDPOINT = "https://chavez-ai-screening-and-progress.onrender.com/api/update-balloon-emotion-output"
 
 
 def fetch_metrics_from_node(endpoint, session_id):

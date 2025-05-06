@@ -36,7 +36,7 @@
 # os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-# NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
+# NODE_SERVER_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-audio-data"
 
 
 # SAMPLE_RATE = 44100
@@ -145,7 +145,7 @@
 
 #     # CALL API HERE "/api/mark-speech-status-true/:sessionId"
 #     try:
-#         speech_status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
+#         speech_status_url = f"https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/{session_id}"
 #         status_response = requests.post(speech_status_url)
 #         status_response.raise_for_status()
 #         print(f"✅ Speech status updated for SessionID: {session_id}")
@@ -188,7 +188,7 @@ app.add_middleware(
 SAMPLE_RATE = 44100
 UPLOAD_DIR = "uploads"
 MODEL_PATH = "models/random_forest_model_audio.pkl"
-NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
+NODE_SERVER_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-audio-data"
 RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 59)]
 RECORD_DURATION = 60  # full video/audio length
 
@@ -305,7 +305,7 @@ def process_and_store_recordings(combined_audio_path, session_id):
         print(f"❌ Failed to send data to Node server: {str(e)}")
 
     try:
-        status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
+        status_url = f"https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/{session_id}"
         status_response = requests.post(status_url)
         status_response.raise_for_status()
         print(f"✅ Speech status updated for SessionID: {session_id}")

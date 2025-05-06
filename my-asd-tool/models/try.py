@@ -12,8 +12,8 @@
 # from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 # # API endpoint
-# API_URL = "http://localhost:5001/api/save-follow-data" 
-# API_URL1 = "http://localhost:5001/api/update-ftf-output"
+# API_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data" 
+# API_URL1 = "https://chavez-ai-screening-and-progress.onrender.com/api/update-ftf-output"
 
 # if len(sys.argv) > 1:
 #     session_id = sys.argv[1]  # Get sessionID from command-line argument
@@ -109,8 +109,8 @@
 # # from tensorflow.keras.models import load_model
 # # from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
-# # API_URL = "http://localhost:5001/api/save-follow-data"
-# # API_URL1 = "http://localhost:5001/api/update-ftf-output"
+# # API_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data"
+# # API_URL1 = "https://chavez-ai-screening-and-progress.onrender.com/api/update-ftf-output"
 
 # # if len(sys.argv) > 1:
 # #     session_id = sys.argv[1]
@@ -386,8 +386,8 @@
 
 
 # # # API endpoint
-# # API_URL = "http://localhost:5001/api/save-follow-data" 
-# # API_URL1 = "http://localhost:5001/api/update-ftf-output"
+# # API_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data" 
+# # API_URL1 = "https://chavez-ai-screening-and-progress.onrender.com/api/update-ftf-output"
 
 # # if len(sys.argv) > 1:
 # #     session_id = sys.argv[1]  # Get sessionID from command-line argument
@@ -648,8 +648,8 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 # API endpoint
 
-API_URL = "http://localhost:5001/api/save-follow-data" 
-API_URL1 = "http://localhost:5001/api/update-ftf-output"
+API_URL = "https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data" 
+API_URL1 = "https://chavez-ai-screening-and-progress.onrender.com/api/update-ftf-output"
 
 if len(sys.argv) > 1:
     session_id = sys.argv[1]  # Get sessionID from command-line argument

@@ -27,7 +27,7 @@ const Balloon: React.FC = () => {
 
         const markBalloonStatusAndNavigate = async () => {
           try {
-            await fetch(`http://localhost:5001/api/mark-balloon-status-true/${sessionID}`, {
+            await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-balloon-status-true/${sessionID}`, {
               method: "POST",
             });
             console.log("Balloon status marked as true");
