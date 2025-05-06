@@ -140,7 +140,7 @@ app.post('/api/forgot-password', async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetURL = `http://localhost:3000/reset-password?token=${resetToken}`;
+    const resetURL = `https://chavez-ai-screening-and-progress-tracking-tool.vercel.app/reset-password?token=${resetToken}`;
 
     // const expires = new Date(Date.now() + 3600000); // 1 hour
     const expires = new Date(Date.now() + 3600000).toISOString();
