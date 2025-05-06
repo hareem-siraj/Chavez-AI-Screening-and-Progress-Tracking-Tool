@@ -17,7 +17,7 @@ const port = 5001;
 // Enable CORS for frontend to access backend
 app.use(cors({
   origin: "http://localhost:3000", // Frontend URL
-  methods: ["GET", "POST"],
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
   credentials: true
 }));
 
@@ -1566,6 +1566,96 @@ app.get("/api/completedSessionsCount/:ChildID", async (req, res) => {
   } catch (error) {
     console.error("Error fetching completed session count:", error);
     res.status(500).json({ message: "Error fetching completed session count" });
+  }
+});
+
+
+app.delete('/api/delete-user/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const childResult = await client.query(
+      `SELECT "ChildID" FROM "Child" WHERE "UserID" = $1`,
+      [userId]
+    );
+
+    const childIDs = childResult.rows.map(row => row.ChildID);
+
+    for (const childID of childIDs) {
+      const sessionResult = await client.query(
+        `SELECT "SessionID" FROM "Session" WHERE "ChildID" = $1`,
+        [childID]
+      );
+      const sessionIDs = sessionResult.rows.map(row => row.SessionID);
+
+      for (const sessionID of sessionIDs) {
+        await client.query(`DELETE FROM "Question" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "SpeechData" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "SpeechAnalysis" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "Questionnaire" WHERE "Session_ID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "Puzzle" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM balloongame WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "FollowData" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "HumanData" WHERE "SessionID" = $1`, [sessionID]);
+        await client.query(`DELETE FROM "Session" WHERE "SessionID" = $1`, [sessionID]);
+      }
+
+      await client.query(`DELETE FROM "Child" WHERE "ChildID" = $1`, [childID]);
+    }
+
+    await client.query(`DELETE FROM "User" WHERE "UserID" = $1`, [userId]);
+
+    await client.query('COMMIT');
+    res.sendStatus(200);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error("❌ Error deleting user data:", err);
+    res.status(500).send("Failed to delete user");
+  } finally {
+    client.release();
+  }
+});
+
+app.delete('/api/delete-child/:childId', async (req, res) => {
+  const { childId } = req.params;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Fetch all sessions for this child
+    const sessionResult = await client.query(
+      `SELECT "SessionID" FROM "Session" WHERE "ChildID" = $1`,
+      [childId]
+    );
+
+    const sessionIDs = sessionResult.rows.map(row => row.SessionID);
+
+    for (const sessionID of sessionIDs) {
+      await client.query(`DELETE FROM "Question" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "SpeechData" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "SpeechAnalysis" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "Questionnaire" WHERE "Session_ID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "Puzzle" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM balloongame WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "FollowData" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "HumanData" WHERE "SessionID" = $1`, [sessionID]);
+      await client.query(`DELETE FROM "Session" WHERE "SessionID" = $1`, [sessionID]);
+    }
+
+    await client.query(`DELETE FROM "Child" WHERE "ChildID" = $1`, [childId]);
+
+    await client.query('COMMIT');
+    res.sendStatus(200);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error("❌ Error deleting child profile:", err);
+    res.status(500).send("Failed to delete child profile");
+  } finally {
+    client.release();
   }
 });
 

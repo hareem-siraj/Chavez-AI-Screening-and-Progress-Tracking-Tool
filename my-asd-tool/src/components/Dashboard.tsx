@@ -17,6 +17,7 @@ import logoImage from "../assets/logo.png";
 import { keyframes } from '@mui/system';
 import { persistor } from './redux/store'; 
 
+
 const avatars = [
   { id: 1, src: avatar1 },
   { id: 2, src: avatar2 },
@@ -508,34 +509,68 @@ const shineAnimation = keyframes`
 
           {/* Child Profile Card */}
           <Grid item xs={12} md={6}>
-            <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
-            <Avatar 
-                src={childProfile && childProfile.Avatar ? avatars.find(a => a.id === childProfile.Avatar)?.src : ""}
-                sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }} 
-              />
-              <Box ml={3}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
-                  {childProfile ? childProfile.Name : "No Child Selected"}
+            <Box display="flex" flexDirection="column" gap={2}>
+              {/* Profile Card */}
+              <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
+                <Avatar 
+                  src={childProfile?.Avatar ? avatars.find(a => a.id === childProfile.Avatar)?.src : ""}
+                  sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }} 
+                />
+                <Box ml={3}>
+                  <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
+                    {childProfile?.Name || "No Child Selected"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Track and manage your child’s assessment journey here.
+                  </Typography>
+                  {completedSessionsCount > 1 && (
+                    <Button 
+                      variant="outlined"
+                      sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
+                      component={Link}
+                      to="/progress-reports"
+                    >
+                      View Progress Reports
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Progress Section (now directly underneath profile card) */}
+              <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2}>
+                <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+                  Progress
                 </Typography>
-
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  Track and manage your child’s assessment journey here.
-                </Typography>
-
-                {completedSessionsCount > 1 && (
-                  <Button 
-                    variant="outlined"
-                    sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
-                    component={Link}
-                    to="/progress-reports"
-                  >
-                    View Progress Reports
-                  </Button>
-                )} 
-
+                <List>
+                  <ListItem>
+                    <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.QuesStatus)}
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Pop the Balloon" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.BalloonStatus)}
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Follow the Fish" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.FishStatus)}
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Human vs Object" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.HumanObjStatus)}
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Emotion Puzzle" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.EmotionStatus)}
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Speech Analysis" sx={{ color: "#003366" }} />
+                    {getCompletionStatus(storedStatus.SpeechStatus)}
+                  </ListItem>
+                </List>
               </Box>
             </Box>
           </Grid>
+
 
           {/* Report Summary */}
           <Grid item xs={12} md={6}>
@@ -547,49 +582,21 @@ const shineAnimation = keyframes`
               sx={{ minHeight: "100px" }} 
             >
               <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>  {/* White text */}
-                Report Summary
+                Website Overview
               </Typography>
-              <Typography variant="body2" sx={{ color: "#FFFFFF", mt: 1 }}>  {/* White text */}
-                No report for now
-              </Typography>
+              <Box mt={2}>
+                <video
+                  width="100%"
+                  controls
+                  style={{ borderRadius: "10px", boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}
+                >
+                  <source src="/videos/Overview.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>
+
             </Box>
           </Grid>
-
-         {/* Progress Section */}
-         <Grid item xs={12} md={6}>
-          <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2}>
-            <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-              Progress
-            </Typography>
-            <List>
-              <ListItem>
-                <ListItemText primary="Questionnaire" sx={{ color: "#003366" }} />
-                {/* {getCompletionStatus(sessionData?.QuesStatus)} */}
-                {getCompletionStatus(storedStatus.QuesStatus)}
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Pop the Balloon" sx={{ color: "#003366" }} />
-                {getCompletionStatus(storedStatus.BalloonStatus)}
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Follow the Fish" sx={{ color: "#003366" }} />
-                {getCompletionStatus(storedStatus.FishStatus)}
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Human vs Object" sx={{ color: "#003366" }} />
-                {getCompletionStatus(storedStatus.HumanObjStatus)}
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Emotion Puzzle" sx={{ color: "#003366" }} />
-                {getCompletionStatus(storedStatus.EmotionStatus)}
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Speech Analysis" sx={{ color: "#003366" }} />
-                {getCompletionStatus(storedStatus.SpeechStatus)}
-              </ListItem>
-            </List>
-          </Box>
-        </Grid>
 
           {/* <Grid item xs={12}> */}
           <Grid item xs={12} sx={{ position: 'relative', '&::after': { display: 'none' } }}>

@@ -1019,63 +1019,43 @@ const shineAnimation = keyframes`
 
           {/* Child Profile Card */}
           <Grid item xs={12} md={6}>
-            <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
-            <Avatar 
-                src={childProfile && childProfile.Avatar ? avatars.find(a => a.id === childProfile.Avatar)?.src : ""}
-                sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }} 
-              />
-              <Box ml={3}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
-                  {childProfile ? childProfile.Name : "Click Logout and SignIn Again"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                یہاں اپنے بچے کے سکریننگ ٹیسٹ کو گھر بیٹھے آسانی سے کر سکتے ہیں
-                </Typography>
+  <Box display="flex" flexDirection="column" gap={2}>
+    {/* Profile Card */}
+    <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2} display="flex" alignItems="center">
+      <Avatar 
+        src={childProfile?.Avatar ? avatars.find(a => a.id === childProfile.Avatar)?.src : ""}
+        sx={{ width: 80, height: 80, bgcolor: "#003366", color: "#fff" }} 
+      />
+      <Box ml={3}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
+          {childProfile?.Name || "No Child Selected"}
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#666" }}>
+          Track and manage your child’s assessment journey here.
+        </Typography>
+        {completedSessionsCount > 1 && (
+          <Button 
+            variant="outlined"
+            sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
+            component={Link}
+            to="/progress-reports"
+          >
+            View Progress Reports
+          </Button>
+        )}
+      </Box>
+    </Box>
 
-                {completedSessionsCount > 1 && (
-                  <Button 
-                    variant="outlined"
-                    sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
-                    component={Link}
-                    to="/progress-reports-urdu"
-                  >
-                    View Progress Reports
-                  </Button>
-                )}
-
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Report Summary */}
-          <Grid item xs={12} md={6}>
-            <Box 
-              bgcolor="#003366"  // Blue background
-              p={3} 
-              borderRadius="12px" 
-              boxShadow={2}  
-              sx={{ minHeight: "100px" }} 
-            >
-              <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>  {/* White text */}
-                Website Overview - ویبسائٹ کا استعمال کیسےکیا جائے جاننے کے لئے ویڈیو دیکھیں
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#FFFFFF", mt: 1 }}>  {/* White text */}
-                Insert Video Here
-              </Typography>
-            </Box>
-          </Grid>
-
-         {/* Progress Section */}
-         <Grid item xs={12} md={6}>
-          <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2}>
-            <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
-              Progress
-            </Typography>
-            <List>
-              <ListItem>
-                <ListItemText primary="سوال نامہ" sx={{ color: "#003366" }} />
-                {/* {getCompletionStatus(sessionData?.QuesStatus)} */}
-                {getCompletionStatus(storedStatus.QuesStatus)}
+    {/* Progress Section (now directly underneath profile card) */}
+      <Box bgcolor="#ffffff" p={3} borderRadius="12px" boxShadow={2}>
+        <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold", mb: 2 }}>
+          Progress
+        </Typography>
+        <List>
+         <ListItem>
+              <ListItemText primary="سوال نامہ" sx={{ color: "#003366" }} />
+              {/* {getCompletionStatus(sessionData?.QuesStatus)} */}
+              {getCompletionStatus(storedStatus.QuesStatus)}
               </ListItem>
               <ListItem>
                 <ListItemText primary="Pop the Balloon" sx={{ color: "#003366" }} />
@@ -1099,7 +1079,35 @@ const shineAnimation = keyframes`
               </ListItem>
             </List>
           </Box>
-        </Grid>
+        </Box>
+      </Grid>
+
+
+          {/* Report Summary */}
+          <Grid item xs={12} md={6}>
+            <Box 
+              bgcolor="#003366"  // Blue background
+              p={3} 
+              borderRadius="12px" 
+              boxShadow={2}  
+              sx={{ minHeight: "100px" }} 
+            >
+              <Typography variant="h6" sx={{ color: "#FFFFFF", fontWeight: "bold" }}>  {/* White text */}
+                Website Overview - ویبسائٹ کا استعمال کیسےکیا جائے جاننے کے لئے ویڈیو دیکھیں
+              </Typography>
+              <Box mt={2}>
+                <video
+                  width="100%"
+                  controls
+                  style={{ borderRadius: "10px", boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}
+                >
+                  <source src="/videos/Overview.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>
+            </Box>
+          </Grid>
+
 
           {/* <Grid item xs={12}> */}
           <Grid item xs={12} sx={{ position: 'relative', '&::after': { display: 'none' } }}>

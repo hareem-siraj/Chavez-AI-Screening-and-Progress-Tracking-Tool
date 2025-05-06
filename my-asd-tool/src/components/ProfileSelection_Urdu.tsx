@@ -139,6 +139,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserId, selectChild } from "../components/redux/store";
 import { useNavigate } from 'react-router-dom';
 import { setSessionIds } from "./redux/store";
+import { Button } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 // Avatar images mapping
 import avatar1 from "../assets/avatars/1.png";
@@ -268,6 +270,36 @@ const handleSelectChild = async (ChildID: number) => {
     navigate("/create-profile-urdu");
   };
 
+  const handleDeleteUser = async () => {
+    if (!userIdFromStore) return;
+  
+    const confirmDelete = window.confirm("Are you sure you want to delete this user and all related data?");
+    if (!confirmDelete) return;
+  
+    try {
+      await axios.delete(`http://localhost:5001/api/delete-user/${userIdFromStore}`);
+      alert("User deleted successfully.");
+      navigate("/");  // redirect to login/home page after deletion
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Failed to delete user.");
+    }
+  };
+
+  const handleDeleteChild = async (ChildID: number) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this child profile and all related data?");
+    if (!confirmDelete) return;
+  
+    try {
+      await axios.delete(`http://localhost:5001/api/delete-child/${ChildID}`);
+      alert("Child profile deleted.");
+      setChildren(prev => prev.filter(child => child.ChildID !== ChildID)); // update UI
+    } catch (error) {
+      console.error("Error deleting child profile:", error);
+      alert("Failed to delete child profile.");
+    }
+  };
+  
   return (
     <Box
       sx={{
@@ -287,6 +319,15 @@ const handleSelectChild = async (ChildID: number) => {
       <Box sx={{ position: "absolute", top: "2vh", right: "2vw", width: "15vw", maxWidth: "200px" }}>
         <img src={logo} alt="Logo" style={{ width: "100%" }} />
       </Box>
+
+      <Button
+        variant="contained"
+        color="error"
+        sx={{ position: "absolute", top: "2vh", left: "2vw" }}
+        onClick={handleDeleteUser}
+      >
+        Delete User
+      </Button>
 
       <Container
         sx={{
@@ -309,34 +350,55 @@ const handleSelectChild = async (ChildID: number) => {
 
         <Grid container spacing={4} justifyContent="center" alignItems="center" sx={{ width: "100%" }}>
           {children.map((Child) => (
-            <Grid item key={Child.ChildID}>
-              <Box
-                sx={{
-                  width: "140px",
-                  height: "100px",
-                  borderRadius: "12px",
-                  backgroundColor: "#0077b6",
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "0.3s",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-                  ":hover": { backgroundColor: "#005f99", transform: "scale(1.05)" },
-                }}
-                onClick={() => handleSelectChild(Child.ChildID)}
-              >
-              <Avatar
-                  src={Child.Avatar ? avatars.find(a => a.id === Number(Child.Avatar))?.src : ""}
-                  sx={{ width: 60, height: 60, bgcolor: "#ffffff" }}
-                />
-                <Typography variant="body1" sx={{ fontWeight: "bold", mt: 1 }}>
-                  {Child.Name}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
+        <Grid item key={Child.ChildID}>
+        <Box sx={{ position: "relative" }}> {/* <-- Added relative wrapper */}
+          <Box
+            sx={{
+              width: "140px",
+              height: "100px",
+              borderRadius: "12px",
+              backgroundColor: "#0077b6",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transition: "0.3s",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              ":hover": { backgroundColor: "#005f99", transform: "scale(1.05)" },
+            }}
+            onClick={() => handleSelectChild(Child.ChildID)}
+          >
+            <Avatar
+              src={Child.Avatar ? avatars.find(a => a.id === Number(Child.Avatar))?.src : ""}
+              sx={{ width: 60, height: 60, bgcolor: "#ffffff" }}
+            />
+            <Typography variant="body1" sx={{ fontWeight: "bold", mt: 1 }}>
+              {Child.Name}
+            </Typography>
+          </Box>
+
+          <CloseIcon
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent profile selection
+              handleDeleteChild(Child.ChildID);
+            }}
+            sx={{
+              position: "absolute",
+              top: "4px",
+              right: "4px",
+              color: "#fff",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              borderRadius: "50%",
+              cursor: "pointer",
+              padding: "2px",
+              fontSize: "18px",
+              "&:hover": { color: "#ff0000" }
+            }}
+          />
+        </Box>
+      </Grid>
+    ))}
           
           <Grid item>
             <Box
