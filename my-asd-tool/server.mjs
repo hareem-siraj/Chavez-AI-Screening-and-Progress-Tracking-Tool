@@ -14,13 +14,31 @@ const { Pool } = pkg;
 const app = express();
 const port = 5001;
 
-// Enable CORS for frontend to access backend
-app.use(cors({
-  origin: "http://localhost:3000", // Frontend URL
-  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
-  credentials: true
-}));
+const allowedOrigins = [
+  'https://chavez-ai-screening-and-progress-tracking-tool.vercel.app',
+  'http://localhost:3000' // for local testing
+];
 
+// Enable CORS for frontend to access backend
+// app.use(cors({
+//   origin: "http://localhost:3000", // Frontend URL
+//   methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
+//   credentials: true
+// }));
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
+    credentials: true, // if you're using cookies/auth
+  })
+);
 // Middleware to parse JSON data from request body 
 app.use(express.json());
 
