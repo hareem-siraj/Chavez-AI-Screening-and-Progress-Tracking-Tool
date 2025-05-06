@@ -1,81 +1,270 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-import librosa
-import numpy as np
-import joblib
-import os
-import requests
+# from fastapi import FastAPI, File, UploadFile, HTTPException
+# import librosa
+# import numpy as np
+# import joblib
+# import os
+# import requests
+# import sounddevice as sd
+# import wave
+# from pydub import AudioSegment
+# from datetime import datetime
+# from fastapi.middleware.cors import CORSMiddleware
+# from pydantic import BaseModel
+# import subprocess
+# import json
+# import importlib.util
+
+# app = FastAPI()
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  
+#     allow_credentials=True,
+#     allow_methods=["*"],  
+#     allow_headers=["*"],  
+# )
+
+
+# ############################################### AUDIO ANALYSIS #######################################################
+
+
+# # Load trained model
+# MODEL_PATH = "models/random_forest_model_audio.pkl"
+# rf_model = joblib.load(MODEL_PATH)
+
+# # Ensure upload directory exists
+# UPLOAD_DIR = "uploads"
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+# NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
+
+
+# SAMPLE_RATE = 44100
+# RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 59)]  
+
+# def record_audio(start_time, duration, session_id):
+#     file_name = f"{session_id}_recording_{start_time}-{start_time+duration}.wav"
+#     file_path = os.path.join(UPLOAD_DIR, file_name)
+
+#     print(f"Recording audio from {start_time}s for {duration}s...")
+    
+#     # Start recording
+#     recording = sd.rec(int(duration * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype=np.int16)
+#     sd.wait()
+
+#     with wave.open(file_path, "wb") as wf:
+#         wf.setnchannels(1)
+#         wf.setsampwidth(2)
+#         wf.setframerate(SAMPLE_RATE)
+#         wf.writeframes(recording.tobytes())
+
+#     return file_path
+
+# def combine_audio_files(file_paths, session_id):
+#     combined = AudioSegment.empty()
+    
+#     for file in file_paths:
+#         audio = AudioSegment.from_wav(file)
+#         combined += audio 
+
+#     combined_path = os.path.join(UPLOAD_DIR, f"{session_id}_combined.wav")
+#     combined.export(combined_path, format="wav")
+
+#     return combined_path
+
+# def extract_features(audio_path):
+#     y, sr = librosa.load(audio_path, sr=None)
+#     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+#     mfcc_mean = np.mean(mfcc, axis=1)  
+
+#     onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+#     onset_times = librosa.onset.onset_detect(y=y, sr=sr, backtrack=True)
+
+#     response_latency = onset_times[0] if len(onset_times) > 0 else -1
+#     speech_confidence = np.mean(onset_env)
+#     speech_onset_delay = response_latency
+#     echolalia_score = np.std(onset_env)
+
+#     features = np.concatenate([mfcc_mean, [response_latency, speech_confidence, speech_onset_delay, echolalia_score]])
+#     return features.reshape(1, -1), mfcc_mean.tolist(), response_latency, speech_confidence, speech_onset_delay, echolalia_score
+
+# # 🎬 API endpoint: Starts recording at predefined timestamps
+# @app.post("/process-video/")
+# async def process_video(session_data: dict):
+#     session_id = session_data.get("sessionID", 0)
+    
+#     if not session_id:
+#         raise HTTPException(status_code=400, detail="SessionID is required.")
+
+#     recorded_files = []
+
+#     # Record audio at predefined timestamps
+#     for start, stop in RECORD_TIMESTAMPS:
+#         duration = stop - start
+#         file_path = record_audio(start, duration, session_id)
+#         recorded_files.append(file_path)
+
+#     # 🛠️ Combine all recorded files into a single audio file
+#     combined_audio_path = combine_audio_files(recorded_files, session_id)
+
+#     # Process and store the combined recording
+#     return process_and_store_recordings(combined_audio_path, session_id)
+
+# # 🎯 Process, Predict, and Store Data
+# def process_and_store_recordings(combined_audio_path, session_id):
+#     print(f"Processing combined audio file: {combined_audio_path}")
+
+#     # Extract speech features
+#     features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(combined_audio_path)
+
+#     # Predict ASD or Neurotypical
+#     prediction = rf_model.predict(features)[0]
+#     label = "Autistic" if prediction == 1 else "Neurotypical"
+
+#         # Prepare data for storage
+#     payload = {
+#             "SessionID": session_id,
+#             "MFCC_Mean": [float(x) for x in mfcc_mean],  # Convert to float
+#             "ResponseLatency": float(response_latency),   # Convert to float
+#             "SpeechConfidence": float(speech_confidence), # Convert to float
+#             "SpeechOnsetDelay": float(speech_onset_delay), # Convert to float
+#             "EcholaliaScore": float(echolalia_score),     # Convert to float
+#             "Prediction": label,
+#             "Timestamp": datetime.now().isoformat()
+#         }
+
+#         # Send to Node.js API for storage
+#     try:
+#             response = requests.post(NODE_SERVER_URL, json=payload)
+#             response.raise_for_status()
+#     except requests.exceptions.RequestException as e:
+#             print(f"Failed to send data to server: {str(e)}")
+
+#     print(f"Stored result: {combined_audio_path} - {label}")
+
+
+#     # CALL API HERE "/api/mark-speech-status-true/:sessionId"
+#     try:
+#         speech_status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
+#         status_response = requests.post(speech_status_url)
+#         status_response.raise_for_status()
+#         print(f"✅ Speech status updated for SessionID: {session_id}")
+#     except requests.exceptions.RequestException as e:
+#         print(f"❌ Failed to update SpeechStatus: {str(e)}")
+
+        
+#     return {"status": "Processing completed.", "sessionID": session_id, "prediction": label}
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import sounddevice as sd
 import wave
-from pydub import AudioSegment
+import os
+import numpy as np
+import librosa
+import joblib
 from datetime import datetime
-from fastapi.middleware.cors import CORSMiddleware
+from pydub import AudioSegment
+import requests
+import threading
 from pydantic import BaseModel
 import subprocess
 import json
 import importlib.util
 
+
 app = FastAPI()
+
+# CORS settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-
-############################################### AUDIO ANALYSIS #######################################################
-
-
-# Load trained model
-MODEL_PATH = "models/random_forest_model_audio.pkl"
-rf_model = joblib.load(MODEL_PATH)
-
-# Ensure upload directory exists
+# Constants
+SAMPLE_RATE = 44100
 UPLOAD_DIR = "uploads"
+MODEL_PATH = "models/random_forest_model_audio.pkl"
+NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
+RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 59)]
+RECORD_DURATION = 60  # full video/audio length
+
+# Ensure directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# Load model
+rf_model = joblib.load(MODEL_PATH)
 
-NODE_SERVER_URL = "http://localhost:5001/api/save-audio-data"
 
+############################################
+# 🎙️ Record full audio in separate thread
+def record_audio_background(session_id: int, duration: int = RECORD_DURATION):
+    print(f"🎙️ Starting background recording for {duration}s...")
 
-SAMPLE_RATE = 44100
-RECORD_TIMESTAMPS = [(1, 4), (5, 10), (12, 20), (22, 30), (33, 59)]  
-
-def record_audio(start_time, duration, session_id):
-    file_name = f"{session_id}_recording_{start_time}-{start_time+duration}.wav"
-    file_path = os.path.join(UPLOAD_DIR, file_name)
-
-    print(f"Recording audio from {start_time}s for {duration}s...")
-    
-    # Start recording
     recording = sd.rec(int(duration * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype=np.int16)
     sd.wait()
 
+    file_path = os.path.join(UPLOAD_DIR, f"{session_id}_full.wav")
     with wave.open(file_path, "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(recording.tobytes())
 
-    return file_path
+    print(f"✅ Audio saved to {file_path}")
 
+
+############################################
+# 📡 Start recording when video plays
+@app.post("/start-audio")
+async def start_audio(session_data: dict):
+    session_id = session_data.get("sessionID", 0)
+    if not session_id:
+        raise HTTPException(status_code=400, detail="SessionID is required.")
+
+    thread = threading.Thread(target=record_audio_background, args=(session_id,))
+    thread.start()
+
+    return {"status": "Recording started", "sessionID": session_id}
+
+
+############################################
+# ✂️ Extract timestamp-based segments
+def extract_segments(full_audio_path, timestamps, session_id):
+    audio = AudioSegment.from_wav(full_audio_path)
+    recorded_files = []
+
+    for start, stop in timestamps:
+        segment = audio[start * 1000: stop * 1000]  # convert to milliseconds
+        file_path = os.path.join(UPLOAD_DIR, f"{session_id}segment{start}-{stop}.wav")
+        segment.export(file_path, format="wav")
+        recorded_files.append(file_path)
+
+    return recorded_files
+
+
+############################################
+# ➕ Combine all segments
 def combine_audio_files(file_paths, session_id):
     combined = AudioSegment.empty()
-    
     for file in file_paths:
         audio = AudioSegment.from_wav(file)
-        combined += audio 
+        combined += audio
 
     combined_path = os.path.join(UPLOAD_DIR, f"{session_id}_combined.wav")
     combined.export(combined_path, format="wav")
-
     return combined_path
 
+
+############################################
+# 🔍 Extract features for classification
 def extract_features(audio_path):
     y, sr = librosa.load(audio_path, sr=None)
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-    mfcc_mean = np.mean(mfcc, axis=1)  
+    mfcc_mean = np.mean(mfcc, axis=1)
 
     onset_env = librosa.onset.onset_strength(y=y, sr=sr)
     onset_times = librosa.onset.onset_detect(y=y, sr=sr, backtrack=True)
@@ -88,73 +277,60 @@ def extract_features(audio_path):
     features = np.concatenate([mfcc_mean, [response_latency, speech_confidence, speech_onset_delay, echolalia_score]])
     return features.reshape(1, -1), mfcc_mean.tolist(), response_latency, speech_confidence, speech_onset_delay, echolalia_score
 
-# 🎬 API endpoint: Starts recording at predefined timestamps
-@app.post("/process-video/")
-async def process_video(session_data: dict):
-    session_id = session_data.get("sessionID", 0)
-    
-    if not session_id:
-        raise HTTPException(status_code=400, detail="SessionID is required.")
 
-    recorded_files = []
-
-    # Record audio at predefined timestamps
-    for start, stop in RECORD_TIMESTAMPS:
-        duration = stop - start
-        file_path = record_audio(start, duration, session_id)
-        recorded_files.append(file_path)
-
-    # 🛠️ Combine all recorded files into a single audio file
-    combined_audio_path = combine_audio_files(recorded_files, session_id)
-
-    # Process and store the combined recording
-    return process_and_store_recordings(combined_audio_path, session_id)
-
-# 🎯 Process, Predict, and Store Data
+############################################
+# 🧠 Process and Predict ASD
 def process_and_store_recordings(combined_audio_path, session_id):
-    print(f"Processing combined audio file: {combined_audio_path}")
-
-    # Extract speech features
+    print(f"🧪 Processing combined audio: {combined_audio_path}")
     features, mfcc_mean, response_latency, speech_confidence, speech_onset_delay, echolalia_score = extract_features(combined_audio_path)
 
-    # Predict ASD or Neurotypical
     prediction = rf_model.predict(features)[0]
     label = "Autistic" if prediction == 1 else "Neurotypical"
 
-        # Prepare data for storage
     payload = {
-            "SessionID": session_id,
-            "MFCC_Mean": [float(x) for x in mfcc_mean],  # Convert to float
-            "ResponseLatency": float(response_latency),   # Convert to float
-            "SpeechConfidence": float(speech_confidence), # Convert to float
-            "SpeechOnsetDelay": float(speech_onset_delay), # Convert to float
-            "EcholaliaScore": float(echolalia_score),     # Convert to float
-            "Prediction": label,
-            "Timestamp": datetime.now().isoformat()
-        }
+        "SessionID": session_id,
+        "MFCC_Mean": [float(x) for x in mfcc_mean],
+        "ResponseLatency": float(response_latency),
+        "SpeechConfidence": float(speech_confidence),
+        "SpeechOnsetDelay": float(speech_onset_delay),
+        "EcholaliaScore": float(echolalia_score),
+        "Prediction": label,
+        "Timestamp": datetime.now().isoformat()
+    }
 
-        # Send to Node.js API for storage
     try:
-            response = requests.post(NODE_SERVER_URL, json=payload)
-            response.raise_for_status()
+        response = requests.post(NODE_SERVER_URL, json=payload)
+        response.raise_for_status()
     except requests.exceptions.RequestException as e:
-            print(f"Failed to send data to server: {str(e)}")
+        print(f"❌ Failed to send data to Node server: {str(e)}")
 
-    print(f"Stored result: {combined_audio_path} - {label}")
-
-
-    # CALL API HERE "/api/mark-speech-status-true/:sessionId"
     try:
-        speech_status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
-        status_response = requests.post(speech_status_url)
+        status_url = f"http://localhost:5001/api/mark-speech-status-true/{session_id}"
+        status_response = requests.post(status_url)
         status_response.raise_for_status()
         print(f"✅ Speech status updated for SessionID: {session_id}")
     except requests.exceptions.RequestException as e:
-        print(f"❌ Failed to update SpeechStatus: {str(e)}")
+        print(f"❌ Failed to update speech status: {str(e)}")
 
-        
-    return {"status": "Processing completed.", "sessionID": session_id, "prediction": label}
+    return {"status": "Processing completed", "sessionID": session_id, "prediction": label}
 
+
+############################################
+# 🧾 Endpoint: Process after recording
+@app.post("/process-audio/")
+async def process_audio(session_data: dict):
+    session_id = session_data.get("sessionID", 0)
+    if not session_id:
+        raise HTTPException(status_code=400, detail="SessionID is required.")
+
+    full_audio_path = os.path.join(UPLOAD_DIR, f"{session_id}_full.wav")
+    if not os.path.exists(full_audio_path):
+        raise HTTPException(status_code=404, detail="Full audio not found. Did recording complete?")
+
+    recorded_files = extract_segments(full_audio_path, RECORD_TIMESTAMPS, session_id)
+    combined_audio_path = combine_audio_files(recorded_files, session_id)
+
+    return process_and_store_recordings(combined_audio_path, session_id)
 
 ########################################################### EYE TRACKING #######################################################
 

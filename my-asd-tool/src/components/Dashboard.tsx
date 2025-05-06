@@ -38,6 +38,8 @@ const Dashboard: React.FC = () => {
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
+  const [completedSessionsCount, setCompletedSessionsCount] = useState(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +47,7 @@ const Dashboard: React.FC = () => {
       fetchChildProfile(selectedChildId);
       fetchSessionData(selectedChildId);
       fetchAndStoreSessionStatus(sessionData.SessionID);
+      fetchCompletedSessionsCount(selectedChildId);
     }
   }, [selectedChildId]);
 
@@ -98,6 +101,16 @@ const Dashboard: React.FC = () => {
     }
   };
   
+  const fetchCompletedSessionsCount = async (childId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/completedSessionsCount/${childId}`);
+      setCompletedSessionsCount(response.data.count);
+      console.log(response.data.count);
+    } catch (error) {
+      console.error("Error fetching completed session count:", error);
+    }
+  };
+
   const fetchSessionData = async (childId: string) => {
     try {
       const response = await axios.get(`http://localhost:5001/api/get-session/${childId}`);
@@ -281,6 +294,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
+
+  
   // Existing useEffect to load session from localStorage
   useEffect(() => {
     const storedSession = localStorage.getItem("sessionData");
@@ -299,6 +314,7 @@ const Dashboard: React.FC = () => {
       if (sessionData?.SessionID) {
         await fetchAndStoreSessionStatus(sessionData.SessionID); // Wait until status is saved
         getStoredSessionStatus(); // Then load stored status
+        // fetchCompletedSessionsCount(selectedChildId); 
         setLoading(false);
         
       } 
@@ -501,9 +517,22 @@ const shineAnimation = keyframes`
                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
                   {childProfile ? childProfile.Name : "No Child Selected"}
                 </Typography>
+
                 <Typography variant="body2" sx={{ color: "#666" }}>
                   Track and manage your child’s assessment journey here.
                 </Typography>
+
+                {completedSessionsCount > 1 && (
+                  <Button 
+                    variant="outlined"
+                    sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
+                    component={Link}
+                    to="/progress-reports"
+                  >
+                    View Progress Reports
+                  </Button>
+                )} 
+
               </Box>
             </Box>
           </Grid>

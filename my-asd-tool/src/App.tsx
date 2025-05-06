@@ -144,13 +144,14 @@ import Human from 'components/human';
 import Puzzle from 'components/puzzle';
 
 import Audio from 'components/Audio';
+import AudioUrdu from 'components/AudioUrdu';
 
 import ResetPassword from 'components/ResetPassword';
 
 // import store from './components/redux/store';  
 import { store } from './components/redux/store';
 
-// import ProgressOverview from './components/ProgressOverview';
+import ProgressOverview from './components/ProgressOverview';
 
 const App: React.FC = () => {
   return (
@@ -195,9 +196,9 @@ const App: React.FC = () => {
             <Route path="/puzzle" element={<Puzzle/>} /> 
 
             <Route path="/audio-analysis" element={<Audio/>} />
-            {/* <Route path="/audio-analysis-urdu" element={<Audio/>} /> */}
+            <Route path="/audio-analysis-urdu" element={<AudioUrdu/>} />
             
-            {/* <Route path="/progress-overview" element={<ProgressOverview/>}  */}
+            <Route path="/progress-reports" element={<ProgressOverview/>} />
 
             <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>

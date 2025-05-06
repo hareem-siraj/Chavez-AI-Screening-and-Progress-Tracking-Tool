@@ -1551,6 +1551,24 @@ app.get("/api/get-child-id-by-session/:sessionId", async (req, res) => {
   }
 });
 
+app.get("/api/completedSessionsCount/:ChildID", async (req, res) => {
+  const { ChildID } = req.params;
+
+  try {
+    const query = `
+      SELECT COUNT(*) AS completed_count
+      FROM "Session"
+      WHERE "ChildID" = $1 AND "CompleteDate" IS NOT NULL;
+    `;
+    const result = await pool.query(query, [ChildID]);
+
+    res.status(200).json({ count: parseInt(result.rows[0].completed_count, 10) });
+  } catch (error) {
+    console.error("Error fetching completed session count:", error);
+    res.status(500).json({ message: "Error fetching completed session count" });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

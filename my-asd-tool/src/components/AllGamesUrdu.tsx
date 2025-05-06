@@ -449,6 +449,27 @@ const GameScreenUrdu: React.FC = () => {
       </AppBar>
 
       <Box flexGrow={1} p={4} bgcolor="#f5faff" sx={{ overflow: "visible" }}>
+
+      <Typography variant="h5" color="#003366" fontWeight="bold" mb={2} textAlign="center">
+        How to Play
+      </Typography>
+
+      <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4} mb={6}>
+        {[
+          { label: "Pop the Balloon", src: "/videos/balloon.mov" },
+          { label: "Follow the Fish", src: "/videos/fish.mov" },
+          { label: "Human vs Object", src: "/videos/hvo.mov" },
+          { label: "Emotion Puzzle", src: "/videos/emotion.mov" },
+        ].map(({ label, src }, index) => (
+          <Box key={index} display="flex" flexDirection="column" alignItems="center">
+            <Box component="video" src={src} controls sx={{ width: "300px", borderRadius: "12px", boxShadow: 3 }} />
+            <Typography variant="subtitle1" sx={{ mt: 1, color: "#003366", fontWeight: "medium" }}>
+              {label}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      
         <Typography variant="h4" color="#003366" textAlign="center" fontWeight="bold" mb={6}> تمام گیمز </Typography>
 
         <Box sx={{ overflow: "visible" }}>

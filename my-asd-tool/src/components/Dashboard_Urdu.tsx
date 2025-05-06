@@ -595,6 +595,8 @@ const DashboardUrdu: React.FC = () => {
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
+  const [completedSessionsCount, setCompletedSessionsCount] = useState(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -602,6 +604,7 @@ const DashboardUrdu: React.FC = () => {
       fetchChildProfile(selectedChildId);
       fetchSessionData(selectedChildId);
       fetchAndStoreSessionStatus(sessionData.SessionID);
+      fetchCompletedSessionsCount(selectedChildId);
     }
   }, [selectedChildId]);
 
@@ -668,7 +671,14 @@ const DashboardUrdu: React.FC = () => {
     }
   };
 
-
+  const fetchCompletedSessionsCount = async (childId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/completedSessionsCount/${childId}`);
+      setCompletedSessionsCount(response.data.count);
+    } catch (error) {
+      console.error("Error fetching completed session count:", error);
+    }
+  };
   
   const handleLogout = async () => {
     dispatch(setSessionIds({ SessionID: null, QuestionnaireID: null, GameSessionID: null, ReportID: null }));
@@ -815,6 +825,7 @@ const DashboardUrdu: React.FC = () => {
       if (sessionData?.SessionID) {
         await fetchAndStoreSessionStatus(sessionData.SessionID); // Wait until status is saved
         getStoredSessionStatus(); // Then load stored status
+        // fetchCompletedSessionsCount(selectedChildId); 
         setLoading(false);
         
       } 
@@ -1020,6 +1031,18 @@ const shineAnimation = keyframes`
                 <Typography variant="body2" sx={{ color: "#666" }}>
                 یہاں اپنے بچے کے سکریننگ ٹیسٹ کو گھر بیٹھے آسانی سے کر سکتے ہیں
                 </Typography>
+
+                {completedSessionsCount > 1 && (
+                  <Button 
+                    variant="outlined"
+                    sx={{ mt: 1, borderColor: "#003366", color: "#003366", fontSize: "0.75rem", textTransform: "none" }}
+                    component={Link}
+                    to="/progress-reports"
+                  >
+                    View Progress Reports
+                  </Button>
+                )}
+
               </Box>
             </Box>
           </Grid>
@@ -1132,7 +1155,7 @@ const shineAnimation = keyframes`
               >
                 {createActionButton("سوال نامہ", "/questionnaire-urdu", isQuestionnaireAvailable, isQuestionnaireCompleted, true)}
                 {createActionButton("گیمز", "/game-selection-urdu", isGameSelectionAvailable, isGameSelectionCompleted, true)}
-                {createActionButton("Speech Analysis", "/audio-analysis", isSpeechAnalysisAvailable, isSpeechAnalysisCompleted, true)}
+                {createActionButton("Speech Analysis", "/audio-analysis-urdu", isSpeechAnalysisAvailable, isSpeechAnalysisCompleted, true)}
                 {createActionButton("رپورٹس", "/reports-urdu", isReportsAvailable, false, true)}
               </Box>
             )}
