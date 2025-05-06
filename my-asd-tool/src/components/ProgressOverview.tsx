@@ -21,7 +21,7 @@ import avatar3 from "../assets/avatars/3.png";
 import avatar4 from "../assets/avatars/4.png";
 import avatar5 from "../assets/avatars/5.png";
 
-axios.defaults.baseURL = "http://localhost:5001";
+axios.defaults.baseURL = "https://chavez-ai-screening-and-progress.onrender.com";
 
 const avatars = [
   { id: 1, src: avatar1 },

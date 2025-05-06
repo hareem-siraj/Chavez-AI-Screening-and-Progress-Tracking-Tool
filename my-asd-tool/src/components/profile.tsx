@@ -104,7 +104,7 @@ const Profile: React.FC = () => {
           <Box sx={{ backgroundColor: "#ffffff", p: 4, borderRadius: 2, maxWidth: 500 }}>
             <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
               <Avatar
-                src={childProfile.ProfileImage ? `http://localhost:5001/uploads/${childProfile.ProfileImage}` : ""}
+                src={childProfile.ProfileImage ? `https://chavez-ai-screening-and-progress.onrender.com/uploads/${childProfile.ProfileImage}` : ""}
                 alt={childProfile.Name}
                 sx={{ width: 100, height: 100 }}
               />
