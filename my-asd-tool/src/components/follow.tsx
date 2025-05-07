@@ -236,6 +236,16 @@ const GamifiedAssesments: React.FC = () => {
             Timestamp: new Date().toISOString(),
           }),
         });
+
+        await fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            SessionID: sessionID,
+            ScanPath: path,
+            Timestamp: new Date().toISOString(),
+          }),
+        });
       }
   
       navigate("/game-selection");
