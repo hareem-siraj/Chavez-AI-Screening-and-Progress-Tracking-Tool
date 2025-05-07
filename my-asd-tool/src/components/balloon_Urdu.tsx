@@ -66,7 +66,7 @@ const BalloonUrdu: React.FC = () => {
                   ref={iframeRef}
                   title="Balloon Game"
                   // src={`/POP_Build/index.html?SessionID=${sessionID}`}
-                  src={`https://balloon-game-4d5.pages.dev?SessionID=${sessionID}`}
+                  src={`https://balloon-game-9r5d.onrender.com?SessionID=${sessionID}`}
                   width="100%"
                   height="100%"
                   style={{
