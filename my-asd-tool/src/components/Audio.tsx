@@ -100,10 +100,9 @@ const Audio: React.FC = () => {
 
         recorder.onstop = async () => {
           setRecordedChunks(chunks);
-
-          const audioBlob = new Blob(chunks, { type: "audio/wav" });
           const formData = new FormData();
-          formData.append("file", audioBlob, "recording.wav");
+          const audioBlob = new Blob(chunks, { type: "audio/webm" });
+          formData.append("file", audioBlob, "recording.webm");
           formData.append("session_id", sessionID.toString());
 
           try {
