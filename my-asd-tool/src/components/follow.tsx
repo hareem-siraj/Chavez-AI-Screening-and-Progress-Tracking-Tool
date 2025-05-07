@@ -200,6 +200,7 @@ const GamifiedAssesments: React.FC = () => {
   const [eyeTrackingStatus, setEyeTrackingStatus] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   const [scanpath, setScanpath] = useState<{x: number, y: number, timestamp: number}[]>([]);
 
+  const scanpathRef = useRef<{x: number, y: number, timestamp: number}[]>([]);
   const cameraRef = useRef<Camera | null>(null);
 
   const stopEyeTracking = async () => {
@@ -212,19 +213,26 @@ const GamifiedAssesments: React.FC = () => {
       cameraRef.current.stop();
       cameraRef.current = null;
     }
+    
+    const stream = videoRef.current?.srcObject as MediaStream;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current!.srcObject = null;
+    }
   
     try {
       await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-fish-status-true/${sessionID}`, {
         method: "POST",
       });
   
-      if (scanpath.length > 0) {
+      const path = scanpathRef.current;
+      if (path.length > 0) {
         await fetch("https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             SessionID: sessionID,
-            ScanPath: scanpath,
+            ScanPath: path,
             Timestamp: new Date().toISOString(),
           }),
         });
@@ -285,10 +293,11 @@ const GamifiedAssesments: React.FC = () => {
       const gazeY = (leftEye.y + rightEye.y) / 2;
       const timestamp = Date.now();
 
-      setScanpath(prev => [...prev, { x: gazeX, y: gazeY, timestamp }]);
+      // setScanpath(prev => [...prev, { x: gazeX, y: gazeY, timestamp }]);
+      scanpathRef.current.push({ x: gazeX, y: gazeY, timestamp });
     });
 
-    const camera = new Camera(videoEl, {
+    cameraRef.current = new Camera(videoEl, {
       onFrame: async () => {
         await faceMeshInstance.send({ image: videoEl });
       },
@@ -296,9 +305,12 @@ const GamifiedAssesments: React.FC = () => {
       height: 480,
     });
     
-    cameraRef.current = camera; // Save camera for later stop
+    await cameraRef.current.start();
+    
+    
+    // cameraRef.current = camera; // Save camera for later stop
 
-    await camera.start();
+    // await camera.start();
     setEyeTrackingStatus('running');
   };
 
