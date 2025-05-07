@@ -16,7 +16,11 @@ const port = 5001;
 
 const allowedOrigins = [
   'https://chavez-ai-screening-and-progress-tracking-tool.vercel.app',
-  'http://localhost:3000' // for local testing
+  'http://localhost:3000', 
+  'https://balloon-game-9r5d.onrender.com',
+  'https://puzzle-game-zscm.onrender.com',
+  'https://fish-game-5szp.onrender.com',
+  'https://hvo-game.onrender.com'
 ];
 
 // Enable CORS for frontend to access backend
