@@ -200,17 +200,24 @@ const GamifiedAssesments: React.FC = () => {
   const [eyeTrackingStatus, setEyeTrackingStatus] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   const [scanpath, setScanpath] = useState<{x: number, y: number, timestamp: number}[]>([]);
 
+  const cameraRef = useRef<Camera | null>(null);
+
   const stopEyeTracking = async () => {
     if (!sessionID) return;
     console.log("Stopping eye tracking...");
     setEyeTrackingStatus("idle");
-
+  
+    // ✅ Stop MediaPipe camera
+    if (cameraRef.current) {
+      cameraRef.current.stop();
+      cameraRef.current = null;
+    }
+  
     try {
       await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-fish-status-true/${sessionID}`, {
         method: "POST",
       });
-
-      // Save scanpath to backend
+  
       if (scanpath.length > 0) {
         await fetch("https://chavez-ai-screening-and-progress.onrender.com/api/save-follow-data", {
           method: "POST",
@@ -222,12 +229,13 @@ const GamifiedAssesments: React.FC = () => {
           }),
         });
       }
-
+  
       navigate("/game-selection");
     } catch (error) {
       console.error("Error stopping or saving:", error);
     }
   };
+  
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -287,6 +295,8 @@ const GamifiedAssesments: React.FC = () => {
       width: 640,
       height: 480,
     });
+    
+    cameraRef.current = camera; // Save camera for later stop
 
     await camera.start();
     setEyeTrackingStatus('running');
