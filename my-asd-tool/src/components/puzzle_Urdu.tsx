@@ -65,7 +65,7 @@ const PuzzleUrdu: React.FC = () => {
             });
             console.log("✅ Emotion status marked as true");
   
-            const response = await fetch("http://localhost:8000/process-balloon-emotion/", {
+            const response = await fetch("https://pythonserver-models-i4h5.onrender.com/process-balloon-emotion/", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ sessionID }),

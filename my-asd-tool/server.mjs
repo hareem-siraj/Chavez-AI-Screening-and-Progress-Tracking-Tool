@@ -20,7 +20,8 @@ const allowedOrigins = [
   'https://balloon-game-9r5d.onrender.com',
   'https://puzzle-game-zscm.onrender.com',
   'https://fish-game-5szp.onrender.com',
-  'https://hvo-game.onrender.com'
+  'https://hvo-game.onrender.com',
+  'https://pythonserver-models-i4h5.onrender.com'
 ];
 
 // Enable CORS for frontend to access backend

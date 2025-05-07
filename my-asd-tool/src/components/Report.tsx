@@ -307,7 +307,7 @@ const Report: React.FC = () => {
   
       const jsonData = JSON.stringify(transformedData);
       console.log("🔍 jsonData sent to Gemini:", jsonData);
-      const geminiResponse = await axios.post("http://localhost:8000/api/generate-report", {
+      const geminiResponse = await axios.post("https://pythonserver-models-i4h5.onrender.com/api/generate-report", {
         data: jsonData
       });
   

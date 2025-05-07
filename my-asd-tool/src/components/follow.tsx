@@ -26,7 +26,7 @@ const GamifiedAssesments: React.FC = () => {
     console.log("Stopping eye tracking for SessionID:", sessionID);
 
     try {
-        const response = await axios.post("http://localhost:8000/stop-eyetracking/", { sessionID });
+        const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/stop-eyetracking/", { sessionID });
         console.log("Eye tracking stop response:", response.data);
         
         const markBalloonStatusAndNavigate = async () => {
@@ -113,7 +113,8 @@ const GamifiedAssesments: React.FC = () => {
         stream.getTracks().forEach(track => track.stop());
         
         // Now call the backend to start eye tracking
-        const response = await axios.post("http://localhost:8000/start-eyetracking/", { 
+        // http://localhost:8000/start-eyetracking/
+        const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/start-eyetracking/", { 
           sessionID: sessionID 
         });
         

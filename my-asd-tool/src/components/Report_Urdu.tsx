@@ -309,7 +309,7 @@ useEffect(() => {
   
       const jsonData = JSON.stringify(transformedData);
       console.log("🔍 jsonData sent to Gemini:", jsonData);
-      const geminiResponse = await axios.post("http://localhost:8000/api/generate-report-urdu", {
+      const geminiResponse = await axios.post("https://pythonserver-models-i4h5.onrender.com/api/generate-report-urdu", {
         data: jsonData
       });
   

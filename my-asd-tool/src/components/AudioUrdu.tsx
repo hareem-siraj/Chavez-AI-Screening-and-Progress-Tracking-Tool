@@ -85,7 +85,7 @@ const AudioUrdu: React.FC = () => {
   useEffect(() => {
     if (videoLoaded) {
       console.log("🎬 Video started, starting audio recording...");
-      axios.post("http://localhost:8000/start-audio", { sessionID })
+      axios.post("https://pythonserver-models-i4h5.onrender.com/start-audio", { sessionID })
         .then(response => {
           console.log("🎙️ Audio recording started:", response.data);
         })
@@ -105,7 +105,7 @@ const AudioUrdu: React.FC = () => {
         console.log("🎞️ Video ended, processing audio...");
         try {
           await delay(6000);
-          const response = await axios.post("http://localhost:8000/process-audio/", { sessionID });
+          const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/process-audio/", { sessionID });
           console.log("✅ Audio processed:", response.data);
         } catch (error) {
           console.error("❌ Error processing audio:", error);

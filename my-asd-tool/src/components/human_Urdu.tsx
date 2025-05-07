@@ -25,7 +25,7 @@ const HumanUrdu: React.FC = () => {
     console.log("Stopping eye tracking for SessionID:", sessionID);
 
     try {
-        const response = await axios.post("http://localhost:8000/stop-eyetracking2/", { sessionID });
+        const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/stop-eyetracking2/", { sessionID });
         console.log("Eye tracking stop response:", response.data);
 
         const markBalloonStatusAndNavigate = async () => {
@@ -111,7 +111,7 @@ const HumanUrdu: React.FC = () => {
         stream.getTracks().forEach(track => track.stop());
         
         // Now call the backend to start eye tracking
-        const response = await axios.post("http://localhost:8000/start-eyetracking2/", { 
+        const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/start-eyetracking2/", { 
           sessionID: sessionID 
         });
         
