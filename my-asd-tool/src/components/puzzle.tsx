@@ -100,7 +100,8 @@ const Puzzle: React.FC = () => {
                 <iframe
                   ref={iframeRef}
                   title="Puzzle Game"
-                  src={`/PUZZLE_BUILD/index.html?SessionID=${sessionID}`}
+                  // src={`/PUZZLE_BUILD/index.html?SessionID=${sessionID}`}
+                  src={`https://puzzle-game-dd2w.onrender.com?SessionID=${sessionID}`}
                   width="100%"
                   height="100%"
                   style={{

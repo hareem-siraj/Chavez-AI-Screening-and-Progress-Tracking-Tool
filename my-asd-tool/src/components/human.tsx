@@ -147,7 +147,8 @@ const Human: React.FC = () => {
             <iframe
               ref={iframeRef}
               title="HumanVsObj Game"
-              src="HUMAN_BUILD/index.html?SessionID=${sessionID}"
+              // src="HUMAN_BUILD/index.html?SessionID=${sessionID}"
+              src="https://hvo-game.onrender.com?SessionID=${sessionID}"
               width="100%"
               height="100%"
               style={{

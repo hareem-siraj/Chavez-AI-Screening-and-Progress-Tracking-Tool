@@ -146,7 +146,8 @@ const GamifiedAssesments: React.FC = () => {
                   ref={iframeRef}
                   title="Fish Game"
                   // src="FISH_BUILD/index.html"
-                  src={`/FISH_BUILD/index.html?SessionID=${sessionID}`}
+                  // src={`/FISH_BUILD/index.html?SessionID=${sessionID}`}
+                  src={`https://fish-game-5szp.onrender.com?SessionID=${sessionID}`}
                   width="100%"
                   height="100%"
                   style={{
