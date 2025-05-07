@@ -304,10 +304,10 @@ const Audio: React.FC = () => {
             const result = await response.json();
             console.log("📤 Audio uploaded:", result);
 
-            // Wait 5 seconds after upload, then redirect
-            setTimeout(() => {
-              navigate("/dashboard");
-            }, 5000);
+            // // Wait 5 seconds after upload, then redirect
+            // setTimeout(() => {
+            //   navigate("/dashboard");
+            // }, 5000);
           } catch (error) {
             console.error("❌ Failed to upload audio:", error);
           }
@@ -336,6 +336,36 @@ const Audio: React.FC = () => {
       video.removeEventListener("ended", handleEnded);
     };
   }, [mediaRecorder, sessionID]);
+
+  useEffect(() => {
+    const video = document.getElementById("video");
+
+    if (video) {
+      video.addEventListener("ended", async () => {
+        console.log("🎞️ Video ended, processing audio...");
+        try {
+          await delay(6000);
+          const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/process-audio/", { sessionID });
+          console.log("✅ Audio processed:", response.data);
+        } catch (error) {
+          console.error("❌ Error processing audio:", error);
+        }
+
+        try {
+          await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/${sessionID}`, {
+            method: "POST",
+          });
+          console.log("✅ Speech status marked as true");
+        } catch (error) {
+          console.error("❌ Error marking speech status:", error);
+        }
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 5000);
+      });
+    }
+  }, []);
 
   return (
 
@@ -391,6 +421,6 @@ const Audio: React.FC = () => {
 
 export default Audio;
 
-// function delay(ms: number): Promise<void> {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
