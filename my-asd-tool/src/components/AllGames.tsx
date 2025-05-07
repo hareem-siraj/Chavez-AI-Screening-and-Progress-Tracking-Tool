@@ -216,7 +216,7 @@ const GameScreen: React.FC = () => {
         </Box>
 
         <Typography variant="h4" color="#003366" textAlign="center" fontWeight="bold" mb={6}>Choose a Game</Typography>
-
+{/* 
         <Box sx={{ overflow: "visible" }}>
           <Slider {...settings}>
             {games.map((game, index) => {
@@ -277,6 +277,44 @@ const GameScreen: React.FC = () => {
         )}
 
       </Box>
+  );
+};
+
+export default GameScreen; */}
+
+
+        <Box display="flex" flexWrap="wrap" justifyContent="center" gap={4}>
+          {games.map((game, index) => {
+            const isCompleted = storedStatus[game.key as keyof typeof storedStatus];
+            return (
+              <Box key={index} display="flex" flexDirection="column" alignItems="center" bgcolor="#ffffff" borderRadius="20px" p={3} width={340} boxShadow={4}>
+                <Box component="img" src={game.image} alt={game.name} sx={{ height: 240, width: "100%", objectFit: "cover", borderRadius: 2, mb: 2 }} />
+                <Typography variant="h6" fontWeight="bold" color="#003366" mb={1}>{game.name}</Typography>
+                <Typography variant="body2" color="#003366" mb={2}>{game.description}</Typography>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  disabled={isCompleted}
+                  component={isCompleted ? "button" : Link}
+                  to={isCompleted ? undefined : `${game.route}?sessionID=${SessionID}`}
+                  sx={{ mt: "auto" }}
+                >
+                  {isCompleted ? <><Lock sx={{ mr: 1 }} />Completed</> : "Play Game"}
+                </Button>
+              </Box>
+            );
+          })}
+        </Box>
+
+        {allGamesCompleted && (
+          <Box display="flex" justifyContent="center" gap={2} mt={6}>
+            <Button variant="contained" color="primary" onClick={() => navigate("/audio-analysis")}>Proceed to Speech Analysis</Button>
+            <Button variant="outlined" color="primary" onClick={() => navigate("/dashboard")}>Return to Dashboard</Button>
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 

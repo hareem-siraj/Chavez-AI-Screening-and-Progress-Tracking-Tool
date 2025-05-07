@@ -1,32 +1,32 @@
+
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
-import { Home, Assessment } from "@mui/icons-material";
+import React, { useEffect, useState, useRef } from "react";
+import { Box } from "@mui/material";
+import { Home } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from "@mui/material";
-import { Person, QuestionAnswer, Logout} from "@mui/icons-material";
+import { Person, Logout} from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import axios from "axios";
-// import { response } from "express";
 import { setSessionIds } from "./redux/store";
 import { useDispatch } from "react-redux";
-import { 
-  Button, AppBar, Toolbar, IconButton
-} from "@mui/material";
+import { AppBar, Toolbar, IconButton} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../assets/logo.png"; 
 import { persistor } from './redux/store'; 
 
 const AudioUrdu: React.FC = () => {
-  // const location = useLocation();
-  // const SessionID = useSelector((state: any) => state.sessionData?.SessionID);
   const sessionID = useSelector((state: any) => state.sessionData?.SessionID) || 0;
   console.log("SessionID:", sessionID);
   const [videoLoaded, setVideoLoaded] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+
+  
   const [storedStatus, setStoredStatus] = useState({
     FishStatus: true,
     HumanObjStatus: true,
@@ -83,19 +83,76 @@ const AudioUrdu: React.FC = () => {
   }, [sessionID]);
 
   useEffect(() => {
-    if (videoLoaded) {
-      console.log("🎬 Video started, starting audio recording...");
-      axios.post("https://pythonserver-models-i4h5.onrender.com/start-audio", { sessionID })
-        .then(response => {
-          console.log("🎙️ Audio recording started:", response.data);
-        })
-        .catch(error => {
-          console.error("❌ Failed to start audio recording:", error);
-        });
-    }
-  }, [videoLoaded]);
+    const video = videoRef.current;
+    if (!video) return;
 
+    const handlePlay = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks: Blob[] = [];
 
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+
+        recorder.onstop = async () => {
+          setRecordedChunks(chunks);
+          const formData = new FormData();
+          const audioBlob = new Blob(chunks, { type: "audio/webm" });
+          formData.append("file", audioBlob, "recording.webm");
+          formData.append("session_id", sessionID.toString());
+
+          try {
+            const response = await fetch("https://pythonserver-models-i4h5.onrender.com/start-audio", {
+              method: "POST",
+              body: formData,
+            });
+            const result = await response.json();
+            console.log("📤 Audio uploaded:", result);
+
+            try {
+              await delay(6000);
+              const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/process-audio/", { sessionID });
+              console.log("✅ Audio processed:", response.data);
+            } catch (error) {
+              console.error("❌ Error processing audio:", error);
+            }
+
+            // // Wait 5 seconds after upload, then redirect
+            // setTimeout(() => {
+            //   navigate("/dashboard");
+            // }, 5000);
+          } catch (error) {
+            console.error("❌ Failed to upload audio:", error);
+          }
+        };
+
+        setMediaRecorder(recorder);
+        recorder.start();
+        console.log("🎙️ MediaRecorder started");
+      } catch (err) {
+        console.error("Microphone access error:", err);
+      }
+    };
+
+    const handleEnded = () => {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        console.log("🛑 MediaRecorder stopped");
+      }
+    };
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("ended", handleEnded);
+
+    return () => {
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("ended", handleEnded);
+    };
+  }, [mediaRecorder, sessionID]);
 
   useEffect(() => {
     const video = document.getElementById("video");
@@ -103,14 +160,6 @@ const AudioUrdu: React.FC = () => {
     if (video) {
       video.addEventListener("ended", async () => {
         console.log("🎞️ Video ended, processing audio...");
-        try {
-          await delay(6000);
-          const response = await axios.post("https://pythonserver-models-i4h5.onrender.com/process-audio/", { sessionID });
-          console.log("✅ Audio processed:", response.data);
-        } catch (error) {
-          console.error("❌ Error processing audio:", error);
-        }
-
         try {
           await fetch(`https://chavez-ai-screening-and-progress.onrender.com/api/mark-speech-status-true/${sessionID}`, {
             method: "POST",
@@ -149,7 +198,7 @@ const AudioUrdu: React.FC = () => {
           <Box display="flex" alignItems="center">
             {/* Nav Links */}
 
-            <IconButton color="inherit" component={Link} to="/dashboard">
+            <IconButton color="inherit" component={Link} to="/dashboard-urdu">
               <Home />
             </IconButton>            
             {/* Profile and Logout */}
@@ -166,6 +215,7 @@ const AudioUrdu: React.FC = () => {
       <Box flex="1" display="flex" justifyContent="center" alignItems="center">
         <video
           id="video"
+          ref={videoRef} 
           width="80%"
           height="auto"
           controls
