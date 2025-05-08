@@ -21,15 +21,10 @@ const allowedOrigins = [
   'https://puzzle-game-zscm.onrender.com',
   'https://fish-game-5szp.onrender.com',
   'https://hvo-game.onrender.com',
-  'https://pythonserver-models-i4h5.onrender.com'
+  'https://pythonserver-models-i4h5.onrender.com',
+  'http://localhost:8000'
 ];
 
-// Enable CORS for frontend to access backend
-// app.use(cors({
-//   origin: "http://localhost:3000", // Frontend URL
-//   methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
-//   credentials: true
-// }));
 
 app.use(
   cors({
