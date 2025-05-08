@@ -65,19 +65,32 @@ const PuzzleUrdu: React.FC = () => {
             });
             console.log("✅ Emotion status marked as true");
   
-            const response = await fetch("https://pythonserver-models-i4h5.onrender.com/process-balloon-emotion/", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sessionID }),
-            });
+            // const response = await fetch("https://pythonserver-models-i4h5.onrender.com/process-balloon-emotion/", {
+            //   method: "POST",
+            //   headers: { "Content-Type": "application/json" },
+            //   body: JSON.stringify({ sessionID }),
+            // });
   
-            const result = await response.json();
-            console.log("✅ FastAPI prediction result:", result);
+            // const result = await response.json();
+            // console.log("✅ FastAPI prediction result:", result);
+
+          // Fire-and-forget: don't await the long-running processing
+          fetch("https://pythonserver-models-i4h5.onrender.com/process-balloon-emotion/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionID }),
+          })
+            .then(res => res.json())
+            .then(result => console.log("✅ FastAPI prediction result:", result))
+            .catch(err => console.error("❌ Background processing error:", err));
+            
           } catch (error) {
             console.error("❌ Error calling APIs:", error);
           }
   
-          navigate("/game-selection-urdu");
+          setTimeout(() => {
+            navigate("/game-selection-urdu");
+          }, 5000);
         };
   
         markBalloonStatusAndNavigate();

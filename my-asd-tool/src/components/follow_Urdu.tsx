@@ -61,7 +61,7 @@ const GamefollowUrdu: React.FC = () => {
           }),
         });
 
-        await fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data/", {
+        fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -72,7 +72,9 @@ const GamefollowUrdu: React.FC = () => {
         });
       }
   
-      navigate("/game-selection-urdu");
+      setTimeout(() => {
+        navigate("/game-selection-urdu");
+      }, 5000);
     } catch (error) {
       console.error("Error stopping or saving:", error);
     }

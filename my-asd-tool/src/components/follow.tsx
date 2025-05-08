@@ -237,7 +237,17 @@ const GamifiedAssesments: React.FC = () => {
           }),
         });
 
-        await fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data/", {
+        // await fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data/", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     SessionID: sessionID,
+        //     ScanPath: path,
+        //     Timestamp: new Date().toISOString(),
+        //   }),
+        // });
+
+        fetch("https://pythonserver-models-i4h5.onrender.com/process-follow-data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -248,7 +258,9 @@ const GamifiedAssesments: React.FC = () => {
         });
       }
   
-      navigate("/game-selection");
+      setTimeout(() => {
+        navigate("/game-selection");
+      }, 5000);
     } catch (error) {
       console.error("Error stopping or saving:", error);
     }

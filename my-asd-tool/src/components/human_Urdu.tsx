@@ -59,7 +59,17 @@ const stopEyeTracking = async () => {
         }),
       });
 
-      await fetch("https://pythonserver-models-i4h5.onrender.com/process-human-data/", {
+      // await fetch("https://pythonserver-models-i4h5.onrender.com/process-human-data/", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     SessionID: sessionID,
+      //     ScanPath: path,
+      //     Timestamp: new Date().toISOString(),
+      //   }),
+      // });
+
+      fetch("https://pythonserver-models-i4h5.onrender.com/process-human-data/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -70,7 +80,9 @@ const stopEyeTracking = async () => {
       });
     }
 
-    navigate("/game-selection-urdu");
+    setTimeout(() => {
+      navigate("/game-selection-urdu");
+    }, 5000);
   } catch (error) {
     console.error("Error stopping or saving:", error);
   }
