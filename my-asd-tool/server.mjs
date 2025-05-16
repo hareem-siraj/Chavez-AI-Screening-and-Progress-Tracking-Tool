@@ -14,8 +14,8 @@ const { Pool } = pkg;
 const app = express();
 const port = 5001;
 
-app.use(express.json({ limit: '10mb' }));   // 🔥 increase limit
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// app.use(express.json({ limit: '10mb' }));   // 🔥 increase limit
+// app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 const allowedOrigins = [
   'https://chavez-ai-screening-and-progress-tracking-tool.vercel.app',
